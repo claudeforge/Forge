@@ -1,0 +1,34 @@
+{
+  "name": "forge",
+  "version": "0.0.0",
+  "private": true,
+  "description": "FORGE - Iterative AI Development Engine for Claude Code",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/claudeforge/forge.git"
+  },
+  "author": "ClaudeForge",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:server": "turbo dev --filter=@claudeforge/forge-server",
+    "dev:web": "turbo dev --filter=@claudeforge/forge-web",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prettier": "^3.1.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

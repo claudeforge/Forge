@@ -1,0 +1,10 @@
+{
+  "name": "forge",
+  "description": "FORGE - Iterative AI Development Engine. Multi-criteria completion, stuck detection, checkpoints, and Control Center integration.",
+  "version": "0.1.0",
+  "author": {
+    "name": "ClaudeForge",
+    "url": "https://github.com/claudeforge"
+  },
+  "repository": "https://github.com/claudeforge/forge"
+}

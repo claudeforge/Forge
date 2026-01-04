@@ -1,0 +1,23 @@
+{
+  "name": "@claudeforge/forge-plugin",
+  "version": "0.1.0",
+  "description": "FORGE Plugin for Claude Code - Iterative AI Development Engine",
+  "type": "module",
+  "main": "./dist/hooks/stop.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@claudeforge/forge-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "@claudeforge/forge-server",
+  "version": "0.1.0",
+  "description": "FORGE Control Center API Server",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "forge-server": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@claudeforge/forge-shared": "workspace:*",
+    "@hono/node-server": "^1.8.0",
+    "@hono/node-ws": "^1.0.0",
+    "better-sqlite3": "^11.0.0",
+    "drizzle-orm": "^0.30.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "drizzle-kit": "^0.21.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
