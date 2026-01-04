@@ -57,14 +57,11 @@ Parse arguments and initialize the forge state file.
 
 ## Initialization
 
-When this command is invoked:
+First, run the initialization script to create state and notify Control Center:
 
-1. Parse all arguments from $ARGUMENTS
-2. Generate a unique task ID
-3. Build criteria array from --until flags
-4. Create `.claude/forge-state.json` with full state structure
-5. Output confirmation message
-6. Begin working on the task
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/dist/cli/init.js" $ARGUMENTS
+```
 
 The stop hook will automatically evaluate progress on each exit attempt.
 

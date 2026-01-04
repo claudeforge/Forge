@@ -55,14 +55,55 @@ app.post("/forge", async (c) => {
 });
 
 async function handleTaskStarted(event: ForgeEvent & { type: "task:started" }) {
-  // Update task status
-  await db
-    .update(schema.tasks)
-    .set({
-      status: "running",
-      startedAt: event.timestamp,
-    })
+  const projectId = event.projectId ?? "default";
+
+  // Ensure project exists
+  const [existingProject] = await db
+    .select()
+    .from(schema.projects)
+    .where(eq(schema.projects.id, projectId));
+
+  if (!existingProject) {
+    // Auto-create project
+    await db.insert(schema.projects).values({
+      id: projectId,
+      name: projectId === "default" ? "Default Project" : projectId,
+      path: process.cwd(),
+      createdAt: new Date().toISOString(),
+    });
+    console.log(`[Webhook] Auto-created project: ${projectId}`);
+  }
+
+  // Check if task exists
+  const [existingTask] = await db
+    .select()
+    .from(schema.tasks)
     .where(eq(schema.tasks.id, event.taskId));
+
+  if (existingTask) {
+    // Update existing task
+    await db
+      .update(schema.tasks)
+      .set({
+        status: "running",
+        startedAt: event.timestamp,
+      })
+      .where(eq(schema.tasks.id, event.taskId));
+  } else {
+    // Create new task from webhook data
+    await db.insert(schema.tasks).values({
+      id: event.taskId,
+      projectId: projectId,
+      name: event.name ?? "Unnamed Task",
+      prompt: event.prompt ?? "",
+      status: "running",
+      iteration: 0,
+      config: JSON.stringify({ criteria: event.criteria ?? [] }),
+      startedAt: event.timestamp,
+      createdAt: new Date().toISOString(),
+    });
+    console.log(`[Webhook] Created task: ${event.taskId}`);
+  }
 
   // Broadcast
   const [task] = await db
