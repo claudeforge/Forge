@@ -102,7 +102,7 @@ function evaluateCommand(criterion: CompletionCriterion): CriterionResult {
 
   // Parse command and args
   const parts = config.cmd.split(" ");
-  const cmd = parts[0];
+  const cmd = parts[0] ?? "";
   const args = parts.slice(1);
 
   const result = execFile(cmd, args);
@@ -156,12 +156,13 @@ function evaluateTestPass(criterion: CompletionCriterion): CriterionResult {
 
   // Parse command - default to npm test
   const parts = config.cmd.split(" ");
+  const cmd = parts[0] ?? "npm";
   let result;
 
-  if (parts[0] === "npm") {
+  if (cmd === "npm") {
     result = npm(parts.slice(1));
   } else {
-    result = execFile(parts[0], parts.slice(1));
+    result = execFile(cmd, parts.slice(1));
   }
 
   return {
@@ -178,12 +179,13 @@ function evaluateLintClean(criterion: CompletionCriterion): CriterionResult {
 
   // Parse command
   const parts = config.cmd.split(" ");
+  const cmd = parts[0] ?? "npm";
   let result;
 
-  if (parts[0] === "npm") {
+  if (cmd === "npm") {
     result = npm(parts.slice(1));
   } else {
-    result = execFile(parts[0], parts.slice(1));
+    result = execFile(cmd, parts.slice(1));
   }
 
   // Count errors in output (rough heuristic)
@@ -204,18 +206,19 @@ function evaluateCoverage(criterion: CompletionCriterion): CriterionResult {
 
   // Parse command
   const parts = config.cmd.split(" ");
+  const cmd = parts[0] ?? "npm";
   let result;
 
-  if (parts[0] === "npm") {
+  if (cmd === "npm") {
     result = npm(parts.slice(1));
   } else {
-    result = execFile(parts[0], parts.slice(1));
+    result = execFile(cmd, parts.slice(1));
   }
 
   // Try to extract coverage percentage from output
   const allOutput = result.stdout + "\n" + result.stderr;
   const match = allOutput.match(/(\d+(?:\.\d+)?)\s*%/);
-  const coverage = match ? parseFloat(match[1]) : 0;
+  const coverage = match?.[1] ? parseFloat(match[1]) : 0;
 
   return {
     criterion,

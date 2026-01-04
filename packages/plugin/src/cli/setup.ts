@@ -3,7 +3,7 @@
  * Adds FORGE plugin to a project's .claude/plugins directory
  */
 
-import { existsSync, mkdirSync, writeFileSync, cpSync } from "node:fs";
+import { existsSync, mkdirSync, cpSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 

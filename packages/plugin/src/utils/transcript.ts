@@ -54,12 +54,12 @@ export function extractLastAssistantOutput(
   if (assistantMessages.length === 0) return null;
 
   const last = assistantMessages[assistantMessages.length - 1];
-  if (!last.message?.content) return null;
+  if (!last?.message?.content) return null;
 
   // Extract text from content blocks
   const textBlocks = last.message.content
     .filter((block) => block.type === "text" && block.text)
-    .map((block) => block.text!);
+    .map((block) => block.text ?? "");
 
   return textBlocks.join("\n");
 }
@@ -70,5 +70,5 @@ export function extractLastAssistantOutput(
  */
 export function extractPromise(output: string): string | null {
   const match = output.match(/<promise>([\s\S]*?)<\/promise>/);
-  return match ? match[1].trim() : null;
+  return match?.[1]?.trim() ?? null;
 }

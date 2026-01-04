@@ -57,9 +57,7 @@ app.get("/:id", async (c) => {
 app.delete("/:id", async (c) => {
   const id = c.req.param("id");
 
-  const result = await db
-    .delete(schema.projects)
-    .where(eq(schema.projects.id, id));
+  await db.delete(schema.projects).where(eq(schema.projects.id, id));
 
   return c.json({ deleted: true });
 });

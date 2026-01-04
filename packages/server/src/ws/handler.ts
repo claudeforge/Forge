@@ -4,7 +4,7 @@
 
 import type { WSContext, WSEvents } from "hono/ws";
 import { generateId } from "@claudeforge/forge-shared/utils";
-import { addClient, removeClient } from "../broadcast.js";
+import { addClient } from "../broadcast.js";
 
 /**
  * Create WebSocket event handlers
@@ -46,7 +46,7 @@ export function createWSHandler(): WSEvents {
       }
     },
 
-    onClose(_event, ws) {
+    onClose(_event, _ws) {
       // Find and remove client
       // Note: We'd need to track clientId -> ws mapping better
       console.log("[WS] Client disconnected");

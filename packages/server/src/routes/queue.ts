@@ -3,7 +3,7 @@
  */
 
 import { Hono } from "hono";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { db, schema } from "../db/index.js";
 import { broadcast } from "../broadcast.js";
 

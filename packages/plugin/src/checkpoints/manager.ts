@@ -116,6 +116,7 @@ export async function rollbackToLatestCheckpoint(
     (a, b) => b.iteration - a.iteration
   );
   const latest = sorted[0];
+  if (!latest) return false;
 
   return rollbackToCheckpoint(latest.id, state);
 }

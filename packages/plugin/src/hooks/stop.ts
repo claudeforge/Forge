@@ -256,12 +256,14 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
   for (const gate of state.qualityGates) {
     if (state.iteration.current % gate.runEvery === 0) {
       const parts = gate.command.split(" ");
-      const result = execFile(parts[0], parts.slice(1));
+      const cmd = parts[0] ?? "";
+      const result = execFile(cmd, parts.slice(1));
       if (!result.success) {
         iterRecord.outcome = "gate-failed";
         if (gate.autoFix) {
           const fixParts = gate.autoFix.split(" ");
-          execFile(fixParts[0], fixParts.slice(1));
+          const fixCmd = fixParts[0] ?? "";
+          execFile(fixCmd, fixParts.slice(1));
         }
       }
     }

@@ -104,11 +104,12 @@ function detectRepeatingError(history: IterationRecord[]): StuckResult {
   const errorMessages = recentErrors.map((r) => r.error ?? "unknown");
   const uniqueErrors = new Set(errorMessages);
 
-  if (uniqueErrors.size === 1 && errorMessages[0] !== "unknown") {
+  const firstError = errorMessages[0];
+  if (uniqueErrors.size === 1 && firstError && firstError !== "unknown") {
     return {
       isStuck: true,
       pattern: "repeating-error",
-      details: `Same error repeated 3 times: ${errorMessages[0].slice(0, 50)}`,
+      details: `Same error repeated 3 times: ${firstError.slice(0, 50)}`,
     };
   }
 
