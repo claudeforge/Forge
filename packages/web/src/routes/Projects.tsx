@@ -2,15 +2,18 @@
  * Projects page
  */
 
+import { useState } from "react";
 import { FolderOpen, Plus, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "../components/layout/Layout";
 import { EmptyState } from "../components/common/EmptyState";
+import { CreateProjectModal } from "../components/project/CreateProjectModal";
 import { api } from "../lib/api";
 import { formatRelativeTime } from "../lib/utils";
 
 export function Projects() {
   const queryClient = useQueryClient();
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -34,12 +37,17 @@ export function Projects() {
 
   return (
     <Layout title="Projects">
+      <CreateProjectModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <p className="text-gray-400">
           {projects?.length ?? 0} project(s) registered
         </p>
-        <button className="flex items-center gap-2 px-4 py-2 bg-forge-500 text-white rounded-lg text-sm font-medium hover:bg-forge-600 transition-colors">
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-forge-500 text-white rounded-lg text-sm font-medium hover:bg-forge-600 transition-colors"
+        >
           <Plus className="h-4 w-4" />
           Add Project
         </button>
@@ -85,7 +93,10 @@ export function Projects() {
           title="No projects yet"
           description="Add a project to start managing tasks"
           action={
-            <button className="flex items-center gap-2 px-4 py-2 bg-forge-500 text-white rounded-lg text-sm font-medium hover:bg-forge-600 transition-colors">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-forge-500 text-white rounded-lg text-sm font-medium hover:bg-forge-600 transition-colors"
+            >
               <Plus className="h-4 w-4" />
               Add Project
             </button>
