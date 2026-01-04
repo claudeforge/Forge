@@ -7,6 +7,12 @@
   "bin": {
     "forge-setup": "./dist/cli/setup.js"
   },
+  "files": [
+    "dist",
+    "commands",
+    "hooks",
+    ".claude-plugin"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
