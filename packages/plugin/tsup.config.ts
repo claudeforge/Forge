@@ -9,6 +9,8 @@ export default defineConfig([
     clean: true,
     sourcemap: false,
     target: "node20",
+    // Bundle shared package so plugin works standalone
+    noExternal: ["@claudeforge/forge-shared"],
     banner: {
       js: "#!/usr/bin/env node",
     },
@@ -21,5 +23,7 @@ export default defineConfig([
     clean: false, // Don't clean, setup.ts already built
     sourcemap: false,
     target: "node20",
+    // Bundle shared package so plugin works standalone
+    noExternal: ["@claudeforge/forge-shared"],
   },
 ]);

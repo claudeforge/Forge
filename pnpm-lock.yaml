@@ -9,16 +9,16 @@ importers:
   .:
     devDependencies:
       '@types/node':
-        specifier: ^20.10.0
+        specifier: ^20.19.27
         version: 20.19.27
       prettier:
-        specifier: ^3.1.0
+        specifier: ^3.7.4
         version: 3.7.4
       turbo:
-        specifier: ^2.0.0
+        specifier: ^2.7.2
         version: 2.7.2
       typescript:
-        specifier: ^5.3.0
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/plugin:
