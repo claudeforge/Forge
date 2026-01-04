@@ -41,7 +41,7 @@ import {
   parseTranscript,
   extractLastAssistantOutput,
 } from "../utils/transcript.js";
-import { estimateTokens, estimateCost } from "../utils/cost.js";
+import { estimateTokens, estimateCostFromTotal } from "../utils/cost.js";
 import { execFile } from "../utils/shell.js";
 import { getChangedFiles } from "../utils/git.js";
 
@@ -114,7 +114,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
 
   // Update cumulative metrics
   state.metrics.totalTokens += tokens;
-  state.metrics.estimatedCost = estimateCost(state.metrics.totalTokens);
+  state.metrics.estimatedCost = estimateCostFromTotal(state.metrics.totalTokens);
   state.metrics.totalDuration += iterDuration;
 
   // Track file changes

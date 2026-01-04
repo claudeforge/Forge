@@ -2,7 +2,11 @@
  * Token and cost estimation utilities
  */
 
-import { TOKEN_COSTS } from "@claudeforge/forge-shared/constants";
+import {
+  calculateTokenCost,
+  getModelPricing,
+  DEFAULT_MODEL,
+} from "@claudeforge/forge-shared/constants";
 
 /**
  * Rough token estimation based on character count
@@ -13,15 +17,55 @@ export function estimateTokens(text: string): number {
 }
 
 /**
- * Estimate cost from token count
- * Uses average of input/output costs
+ * Estimate cost for input tokens only
+ */
+export function estimateInputCost(
+  inputTokens: number,
+  model: string = DEFAULT_MODEL
+): number {
+  return calculateTokenCost(inputTokens, 0, model);
+}
+
+/**
+ * Estimate cost for output tokens only
+ */
+export function estimateOutputCost(
+  outputTokens: number,
+  model: string = DEFAULT_MODEL
+): number {
+  return calculateTokenCost(0, outputTokens, model);
+}
+
+/**
+ * Estimate total cost from token counts
  */
 export function estimateCost(
-  tokens: number,
-  model: string = "default"
+  inputTokens: number,
+  outputTokens: number,
+  model: string = DEFAULT_MODEL
 ): number {
-  const costPer1M = TOKEN_COSTS[model] ?? TOKEN_COSTS["default"] ?? 0.009;
-  return (tokens / 1_000_000) * costPer1M;
+  return calculateTokenCost(inputTokens, outputTokens, model);
+}
+
+/**
+ * Get pricing info for a model
+ */
+export function getModelCost(model: string = DEFAULT_MODEL) {
+  return getModelPricing(model);
+}
+
+/**
+ * Estimate cost from total token count
+ * Uses 1:3 input:output ratio as approximation for Claude responses
+ */
+export function estimateCostFromTotal(
+  totalTokens: number,
+  model: string = DEFAULT_MODEL
+): number {
+  // Approximate: 25% input, 75% output (typical for Claude responses)
+  const inputTokens = Math.floor(totalTokens * 0.25);
+  const outputTokens = totalTokens - inputTokens;
+  return calculateTokenCost(inputTokens, outputTokens, model);
 }
 
 /**
