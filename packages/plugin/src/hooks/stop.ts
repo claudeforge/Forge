@@ -25,8 +25,9 @@ import type {
   IterationRecord,
   IterationOutcome,
   CriterionResult,
+  CompletionCriterion,
 } from "@claudeforge/forge-shared";
-import { COMMAND_FILE } from "@claudeforge/forge-shared/constants";
+import { COMMAND_FILE, DEFAULT_STATE } from "@claudeforge/forge-shared/constants";
 import { loadState, saveState } from "../core/state.js";
 import {
   evaluateCriteria,
@@ -199,6 +200,27 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       metrics: state.metrics,
       criteriaResults,
     });
+
+    // Auto-advance: Check for next task in queue if using Control Center
+    if (state.controlCenter.enabled && state.controlCenter.url && state.controlCenter.projectId) {
+      const nextTask = await claimNextTask(state.controlCenter.url, state.controlCenter.projectId);
+
+      if (nextTask) {
+        // Initialize new state for the next task
+        const newState = initializeNewTask(nextTask, state.controlCenter);
+        saveState(newState);
+
+        console.error(`[FORGE] Auto-advancing to next task: ${nextTask.name}`);
+
+        // Block exit and start working on the new task
+        return {
+          decision: "block",
+          reason: nextTask.prompt,
+          systemMessage: `**FORGE Auto-Advance**\n\nPrevious task completed successfully!\nNow starting: "${nextTask.name}"\n\nTask prompt: ${nextTask.prompt}`,
+        };
+      }
+    }
+
     return {
       decision: "approve",
       reason: buildCompletionMessage(criteriaResults),
@@ -294,6 +316,79 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
+
+interface ServerTask {
+  id: string;
+  name: string;
+  prompt: string;
+  criteria: CompletionCriterion[];
+  maxIterations: number;
+  maxCost: number | null;
+}
+
+async function claimNextTask(controlUrl: string, projectId: string): Promise<ServerTask | null> {
+  try {
+    const response = await fetch(`${controlUrl}/api/projects/${projectId}/claim-task`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.error("[FORGE] No more tasks in queue");
+        return null;
+      }
+      console.error(`[FORGE] Failed to claim next task: ${response.status}`);
+      return null;
+    }
+
+    return await response.json() as ServerTask;
+  } catch (error) {
+    console.error("[FORGE] Failed to connect to Control Center:", error);
+    return null;
+  }
+}
+
+function initializeNewTask(
+  task: ServerTask,
+  controlCenter: ForgeState["controlCenter"]
+): ForgeState {
+  const now = new Date().toISOString();
+
+  return {
+    ...DEFAULT_STATE,
+    version: "1.0.0",
+    task: {
+      id: task.id,
+      name: task.name,
+      prompt: task.prompt,
+      startedAt: now,
+      status: "running",
+    },
+    iteration: {
+      ...DEFAULT_STATE.iteration,
+      current: 1,
+      max: task.maxIterations,
+      currentStartedAt: now,
+    },
+    criteria: {
+      mode: "all",
+      requiredScore: 0.8,
+      items: task.criteria,
+    },
+    budget: {
+      maxCost: task.maxCost,
+      maxDuration: null,
+      maxTokens: null,
+    },
+    controlCenter: {
+      enabled: true,
+      url: controlCenter.url,
+      projectId: controlCenter.projectId,
+      taskId: task.id,
+    },
+  };
+}
 
 function checkExternalCommand(): { command: string; [key: string]: unknown } | null {
   if (!existsSync(COMMAND_FILE)) return null;

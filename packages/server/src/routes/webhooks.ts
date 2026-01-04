@@ -211,6 +211,9 @@ async function handleTaskCompleted(event: ForgeEvent & { type: "task:completed" 
 
   if (task) {
     broadcast({ type: "task:update", task });
+
+    // Broadcast queue update so UI knows to check for next task
+    broadcast({ type: "queue:update" });
   }
 }
 

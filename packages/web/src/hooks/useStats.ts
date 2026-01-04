@@ -61,3 +61,26 @@ export function useResumeQueue() {
     },
   });
 }
+
+export function useDeleteTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => api.deleteTask(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["queue"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+}
+
+export function useReorderQueue() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskIds: string[]) => api.reorderQueue(taskIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["queue"] });
+    },
+  });
+}

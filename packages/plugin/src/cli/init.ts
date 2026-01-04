@@ -21,6 +21,7 @@ interface InitArgs {
   checkpointEvery: number;
   onStuck: string;
   control?: string;
+  project?: string; // Project ID for fetching task from Control Center
 }
 
 function parseArgs(): InitArgs {
@@ -54,6 +55,8 @@ function parseArgs(): InitArgs {
       result.onStuck = args[++i]!;
     } else if (arg === "--control" && args[i + 1]) {
       result.control = args[++i];
+    } else if (arg === "--project" && args[i + 1]) {
+      result.project = args[++i];
     } else if (!arg!.startsWith("--")) {
       result.prompt = arg!;
     }
@@ -139,31 +142,97 @@ async function sendWebhook(url: string, event: Record<string, unknown>): Promise
   }
 }
 
+interface ServerTask {
+  id: string;
+  name: string;
+  prompt: string;
+  criteria: CompletionCriterion[];
+  maxIterations: number;
+  maxCost: number | null;
+}
+
+async function claimTaskFromServer(controlUrl: string, projectId: string): Promise<ServerTask | null> {
+  try {
+    const response = await fetch(`${controlUrl}/api/projects/${projectId}/claim-task`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("No queued tasks for this project.");
+        return null;
+      }
+      console.error(`Failed to claim task: ${response.status}`);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to connect to Control Center:", error);
+    return null;
+  }
+}
+
 async function main(): Promise<void> {
   const args = parseArgs();
 
-  if (!args.prompt) {
-    console.error("Error: PROMPT is required");
-    process.exit(1);
+  let taskId: string;
+  let taskName: string;
+  let taskPrompt: string;
+  let criteria: CompletionCriterion[];
+  let maxIterations: number;
+  let maxCost: number | null;
+
+  // If --project is provided, fetch task from Control Center
+  if (args.project && args.control) {
+    console.log(`Fetching task from Control Center for project: ${args.project}...`);
+
+    const serverTask = await claimTaskFromServer(args.control, args.project);
+    if (!serverTask) {
+      console.log("No tasks to run. Exiting.");
+      process.exit(0);
+    }
+
+    taskId = serverTask.id;
+    taskName = serverTask.name;
+    taskPrompt = serverTask.prompt;
+    criteria = serverTask.criteria;
+    maxIterations = serverTask.maxIterations;
+    maxCost = serverTask.maxCost;
+
+    console.log(`Claimed task: ${taskName}`);
+  } else {
+    // Traditional mode: use command-line args
+    if (!args.prompt) {
+      console.error("Error: PROMPT is required (or use --project with --control)");
+      process.exit(1);
+    }
+
+    taskId = generateId();
+    taskName = args.name ?? args.prompt.slice(0, 50);
+    taskPrompt = args.prompt;
+    criteria = buildCriteria(args.until);
+    maxIterations = args.maxIterations;
+    maxCost = args.maxCost ?? null;
   }
 
-  const taskId = generateId();
   const now = new Date().toISOString();
-  const criteria = buildCriteria(args.until);
 
   const state: ForgeState = {
     ...DEFAULT_STATE,
     version: "1.0.0",
     task: {
       id: taskId,
-      name: args.name ?? args.prompt.slice(0, 50),
-      prompt: args.prompt,
+      name: taskName,
+      prompt: taskPrompt,
       startedAt: now,
       status: "running",
     },
     iteration: {
       ...DEFAULT_STATE.iteration,
       current: 1,
+      max: maxIterations,
       currentStartedAt: now,
     },
     criteria: {
@@ -172,7 +241,7 @@ async function main(): Promise<void> {
       items: criteria,
     },
     budget: {
-      maxCost: args.maxCost ?? null,
+      maxCost: maxCost,
       maxDuration: args.maxDuration ?? null,
       maxTokens: null,
     },
@@ -207,20 +276,20 @@ async function main(): Promise<void> {
   // Write state file
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 
-  // Send webhook if control center enabled
-  if (args.control) {
+  // Send webhook if control center enabled (but not if we already claimed from server)
+  if (args.control && !args.project) {
     const projectPath = process.cwd();
     const projectName = projectPath.split(/[/\\]/).pop() ?? "Unknown Project";
 
     await sendWebhook(args.control, {
       type: "task:started",
-      projectId: projectPath, // Use path as unique identifier
+      projectId: projectPath,
       projectPath: projectPath,
       projectName: projectName,
       taskId: taskId,
       timestamp: now,
-      name: state.task.name,
-      prompt: state.task.prompt,
+      name: taskName,
+      prompt: taskPrompt,
       criteria: criteria,
     });
   }
@@ -230,10 +299,12 @@ async function main(): Promise<void> {
 🔥 FORGE Initialized!
 
 Task ID: ${taskId}
-Prompt: "${args.prompt}"
-Criteria: ${criteria.map((c) => c.name).join(", ")}
-Max Iterations: ${args.maxIterations || "unlimited"}
+Task: "${taskName}"
+Prompt: "${taskPrompt}"
+Criteria: ${criteria.map((c) => c.name).join(", ") || "none"}
+Max Iterations: ${maxIterations || "unlimited"}
 ${args.control ? `Control Center: ${args.control}` : ""}
+${args.project ? `Project: ${args.project}` : ""}
 
 Starting work on the task...
 `);

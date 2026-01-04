@@ -2,7 +2,9 @@
  * Queue management page
  */
 
-import { Layers, Play, Pause, SkipForward } from "lucide-react";
+import { useState } from "react";
+import { Layers, Play, Pause, SkipForward, Plus, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { CreateTaskModal } from "../components/task/CreateTaskModal";
 import { Layout } from "../components/layout/Layout";
 import { TaskCard } from "../components/task/TaskCard";
 import { StatusBadge } from "../components/common/StatusBadge";
@@ -12,14 +14,36 @@ import {
   useRunNext,
   usePauseQueue,
   useResumeQueue,
+  useDeleteTask,
+  useReorderQueue,
 } from "../hooks/useStats";
 import { cn } from "../lib/utils";
 
 export function Queue() {
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: queue, isLoading } = useQueue();
   const runNext = useRunNext();
   const pauseQueue = usePauseQueue();
   const resumeQueue = useResumeQueue();
+  const deleteTask = useDeleteTask();
+  const reorderQueue = useReorderQueue();
+
+  const moveTask = (index: number, direction: "up" | "down") => {
+    if (!queue?.queued) return;
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= queue.queued.length) return;
+
+    const newOrder = [...queue.queued];
+    const [moved] = newOrder.splice(index, 1);
+    newOrder.splice(newIndex, 0, moved);
+    reorderQueue.mutate(newOrder.map(t => t.id));
+  };
+
+  const handleDelete = (taskId: string) => {
+    if (confirm("Delete this task from the queue?")) {
+      deleteTask.mutate(taskId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -31,6 +55,8 @@ export function Queue() {
 
   return (
     <Layout title="Queue">
+      <CreateTaskModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
+
       {/* Queue Controls */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -45,13 +71,20 @@ export function Queue() {
 
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-forge-500 text-white rounded-lg text-sm font-medium hover:bg-forge-600 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add Task
+          </button>
+          <button
             onClick={() => runNext.mutate()}
             disabled={queue?.running !== null || queue?.queued.length === 0}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
               queue?.running || queue?.queued.length === 0
                 ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                : "bg-forge-500 text-white hover:bg-forge-600"
+                : "bg-green-500 text-white hover:bg-green-600"
             )}
           >
             <SkipForward className="h-4 w-4" />
@@ -98,13 +131,55 @@ export function Queue() {
         {queue?.queued && queue.queued.length > 0 ? (
           <div className="space-y-3">
             {queue.queued.map((task, index) => (
-              <div key={task.id} className="flex items-center gap-4">
+              <div key={task.id} className="flex items-center gap-3">
+                {/* Position */}
                 <span className="text-gray-500 font-mono text-sm w-8">
                   #{index + 1}
                 </span>
+
+                {/* Reorder Controls */}
+                <div className="flex flex-col gap-0.5">
+                  <button
+                    onClick={() => moveTask(index, "up")}
+                    disabled={index === 0}
+                    className={cn(
+                      "p-1 rounded transition-colors",
+                      index === 0
+                        ? "text-gray-600 cursor-not-allowed"
+                        : "text-gray-400 hover:text-white hover:bg-gray-700"
+                    )}
+                    title="Move up"
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => moveTask(index, "down")}
+                    disabled={index === queue.queued.length - 1}
+                    className={cn(
+                      "p-1 rounded transition-colors",
+                      index === queue.queued.length - 1
+                        ? "text-gray-600 cursor-not-allowed"
+                        : "text-gray-400 hover:text-white hover:bg-gray-700"
+                    )}
+                    title="Move down"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Task Card */}
                 <div className="flex-1">
                   <TaskCard task={task} />
                 </div>
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDelete(task.id)}
+                  className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                  title="Delete task"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
               </div>
             ))}
           </div>
