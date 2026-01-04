@@ -16,7 +16,11 @@ FORGE transforms Claude Code into a powerful iterative development system with:
 ### Install Plugin
 
 ```bash
-claude plugin add @claudeforge/forge-plugin
+# Add the FORGE marketplace
+/plugin marketplace add claudeforge/Forge
+
+# Install the plugin
+/plugin install forge@claudeforge
 ```
 
 ### Start a Forge Loop
@@ -76,6 +80,10 @@ pnpm test
 - [Plugin Commands](./packages/plugin/README.md)
 - [Control Center API](./packages/server/README.md)
 - [Configuration Guide](./docs/configuration.md)
+
+## Repository
+
+[https://github.com/claudeforge/Forge](https://github.com/claudeforge/Forge)
 
 ## License
 

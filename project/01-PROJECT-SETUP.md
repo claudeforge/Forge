@@ -30,7 +30,7 @@ Create the following:
   "description": "FORGE - Iterative AI Development Engine for Claude Code",
   "repository": {
     "type": "git",
-    "url": "https://github.com/claudeforge/forge.git"
+    "url": "https://github.com/claudeforge/Forge.git"
   },
   "author": "ClaudeForge",
   "license": "MIT",

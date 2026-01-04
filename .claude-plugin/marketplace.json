@@ -1,0 +1,27 @@
+{
+  "name": "claudeforge",
+  "owner": {
+    "name": "ClaudeForge",
+    "email": "hello@claudeforge.dev"
+  },
+  "metadata": {
+    "description": "FORGE - Iterative AI Development Engine for Claude Code",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "forge",
+      "source": "./packages/plugin",
+      "description": "FORGE - Iterative AI Development Engine. Multi-criteria completion, stuck detection, checkpoints, and Control Center integration.",
+      "version": "0.1.0",
+      "author": {
+        "name": "ClaudeForge"
+      },
+      "homepage": "https://github.com/claudeforge/Forge",
+      "repository": "https://github.com/claudeforge/Forge",
+      "license": "MIT",
+      "keywords": ["forge", "iterative", "loop", "automation", "testing"],
+      "category": "productivity"
+    }
+  ]
+}

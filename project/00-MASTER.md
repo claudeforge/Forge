@@ -12,7 +12,7 @@
 | **Project Name** | FORGE - Iterative AI Development Engine |
 | **GitHub Org** | github.com/claudeforge |
 | **NPM Scope** | @claudeforge |
-| **Main Repo** | github.com/claudeforge/forge |
+| **Main Repo** | github.com/claudeforge/Forge |
 | **License** | MIT |
 | **Domain** | claudeforge.dev |
 
