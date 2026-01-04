@@ -193,7 +193,7 @@ async function main(): Promise<void> {
     controlCenter: {
       enabled: !!args.control,
       url: args.control ?? null,
-      projectId: null,
+      projectId: process.cwd(), // Use cwd as project identifier
       taskId: taskId,
     },
   };
@@ -209,9 +209,14 @@ async function main(): Promise<void> {
 
   // Send webhook if control center enabled
   if (args.control) {
+    const projectPath = process.cwd();
+    const projectName = projectPath.split(/[/\\]/).pop() ?? "Unknown Project";
+
     await sendWebhook(args.control, {
       type: "task:started",
-      projectId: "default",
+      projectId: projectPath, // Use path as unique identifier
+      projectPath: projectPath,
+      projectName: projectName,
       taskId: taskId,
       timestamp: now,
       name: state.task.name,

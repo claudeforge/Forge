@@ -55,23 +55,55 @@ app.post("/forge", async (c) => {
 });
 
 async function handleTaskStarted(event: ForgeEvent & { type: "task:started" }) {
-  const projectId = event.projectId ?? "default";
+  // Extract project info from extended event data
+  const eventData = event as unknown as {
+    projectPath?: string;
+    projectName?: string;
+    projectId?: string;
+  };
 
-  // Ensure project exists
-  const [existingProject] = await db
-    .select()
-    .from(schema.projects)
-    .where(eq(schema.projects.id, projectId));
+  const projectPath = eventData.projectPath;
+  const projectName = eventData.projectName ?? projectPath?.split(/[/\\]/).pop() ?? "Unknown Project";
 
+  // Generate stable ID from path, or use provided projectId
+  let projectId: string;
+  if (projectPath) {
+    // Create short hash from path
+    const hash = Buffer.from(projectPath).toString("base64url").slice(0, 12);
+    projectId = `proj-${hash}`;
+  } else {
+    projectId = eventData.projectId ?? "default";
+  }
+
+  // Check if project exists by path first (more reliable)
+  let existingProject;
+  if (projectPath) {
+    [existingProject] = await db
+      .select()
+      .from(schema.projects)
+      .where(eq(schema.projects.path, projectPath));
+  }
+
+  // If not found by path, check by ID
   if (!existingProject) {
+    [existingProject] = await db
+      .select()
+      .from(schema.projects)
+      .where(eq(schema.projects.id, projectId));
+  }
+
+  // Use existing project's ID if found
+  if (existingProject) {
+    projectId = existingProject.id;
+  } else {
     // Auto-create project
     await db.insert(schema.projects).values({
       id: projectId,
-      name: projectId === "default" ? "Default Project" : projectId,
-      path: process.cwd(),
+      name: projectName,
+      path: projectPath ?? "",
       createdAt: new Date().toISOString(),
     });
-    console.log(`[Webhook] Auto-created project: ${projectId}`);
+    console.log(`[Webhook] Auto-created project: ${projectName} (${projectPath})`);
   }
 
   // Check if task exists
@@ -87,6 +119,7 @@ async function handleTaskStarted(event: ForgeEvent & { type: "task:started" }) {
       .set({
         status: "running",
         startedAt: event.timestamp,
+        projectId: projectId, // Update project ID in case it changed
       })
       .where(eq(schema.tasks.id, event.taskId));
   } else {
@@ -102,7 +135,7 @@ async function handleTaskStarted(event: ForgeEvent & { type: "task:started" }) {
       startedAt: event.timestamp,
       createdAt: new Date().toISOString(),
     });
-    console.log(`[Webhook] Created task: ${event.taskId}`);
+    console.log(`[Webhook] Created task: ${event.taskId} for project: ${projectName}`);
   }
 
   // Broadcast

@@ -54,7 +54,7 @@ interface HookInput {
 }
 
 interface HookOutput {
-  decision: "allow" | "block";
+  decision: "approve" | "block";
   reason?: string;
   systemMessage?: string;
 }
@@ -77,7 +77,7 @@ async function main(): Promise<void> {
   } catch (error) {
     // On any error, allow exit to prevent getting stuck
     console.error("[FORGE] Hook error:", error);
-    console.log(JSON.stringify({ decision: "allow" }));
+    console.log(JSON.stringify({ decision: "approve" }));
   }
 }
 
@@ -89,7 +89,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
   // 1. Load state
   const state = loadState();
   if (!state || state.task.status !== "running") {
-    return { decision: "allow" };
+    return { decision: "approve" };
   }
 
   // 2. Check for external commands (pause, abort)
@@ -104,7 +104,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
 
   if (!lastOutput) {
     console.error("[FORGE] No assistant output found in transcript");
-    return { decision: "allow", reason: "No output found" };
+    return { decision: "approve", reason: "No output found" };
   }
 
   // 4. Calculate iteration metrics
@@ -141,7 +141,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       message: budgetResult.message,
       metrics: state.metrics,
     });
-    return { decision: "allow", reason: budgetResult.message };
+    return { decision: "approve", reason: budgetResult.message };
   }
 
   // 6. Check max iterations
@@ -158,7 +158,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       metrics: state.metrics,
     });
     return {
-      decision: "allow",
+      decision: "approve",
       reason: `Max iterations (${state.iteration.max}) reached`,
     };
   }
@@ -200,7 +200,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       criteriaResults,
     });
     return {
-      decision: "allow",
+      decision: "approve",
       reason: buildCompletionMessage(criteriaResults),
     };
   }
@@ -229,7 +229,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
         state.task.status = "stuck";
         saveState(state);
         return {
-          decision: "allow",
+          decision: "approve",
           reason: `Task stuck and aborted: ${recovery.reason}`,
         };
       }
@@ -319,7 +319,7 @@ function handleExternalCommand(
         type: "task:paused",
         iteration: state.iteration.current,
       });
-      return { decision: "allow", reason: "FORGE paused by user" };
+      return { decision: "approve", reason: "FORGE paused by user" };
 
     case "abort":
       state.task.status = "aborted";
@@ -330,10 +330,10 @@ function handleExternalCommand(
         message: "Aborted by user",
         metrics: state.metrics,
       });
-      return { decision: "allow", reason: "FORGE aborted by user" };
+      return { decision: "approve", reason: "FORGE aborted by user" };
 
     default:
-      return { decision: "allow" };
+      return { decision: "approve" };
   }
 }
 
