@@ -3,7 +3,8 @@
  */
 
 // In development, connect directly to API server to avoid proxy issues
-const API_HOST = import.meta.env.DEV ? "http://localhost:3344" : "";
+// Use 127.0.0.1 instead of localhost to avoid IPv6 issues on Windows
+const API_HOST = import.meta.env.DEV ? "http://127.0.0.1:3344" : "";
 const BASE_URL = `${API_HOST}/api`;
 
 async function request<T>(

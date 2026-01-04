@@ -20,7 +20,8 @@ export function useWebSocket() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     // In development, connect directly to API server to avoid proxy issues
     const isDev = import.meta.env.DEV;
-    const host = isDev ? "localhost:3344" : window.location.host;
+    // Use 127.0.0.1 instead of localhost to avoid IPv6 issues
+    const host = isDev ? "127.0.0.1:3344" : window.location.host;
     const wsUrl = `${protocol}//${host}/api/ws`;
 
     console.log("[WS] Connecting to:", wsUrl);
