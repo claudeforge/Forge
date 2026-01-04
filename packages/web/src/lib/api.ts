@@ -2,7 +2,9 @@
  * API client
  */
 
-const BASE_URL = "/api";
+// In development, connect directly to API server to avoid proxy issues
+const API_HOST = import.meta.env.DEV ? "http://localhost:3344" : "";
+const BASE_URL = `${API_HOST}/api`;
 
 async function request<T>(
   path: string,

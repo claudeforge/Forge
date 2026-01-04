@@ -18,8 +18,12 @@ export function useWebSocket() {
 
   const connect = useCallback(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/api/ws`;
+    // In development, connect directly to API server to avoid proxy issues
+    const isDev = import.meta.env.DEV;
+    const host = isDev ? "localhost:3344" : window.location.host;
+    const wsUrl = `${protocol}//${host}/api/ws`;
 
+    console.log("[WS] Connecting to:", wsUrl);
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
