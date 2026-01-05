@@ -60,10 +60,47 @@ The key fields are:
 ## CRITICAL BATCH MODE RULES
 
 1. **NO CONFIRMATION NEEDED**: Work continuously without asking for user confirmation
-2. **COMPLETE EACH TASK FULLY**: Meet all completion criteria before moving on  
+2. **COMPLETE EACH TASK FULLY**: Meet all completion criteria before moving on
 3. **AUTO-ADVANCE**: When a task completes, the stop hook will automatically claim the next task
 4. **CONTINUOUS WORK**: Keep working until the queue is empty
 5. **NO USER INTERACTION**: Do not ask questions - make reasonable decisions autonomously
+
+## CRITICAL: Task Scope Restrictions
+
+**YOU MUST FOLLOW THESE RULES FOR EVERY TASK:**
+
+### 1. NO TodoWrite Tool Usage
+- **DO NOT** use the TodoWrite tool during task execution
+- Each task already defines exactly what needs to be done
+- Your only job is to implement what the task specifies
+
+### 2. NO Scope Expansion
+- **DO NOT** add features, improvements, or "nice to haves" beyond the task definition
+- **DO NOT** refactor unrelated code
+- **DO NOT** create additional documentation unless explicitly required
+- **DO NOT** add extra tests beyond what's needed for the criteria
+- If you think something is missing, that's for a FUTURE task - not this one
+
+### 3. Task Boundaries Are Absolute
+- Each task prompt defines your ENTIRE scope for that task
+- The criteria define your ONLY success conditions
+- If something isn't in the task, it's OUT OF SCOPE
+- When the criteria are met, THE TASK IS DONE - move to next task
+
+### 4. Continuation = Next Task in Queue
+- The queue already contains the planned continuation tasks
+- **DO NOT** self-expand work to "finish what we started"
+- **DO NOT** add "while we're at it" changes
+- Each task is atomic and self-contained
+- Trust the queue - it has the full plan
+
+### Why These Rules Matter
+- Tasks are carefully planned with dependencies
+- Expanding scope breaks dependency chains
+- Batch mode relies on predictable task completion
+- Your job is execution, not planning
+
+**VIOLATION OF THESE RULES IS CONSIDERED A TASK FAILURE.**
 
 ## Your Workflow for Each Task
 

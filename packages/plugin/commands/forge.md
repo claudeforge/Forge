@@ -103,6 +103,42 @@ If rules exist, you **MUST** follow them throughout the entire task execution:
 
 **IMPORTANT**: Violating project rules is considered a task failure. All code, tests, and documentation must comply with the defined rules.
 
+## CRITICAL: Task Scope Restrictions
+
+**YOU MUST FOLLOW THESE RULES STRICTLY:**
+
+### 1. NO TodoWrite Tool Usage
+- **DO NOT** use the TodoWrite tool during task execution
+- The task definition already defines what needs to be done
+- Your only job is to implement exactly what the task specifies
+
+### 2. NO Scope Expansion
+- **DO NOT** add features, improvements, or "nice to haves" beyond the task definition
+- **DO NOT** refactor unrelated code
+- **DO NOT** create additional documentation unless explicitly required
+- **DO NOT** add extra tests beyond what's needed for the criteria
+- If you think something is missing, that's for the NEXT task - not this one
+
+### 3. Task Boundaries Are Absolute
+- The task prompt defines your ENTIRE scope
+- The criteria define your ONLY success conditions
+- If something isn't in the task, it's OUT OF SCOPE
+- When the criteria are met, THE TASK IS DONE - stop working
+
+### 4. Continuation = Next Task in Queue
+- When this task completes, the NEXT task in queue handles continuation
+- **DO NOT** self-expand work to "finish what we started"
+- **DO NOT** add "while we're at it" changes
+- Each task is atomic and self-contained
+
+### Why These Rules Matter
+- Tasks are carefully planned with dependencies
+- Expanding scope breaks dependency chains
+- The queue system handles task ordering
+- Your job is execution, not planning
+
+**VIOLATION OF THESE RULES IS CONSIDERED A TASK FAILURE.**
+
 ## Execute Task
 
-After initialization and loading rules, immediately start working on the task described in the PROMPT.
+After initialization and loading rules, immediately start working on the task described in the PROMPT. Stay strictly within the defined scope.

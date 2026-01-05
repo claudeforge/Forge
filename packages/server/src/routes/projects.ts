@@ -3,7 +3,7 @@
  */
 
 import { Hono } from "hono";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, sql } from "drizzle-orm";
 import { db, schema } from "../db/index.js";
 import { generateId } from "@claudeforge/forge-shared/utils";
 import { watchProject } from "../watcher.js";

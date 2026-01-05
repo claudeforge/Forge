@@ -18,3 +18,27 @@ Resume a paused forge loop.
    - Continue working on the original task prompt from state
 
 After resuming, immediately continue working on `state.task.prompt`.
+
+## CRITICAL: Task Scope Restrictions
+
+**YOU MUST FOLLOW THESE RULES STRICTLY:**
+
+### 1. NO TodoWrite Tool Usage
+- **DO NOT** use the TodoWrite tool during task execution
+- The task definition already defines what needs to be done
+
+### 2. NO Scope Expansion
+- **DO NOT** add features beyond the task definition
+- **DO NOT** refactor unrelated code
+- If something seems missing, that's for the NEXT task
+
+### 3. Task Boundaries Are Absolute
+- The task prompt defines your ENTIRE scope
+- The criteria define your ONLY success conditions
+- When the criteria are met, THE TASK IS DONE
+
+### 4. Continuation = Next Task in Queue
+- **DO NOT** self-expand work
+- Each task is atomic and self-contained
+
+**VIOLATION OF THESE RULES IS CONSIDERED A TASK FAILURE.**
