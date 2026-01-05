@@ -31,25 +31,26 @@ pnpm build
 
 ### 2. Install Plugin in Claude Code
 
-Add the plugin to your Claude Code settings:
+Add the plugin path to Claude Code:
 
 ```bash
-# Open Claude Code settings
-claude mcp add forge /path/to/Forge/packages/plugin
+# Add plugin via CLI
+claude plugins add /path/to/Forge/packages/plugin
 ```
 
 Or add manually to `~/.claude/settings.json`:
 
 ```json
 {
-  "mcpServers": {
-    "forge": {
-      "command": "node",
-      "args": ["/path/to/Forge/packages/plugin/dist/hooks/stop.js"]
-    }
-  }
+  "plugins": [
+    "/path/to/Forge/packages/plugin"
+  ]
 }
 ```
+
+The plugin registers:
+- **Stop Hook** - Intercepts exit to check completion criteria
+- **Commands** - All `/forge:*` slash commands
 
 ### 3. Start Control Center
 
