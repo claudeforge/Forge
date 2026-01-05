@@ -9,7 +9,7 @@
  * - Intervention commands
  */
 
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import type {
@@ -23,8 +23,6 @@ import type {
   TaskHeartbeatRequest,
   TaskHeartbeatResponse,
   TaskLock,
-  DEFAULT_LOCK_DURATION_MS,
-  LOCK_RENEWAL_THRESHOLD_MS,
 } from "@claudeforge/forge-shared";
 
 // ============================================
@@ -73,7 +71,7 @@ function loadOrCreateNodeIdentity(projectPath: string): NodeIdentityFile {
   }
 
   const identity: NodeIdentityFile = {
-    nodeId: `plugin-${uuidv4()}`,
+    nodeId: `plugin-${randomUUID()}`,
     createdAt: new Date().toISOString(),
   };
 
@@ -143,7 +141,7 @@ export class SyncClientV2 {
         return false;
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { serverClock: number };
       this.state.localClock = Math.max(this.state.localClock, data.serverClock);
 
       console.error(`[SyncV2] Registered as ${this.state.nodeId}`);
@@ -181,7 +179,7 @@ export class SyncClientV2 {
         return null;
       }
 
-      const data: SyncHandshakeResponse = await response.json();
+      const data = (await response.json()) as SyncHandshakeResponse;
       this.state.localClock = Math.max(this.state.localClock, data.serverClock);
 
       return data;
@@ -211,7 +209,7 @@ export class SyncClientV2 {
         }
       );
 
-      const data: TaskClaimResponse = await response.json();
+      const data = (await response.json()) as TaskClaimResponse;
 
       if (data.success && data.lock) {
         this.state.currentLock = data.lock;
@@ -277,7 +275,7 @@ export class SyncClientV2 {
         }
       );
 
-      const data: TaskHeartbeatResponse = await response.json();
+      const data = (await response.json()) as TaskHeartbeatResponse;
 
       if (!data.success) {
         // Lock lost!
@@ -340,7 +338,7 @@ export class SyncClientV2 {
         }
       );
 
-      const data: SyncPushResponse = await response.json();
+      const data = (await response.json()) as SyncPushResponse;
       this.state.localClock = Math.max(this.state.localClock, data.serverClock);
 
       // Update local versions
@@ -440,7 +438,9 @@ export class SyncClientV2 {
         );
 
         if (response.ok) {
-          const data = await response.json();
+          const data = (await response.json()) as {
+            tasks: Array<{ id: string; version: number }>;
+          };
           for (const task of data.tasks) {
             this.state.taskVersions[task.id] = task.version;
           }

@@ -159,6 +159,10 @@ app.post("/run/:id", async (c) => {
     .from(schema.tasks)
     .where(eq(schema.tasks.id, taskId));
 
+  if (!updated) {
+    return c.json({ error: "Task not found after update" }, 500);
+  }
+
   isProcessing = true;
 
   broadcast({ type: "task:update", task: updated });
@@ -211,6 +215,10 @@ app.post("/run-next", async (c) => {
     .select()
     .from(schema.tasks)
     .where(eq(schema.tasks.id, next.id));
+
+  if (!task) {
+    return c.json({ error: "Task not found after update" }, 500);
+  }
 
   isProcessing = true;
 

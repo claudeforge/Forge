@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loadState, saveState, deleteState, isForgeActive } from "./state.js";
 import type { ForgeState } from "@claudeforge/forge-shared";
 

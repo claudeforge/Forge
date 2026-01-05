@@ -28,7 +28,7 @@ function createCriterionResult(passed: boolean): CriterionResult {
       id: "1",
       name: "Test",
       type: "command",
-      config: {},
+      config: { cmd: "test" },
       required: true,
       weight: 1,
     },

@@ -217,6 +217,10 @@ app.post("/task/:taskId", async (c) => {
     .from(schema.tasks)
     .where(eq(schema.tasks.id, taskId));
 
+  if (!updated) {
+    return c.json({ error: "Task not found after update" }, 500);
+  }
+
   broadcast({ type: "task:update", task: updated });
   broadcast({ type: "queue:update" });
 
@@ -300,7 +304,7 @@ app.post("/from-codebase/:projectId", async (c) => {
     for (const file of specFiles) {
       try {
         const content = readFileSync(join(specsDir, file), "utf-8");
-        const spec = JSON.parse(content);
+        JSON.parse(content); // Validate JSON
         results.specs.synced++;
       } catch (error) {
         results.errors.push(`Failed to read spec ${file}: ${error}`);
@@ -317,7 +321,7 @@ app.post("/from-codebase/:projectId", async (c) => {
     for (const file of planFiles) {
       try {
         const content = readFileSync(join(plansDir, file), "utf-8");
-        const plan = JSON.parse(content);
+        JSON.parse(content); // Validate JSON
         results.plans.synced++;
       } catch (error) {
         results.errors.push(`Failed to read plan ${file}: ${error}`);

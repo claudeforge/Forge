@@ -495,12 +495,12 @@ app.post("/tasks/:taskId/claim", async (c) => {
     .from(schema.tasks)
     .where(eq(schema.tasks.id, taskId));
 
-  if (updated.lockedBy !== nodeId) {
+  if (!updated || updated.lockedBy !== nodeId) {
     const response: TaskClaimResponse = {
       success: false,
       error: "ALREADY_LOCKED",
-      lockedBy: updated.lockedBy ?? undefined,
-      lockedUntil: updated.lockExpiresAt ?? undefined,
+      lockedBy: updated?.lockedBy ?? undefined,
+      lockedUntil: updated?.lockExpiresAt ?? undefined,
     };
     return c.json(response, 409);
   }

@@ -27,7 +27,7 @@ vi.mock("node:path", () => ({
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const mockExistsSync = vi.mocked(existsSync);
 const mockReadFileSync = vi.mocked(readFileSync);
@@ -214,7 +214,7 @@ describe("Status Sync", () => {
       state.task.status = "completed";
       const criteriaResults: CriterionResult[] = [
         {
-          criterion: { id: "1", name: "Test", type: "command", config: {}, required: true, weight: 1 },
+          criterion: { id: "1", name: "Test", type: "command", config: { cmd: "test" }, required: true, weight: 1 },
           passed: true,
         },
       ];
@@ -345,7 +345,8 @@ describe("Status Sync", () => {
 
       // The queue should have been updated (replaced) not appended
       expect(mockWriteFileSync).toHaveBeenCalled();
-      const written = JSON.parse(mockWriteFileSync.mock.calls[mockWriteFileSync.mock.calls.length - 1][1] as string);
+      const lastCall = mockWriteFileSync.mock.calls[mockWriteFileSync.mock.calls.length - 1];
+      const written = JSON.parse((lastCall?.[1] ?? "{}") as string);
       // Should still have only 1 update (replaced, not appended)
       expect(written.updates.length).toBe(1);
       expect(written.updates[0].update.status).toBe("completed");
@@ -440,11 +441,11 @@ describe("Status Sync", () => {
       const state = createMinimalState();
       const criteriaResults: CriterionResult[] = [
         {
-          criterion: { id: "crit-1", name: "Test Criterion", type: "command", config: {}, required: true, weight: 1 },
+          criterion: { id: "crit-1", name: "Test Criterion", type: "command", config: { cmd: "test" }, required: true, weight: 1 },
           passed: true,
         },
         {
-          criterion: { id: "crit-2", name: "Another Criterion", type: "test-pass", config: {}, required: false, weight: 2 },
+          criterion: { id: "crit-2", name: "Another Criterion", type: "test-pass", config: { cmd: "npm test" }, required: false, weight: 2 },
           passed: false,
         },
       ];

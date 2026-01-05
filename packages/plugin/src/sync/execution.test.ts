@@ -52,8 +52,9 @@ const mockMkdirSync = vi.mocked(mkdirSync);
 
 function createDefaultExecution(): ExecutionFile {
   return {
-    projectId: null,
-    controlUrl: null,
+    version: "1.0",
+    projectId: "",
+    controlUrl: "",
     queue: [],
     current: {
       taskId: null,
@@ -61,13 +62,14 @@ function createDefaultExecution(): ExecutionFile {
       startedAt: null,
       isPaused: false,
     },
-    lastUpdated: null,
-    lastUpdatedBy: null,
+    lastUpdated: new Date().toISOString(),
+    lastUpdatedBy: "server",
   };
 }
 
 function createExecutionWithTasks(): ExecutionFile {
   return {
+    version: "1.0",
     projectId: "proj-1",
     controlUrl: "http://localhost:3344",
     queue: [
@@ -102,8 +104,8 @@ function createExecutionWithTasks(): ExecutionFile {
       startedAt: null,
       isPaused: false,
     },
-    lastUpdated: null,
-    lastUpdatedBy: null,
+    lastUpdated: new Date().toISOString(),
+    lastUpdatedBy: "server",
   };
 }
 
