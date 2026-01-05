@@ -67,7 +67,15 @@ Or run directly:
 node packages/server/dist/index.js
 ```
 
-### 4. Create a Specification
+### 4. Register Project
+
+```bash
+/forge:forge-register
+```
+
+This creates `.forge.json` and registers your project with Control Center.
+
+### 5. Create a Specification
 
 ```bash
 /forge:forge-spec "Add user authentication with JWT tokens"
@@ -79,7 +87,7 @@ This creates a formal specification with:
 - Technical considerations
 - Clarifying questions
 
-### 5. Create Implementation Plan
+### 6. Create Implementation Plan
 
 ```bash
 /forge:forge-plan spec-001
@@ -90,13 +98,13 @@ Generates a detailed plan with:
 - Task breakdown with dependencies
 - Success criteria per task
 
-### 6. Queue Tasks
+### 7. Queue Tasks
 
 ```bash
 /forge:forge-queue --plan plan-001
 ```
 
-### 7. Execute
+### 8. Execute
 
 ```bash
 # Single task mode (interactive)
