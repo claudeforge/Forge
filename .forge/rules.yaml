@@ -1,0 +1,115 @@
+# FORGE Project Rules
+# This project uses its own system - dogfooding!
+
+name: "FORGE Control Center"
+description: "Specification-Driven AI Development Engine for Claude Code"
+
+techStack:
+  language:
+    primary: TypeScript
+    version: "5.x"
+    strict: true
+
+  runtime:
+    name: Node.js
+    version: "20+"
+
+  framework:
+    name: React
+    version: "18.x"
+    variant: "Vite"
+
+  styling:
+    approach: "utility-first"
+    library: "Tailwind CSS"
+
+  database:
+    type: SQLite
+    orm: "Drizzle ORM"
+
+  api:
+    style: REST
+    validation: "zod"
+
+  testing:
+    framework: Vitest
+    coverage: 90
+
+  build:
+    packageManager: pnpm
+    bundler: tsup
+
+conventions:
+  fileNaming: kebab-case
+  componentNaming: PascalCase
+  functionStyle: arrow
+  exportStyle: named
+
+  formatting:
+    indentSize: 2
+    indentStyle: spaces
+    quotes: double
+    semicolons: true
+    trailingComma: es5
+
+  documentation:
+    style: JSDoc
+    required: public
+
+  errorHandling:
+    style: "try-catch with typed errors"
+
+structure:
+  srcDir: src
+  directories:
+    components: components
+    routes: routes
+    hooks: hooks
+    lib: lib
+    utils: utils
+    types: types
+
+  monorepo:
+    tool: pnpm
+    packages: packages/*
+
+constraints:
+  forbidden:
+    libraries:
+      - lodash
+      - moment
+      - axios
+    patterns:
+      - "any type without justification"
+      - "console.log in production code"
+      - "hardcoded API URLs"
+    practices:
+      - "mutating function parameters"
+      - "nested callbacks (use async/await)"
+      - "magic numbers without constants"
+
+  required:
+    patterns:
+      - "TypeScript strict mode"
+      - "ESM imports"
+      - "Explicit return types for public functions"
+    practices:
+      - "Error handling for all async operations"
+      - "Input validation at API boundaries"
+      - "Unit tests for new features"
+
+  security:
+    noSecrets: true
+    sanitization: true
+
+  accessibility:
+    required: false
+
+customRules:
+  - "All packages must export from index.ts"
+  - "Use @claudeforge/forge-shared for shared types"
+  - "WebSocket messages must have 'type' field"
+  - "Database migrations in packages/server/drizzle"
+  - "Command files are markdown in packages/plugin/commands"
+  - "Tests must be co-located with source files"
+  - "Use cn() utility for conditional classNames"

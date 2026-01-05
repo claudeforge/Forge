@@ -41,3 +41,10 @@ data/
 .claude/forge-state.json
 .claude/forge-command.json
 .claude/forge-checkpoints/
+
+# FORGE link file (contains local paths)
+.forge.json
+
+# FORGE execution state
+.forge/execution.json
+.forge/state.json
