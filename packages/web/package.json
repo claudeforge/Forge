@@ -1,6 +1,6 @@
 {
   "name": "@claudeforge/forge-web",
-  "version": "v0.2.1",
+  "version": "v0.2.2",
   "description": "FORGE Control Center Web Dashboard",
   "type": "module",
   "scripts": {

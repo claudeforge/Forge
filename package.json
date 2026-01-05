@@ -1,6 +1,6 @@
 {
   "name": "forge",
-  "version": "v0.2.1",
+  "version": "v0.2.2",
   "private": true,
   "description": "FORGE - Iterative AI Development Engine for Claude Code",
   "repository": {
