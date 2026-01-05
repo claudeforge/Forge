@@ -23,6 +23,7 @@ export default defineConfig([
       "src/cli/add-tasks.ts",
       "src/cli/link.ts",
       "src/cli/queue-tasks.ts",
+      "src/cli/register.ts",
     ],
     format: ["esm"],
     dts: false,

@@ -11,6 +11,7 @@
     "dist",
     "commands",
     "hooks",
+    "templates",
     ".claude-plugin"
   ],
   "scripts": {

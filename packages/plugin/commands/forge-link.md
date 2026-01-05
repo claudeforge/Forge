@@ -6,43 +6,25 @@ allowed-tools: ["Bash(*)"]
 
 # FORGE Link - Connect Directory to Project
 
-Creates a `.forge.json` config file in the current directory to link it with a Control Center project. After linking, you can run `/forge:forge` and `/forge:forge-tasks` without specifying `--project` and `--control` every time.
+Creates a `.forge.json` config file in the current directory to link it with a Control Center project.
 
 ## Arguments
 
 - `--project PROJECT_ID` (required): Project ID from Control Center
 - `--control URL` (required): Control Center URL
 
-## Usage
+## Execute
+
+Run the link command:
 
 ```bash
-# Link current directory to a project
-/forge:forge-link --project proj-abc123 --control http://127.0.0.1:3344
+node "${CLAUDE_PLUGIN_ROOT}/dist/cli/link.js" $ARGUMENTS
 ```
 
-## Execution
+The script will:
+1. Verify connection to Control Center
+2. Check if project exists
+3. Create `.forge.json` config file
+4. Display confirmation
 
-Create the config file:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/dist/cli/link.js" --project "$PROJECT_ID" --control "$CONTROL_URL"
-```
-
-After linking, you can simply run:
-
-```bash
-# No need for --project and --control anymore!
-/forge:forge
-/forge:forge-tasks "Build authentication system"
-```
-
-The config file `.forge.json` will be created with:
-
-```json
-{
-  "projectId": "proj-abc123",
-  "controlUrl": "http://127.0.0.1:3344"
-}
-```
-
-You can commit this file to version control or add it to `.gitignore` based on your preference.
+After linking, you can run `/forge:forge` without `--project` and `--control` arguments.
