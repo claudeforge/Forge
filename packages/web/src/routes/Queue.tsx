@@ -3,7 +3,7 @@
  */
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Layers,
   Play,
@@ -21,10 +21,13 @@ import {
   Zap,
   Filter,
   List,
+  CheckCheck,
+  Loader2,
 } from "lucide-react";
 import { CreateTaskModal } from "../components/task/CreateTaskModal";
 import { EditTaskModal } from "../components/task/EditTaskModal";
 import { IterationLogViewer } from "../components/iteration/IterationLogViewer";
+import { useNotifications } from "../components/notification/NotificationProvider";
 import type { Task } from "../lib/api";
 import { api } from "../lib/api";
 import { Layout } from "../components/layout/Layout";
@@ -43,12 +46,15 @@ import {
 import { cn } from "../lib/utils";
 
 export function Queue() {
+  const queryClient = useQueryClient();
+  const { addNotification } = useNotifications();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
   const [projectFilter, setProjectFilter] = useState<string>("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [markingDoneId, setMarkingDoneId] = useState<string | null>(null);
 
   const { data: projects } = useQuery({
     queryKey: ["projects"],
@@ -133,6 +139,49 @@ export function Queue() {
       return;
     }
     runTask.mutate(taskId);
+  };
+
+  const handleMarkAsDone = async (task: Task) => {
+    const summary = prompt(
+      `Mark "${task.name}" as already done?\n\nOptionally enter a summary:`,
+      "Marked as done via Control Center"
+    );
+    if (summary === null) return; // User cancelled
+
+    setMarkingDoneId(task.id);
+    try {
+      const result = await api.markTaskDone(task.id, summary || undefined);
+      if (result.success) {
+        addNotification({
+          type: "success",
+          title: "Task Marked Done",
+          message: result.codebaseSynced
+            ? `"${task.name}" marked done and synced to codebase`
+            : `"${task.name}" marked done`,
+          duration: 5000,
+        });
+        // Refresh queue data
+        queryClient.invalidateQueries({ queryKey: ["queue"] });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: ["stats"] });
+      } else {
+        addNotification({
+          type: "error",
+          title: "Mark Done Failed",
+          message: result.message,
+          duration: 0,
+        });
+      }
+    } catch (error) {
+      addNotification({
+        type: "error",
+        title: "Mark Done Error",
+        message: error instanceof Error ? error.message : "Failed to mark task as done",
+        duration: 0,
+      });
+    } finally {
+      setMarkingDoneId(null);
+    }
   };
 
   const getProjectName = (projectId: string) => {
@@ -364,6 +413,20 @@ export function Queue() {
                   title={queue?.running ? "Wait for current task" : "Run this task now"}
                 >
                   <Play className="h-5 w-5" />
+                </button>
+
+                {/* Mark as Done Button */}
+                <button
+                  onClick={() => handleMarkAsDone(task)}
+                  disabled={markingDoneId === task.id}
+                  className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50"
+                  title="Mark as already done (syncs to codebase)"
+                >
+                  {markingDoneId === task.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <CheckCheck className="h-5 w-5" />
+                  )}
                 </button>
 
                 {/* Edit Button */}

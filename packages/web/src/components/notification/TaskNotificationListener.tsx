@@ -27,20 +27,18 @@ interface TaskUpdate {
 }
 
 export function TaskNotificationListener() {
-  const { addNotification, showBrowserNotification, requestBrowserPermission } = useNotifications();
+  const { addNotification, showBrowserNotification } = useNotifications();
   const wsRef = useRef<WebSocket | null>(null);
   const lastStatusRef = useRef<Map<string, string>>(new Map());
 
-  // Request browser notification permission on mount
-  useEffect(() => {
-    requestBrowserPermission();
-  }, [requestBrowserPermission]);
+  // Note: Browser notification permission must be requested from a user gesture (click handler)
+  // The showBrowserNotification function will silently skip if permission isn't granted
 
   useEffect(() => {
     // Connect to WebSocket
     const wsUrl = import.meta.env.DEV
-      ? "ws://127.0.0.1:3344/ws"
-      : `ws://${window.location.host}/ws`;
+      ? "ws://127.0.0.1:3344/api/ws"
+      : `ws://${window.location.host}/api/ws`;
 
     const connect = () => {
       const ws = new WebSocket(wsUrl);

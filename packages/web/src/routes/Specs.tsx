@@ -3,7 +3,7 @@
  */
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
   CheckCircle,
@@ -16,6 +16,7 @@ import {
   Pause,
   List,
   GitBranch,
+  Play,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
 import { DependencyGraph } from "../components/task/DependencyGraph";
@@ -95,46 +96,74 @@ function TaskProgress({ counts }: { counts: Spec["tasks"] }) {
 }
 
 // Task card
-function TaskDefCard({ task }: { task: TaskDef }) {
+function TaskDefCard({ task, projectId }: { task: TaskDef; projectId: string }) {
   const [expanded, setExpanded] = useState(false);
+  const queryClient = useQueryClient();
+
+  const queueMutation = useMutation({
+    mutationFn: () => api.queueTaskDef(projectId, task.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["spec", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["taskDefs"] });
+      queryClient.invalidateQueries({ queryKey: ["queue"] });
+    },
+  });
+
+  const canQueue = task.status === "pending" || task.status === "blocked";
 
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full p-4 flex items-start gap-3 text-left hover:bg-gray-750 transition-colors"
-      >
-        {expanded ? (
-          <ChevronDown className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
-        ) : (
-          <ChevronRight className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-xs text-forge-400">{task.id}</span>
-            <TaskStatusBadge status={task.status} />
-            <span className={cn(
-              "px-1.5 py-0.5 rounded text-xs",
-              task.complexity === "low" && "bg-green-500/20 text-green-400",
-              task.complexity === "medium" && "bg-yellow-500/20 text-yellow-400",
-              task.complexity === "high" && "bg-red-500/20 text-red-400"
-            )}>
-              {task.complexity}
-            </span>
-          </div>
-          <h4 className="text-white font-medium truncate">{task.title}</h4>
-          {task.depends_on.length > 0 && (
-            <p className="text-xs text-gray-500 mt-1">
-              Depends on: {task.depends_on.join(", ")}
-            </p>
+      <div className="flex items-start">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex-1 p-4 flex items-start gap-3 text-left hover:bg-gray-750 transition-colors"
+        >
+          {expanded ? (
+            <ChevronDown className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
           )}
-        </div>
-        {task.iterations > 0 && (
-          <span className="text-xs text-gray-400">
-            {task.iterations} iter
-          </span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-mono text-xs text-forge-400">{task.id}</span>
+              <TaskStatusBadge status={task.status} />
+              <span className={cn(
+                "px-1.5 py-0.5 rounded text-xs",
+                task.complexity === "low" && "bg-green-500/20 text-green-400",
+                task.complexity === "medium" && "bg-yellow-500/20 text-yellow-400",
+                task.complexity === "high" && "bg-red-500/20 text-red-400"
+              )}>
+                {task.complexity}
+              </span>
+            </div>
+            <h4 className="text-white font-medium truncate">{task.title}</h4>
+            {task.depends_on.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                Depends on: {task.depends_on.join(", ")}
+              </p>
+            )}
+          </div>
+          {task.iterations > 0 && (
+            <span className="text-xs text-gray-400">
+              {task.iterations} iter
+            </span>
+          )}
+        </button>
+        {canQueue && (
+          <button
+            onClick={() => queueMutation.mutate()}
+            disabled={queueMutation.isPending}
+            className="m-4 px-3 py-1.5 bg-forge-500 hover:bg-forge-600 disabled:opacity-50 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 transition-colors"
+          >
+            {queueMutation.isPending ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Play className="h-3 w-3" />
+            )}
+            Queue
+          </button>
         )}
-      </button>
+      </div>
 
       {expanded && (
         <div className="px-4 pb-4 pt-0 border-t border-gray-700">
@@ -309,7 +338,7 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
                 viewMode === "list" ? (
                   <div className="space-y-2">
                     {specDetail.taskDefs.map((task) => (
-                      <TaskDefCard key={task.id} task={task} />
+                      <TaskDefCard key={task.id} task={task} projectId={projectId} />
                     ))}
                   </div>
                 ) : (

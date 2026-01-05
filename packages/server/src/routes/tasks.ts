@@ -10,6 +10,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { db, schema } from "../db/index.js";
 import { generateId } from "@claudeforge/forge-shared/utils";
 import { broadcast } from "../broadcast.js";
+import { syncQueueToProject } from "../utils/execution-sync.js";
 
 /**
  * Get the next priority value for queue ordering
@@ -196,6 +197,9 @@ app.post("/", async (c) => {
   broadcast({ type: "task:update", task });
   broadcast({ type: "queue:update" });
 
+  // Sync to project execution.json
+  await syncQueueToProject(projectId);
+
   return c.json(task, 201);
 });
 
@@ -252,6 +256,11 @@ app.patch("/:id", async (c) => {
   // Broadcast update
   broadcast({ type: "task:update", task });
 
+  // Sync to project execution.json
+  if (task) {
+    await syncQueueToProject(task.projectId);
+  }
+
   return c.json(task);
 });
 
@@ -298,6 +307,9 @@ app.post("/:id/complete", async (c) => {
   broadcast({ type: "task:update", task });
   broadcast({ type: "queue:update" });
 
+  // Sync to project execution.json
+  await syncQueueToProject(task.projectId);
+
   return c.json(task);
 });
 
@@ -305,10 +317,23 @@ app.post("/:id/complete", async (c) => {
 app.delete("/:id", async (c) => {
   const id = c.req.param("id");
 
+  // Get task before deleting to know which project to sync
+  const [task] = await db
+    .select()
+    .from(schema.tasks)
+    .where(eq(schema.tasks.id, id));
+
+  const projectId = task?.projectId;
+
   await db.delete(schema.tasks).where(eq(schema.tasks.id, id));
 
   // Broadcast queue update
   broadcast({ type: "queue:update" });
+
+  // Sync to project execution.json
+  if (projectId) {
+    await syncQueueToProject(projectId);
+  }
 
   return c.json({ deleted: true });
 });

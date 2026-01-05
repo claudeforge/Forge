@@ -140,6 +140,26 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ status, result }),
     }),
+
+  // Sync
+  syncFromCodebase: (projectId: string) =>
+    request<SyncResult>(`/sync/from-codebase/${projectId}`, {
+      method: "POST",
+    }),
+  markTaskDone: (taskId: string, summary?: string) =>
+    request<MarkDoneResult>(`/sync/mark-done/${taskId}`, {
+      method: "POST",
+      body: JSON.stringify({ summary }),
+    }),
+  queueTaskDef: (projectId: string, taskDefId: string) =>
+    request<QueueTaskResult>(`/sync/queue-task/${projectId}/${taskDefId}`, {
+      method: "POST",
+    }),
+  queueTaskDefs: (projectId: string, taskDefIds: string[]) =>
+    request<QueueTasksResult>(`/sync/queue-tasks/${projectId}`, {
+      method: "POST",
+      body: JSON.stringify({ taskDefIds }),
+    }),
 };
 
 // Types
@@ -381,6 +401,37 @@ interface ProjectState {
   state?: object;
 }
 
+interface SyncResult {
+  success: boolean;
+  specs: { found: number; synced: number };
+  plans: { found: number; synced: number };
+  tasks: { found: number; synced: number };
+  errors: string[];
+  message: string;
+}
+
+interface QueueTaskResult {
+  success: boolean;
+  task?: Task;
+  error?: string;
+  message: string;
+}
+
+interface QueueTasksResult {
+  success: boolean;
+  queued: string[];
+  skipped: string[];
+  errors: string[];
+  message: string;
+}
+
+interface MarkDoneResult {
+  success: boolean;
+  task: Task;
+  codebaseSynced: boolean;
+  message: string;
+}
+
 export type {
   Project,
   Task,
@@ -405,4 +456,8 @@ export type {
   SpecRequestType,
   SpecRequestStatus,
   CreateSpecRequest,
+  SyncResult,
+  MarkDoneResult,
+  QueueTaskResult,
+  QueueTasksResult,
 };

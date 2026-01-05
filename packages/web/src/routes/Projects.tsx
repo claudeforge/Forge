@@ -3,8 +3,9 @@
  */
 
 import { useState } from "react";
-import { FolderOpen, Plus, Trash2, Copy, Check } from "lucide-react";
+import { FolderOpen, Plus, Trash2, Copy, Check, RefreshCw, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNotifications } from "../components/notification/NotificationProvider";
 import { Layout } from "../components/layout/Layout";
 import { EmptyState } from "../components/common/EmptyState";
 import { CreateProjectModal } from "../components/project/CreateProjectModal";
@@ -13,8 +14,10 @@ import { formatRelativeTime } from "../lib/utils";
 
 export function Projects() {
   const queryClient = useQueryClient();
+  const { addNotification } = useNotifications();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
 
   const copyCommand = (id: string) => {
     const command = `/forge:forge --project ${id} --control http://127.0.0.1:3344`;
@@ -34,6 +37,52 @@ export function Projects() {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
+
+  const syncFromCodebase = async (projectId: string) => {
+    setSyncingId(projectId);
+    try {
+      const result = await api.syncFromCodebase(projectId);
+      if (result.success) {
+        addNotification({
+          type: "success",
+          title: "Sync Complete",
+          message: `Synced ${result.specs.synced} specs, ${result.plans.synced} plans, ${result.tasks.synced} tasks`,
+          duration: 5000,
+        });
+        // Refresh related data
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: ["queue"] });
+        queryClient.invalidateQueries({ queryKey: ["specs"] });
+        queryClient.invalidateQueries({ queryKey: ["plans"] });
+      } else {
+        addNotification({
+          type: "error",
+          title: "Sync Failed",
+          message: result.message,
+          duration: 0,
+        });
+      }
+      if (result.errors.length > 0) {
+        result.errors.forEach((error) => {
+          addNotification({
+            type: "warning",
+            title: "Sync Warning",
+            message: error,
+            duration: 8000,
+          });
+        });
+      }
+    } catch (error) {
+      addNotification({
+        type: "error",
+        title: "Sync Error",
+        message: error instanceof Error ? error.message : "Failed to sync from codebase",
+        duration: 0,
+      });
+    } finally {
+      setSyncingId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -79,12 +128,27 @@ export function Projects() {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => deleteProject.mutate(project.id)}
-                  className="text-gray-500 hover:text-red-400 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => syncFromCodebase(project.id)}
+                    disabled={syncingId === project.id}
+                    className="text-gray-500 hover:text-forge-400 transition-colors disabled:opacity-50"
+                    title="Sync from codebase (.forge directory)"
+                  >
+                    {syncingId === project.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => deleteProject.mutate(project.id)}
+                    className="text-gray-500 hover:text-red-400 transition-colors"
+                    title="Delete project"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Plugin Command - Copy to clipboard */}

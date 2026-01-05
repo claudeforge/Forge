@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { NotificationProvider } from "./components/notification/NotificationProvider";
 import { TaskNotificationListener } from "./components/notification/TaskNotificationListener";
+import { useRealtimeUpdates } from "./hooks/useRealtimeUpdates";
 import { Dashboard } from "./routes/Dashboard";
 import { Specs } from "./routes/Specs";
 import { Tasks } from "./routes/Tasks";
@@ -108,13 +109,21 @@ declare module "@tanstack/react-router" {
   }
 }
 
+// Realtime updates component (hooks must be inside QueryClientProvider)
+function RealtimeUpdatesProvider({ children }: { children: React.ReactNode }) {
+  useRealtimeUpdates();
+  return <>{children}</>;
+}
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <NotificationProvider>
-        <TaskNotificationListener />
-        <RouterProvider router={router} />
-      </NotificationProvider>
+      <RealtimeUpdatesProvider>
+        <NotificationProvider>
+          <TaskNotificationListener />
+          <RouterProvider router={router} />
+        </NotificationProvider>
+      </RealtimeUpdatesProvider>
     </QueryClientProvider>
   );
 }

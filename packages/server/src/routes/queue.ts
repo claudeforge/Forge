@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { eq, asc, desc, or } from "drizzle-orm";
 import { db, schema } from "../db/index.js";
 import { broadcast } from "../broadcast.js";
+import { syncQueueToProject, syncQueueAfterReorder } from "../utils/execution-sync.js";
 
 const app = new Hono();
 
@@ -105,6 +106,9 @@ app.post("/reorder", async (c) => {
     queue: { queued, isProcessing, isPaused },
   });
 
+  // Sync to project execution.json files
+  await syncQueueAfterReorder(taskIds);
+
   return c.json({ reordered: true });
 });
 
@@ -159,6 +163,9 @@ app.post("/run/:id", async (c) => {
 
   broadcast({ type: "task:update", task: updated });
 
+  // Sync to project execution.json
+  await syncQueueToProject(updated.projectId);
+
   return c.json({ started: updated });
 });
 
@@ -208,6 +215,9 @@ app.post("/run-next", async (c) => {
   isProcessing = true;
 
   broadcast({ type: "task:update", task });
+
+  // Sync to project execution.json
+  await syncQueueToProject(task.projectId);
 
   return c.json({ started: task });
 });
