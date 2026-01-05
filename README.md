@@ -16,6 +16,7 @@ FORGE transforms Claude Code into a powerful iterative development system that a
 - **Sync v2 Protocol** - Conflict-free sync with optimistic locking
 - **Task Locking** - Exclusive execution with heartbeat renewal
 - **Intervention System** - Pause, abort, retry tasks from Control Center
+- **Batch Mode** - Process entire queue autonomously
 
 ## Quick Start
 
@@ -23,7 +24,7 @@ FORGE transforms Claude Code into a powerful iterative development system that a
 
 ```bash
 # In Claude Code
-/plugin install @claudeforge/forge-plugin
+/install-plugin @claudeforge/forge-plugin
 ```
 
 ### 2. Start Control Center
@@ -65,7 +66,11 @@ Generates a detailed plan with:
 ### 6. Execute
 
 ```bash
+# Single task mode (interactive)
 /forge:forge
+
+# Batch mode (process entire queue autonomously)
+/forge:forge-batch
 ```
 
 FORGE will:
@@ -83,9 +88,11 @@ FORGE will:
 | `/forge:forge-spec "desc"` | Create specification from description |
 | `/forge:forge-plan SPEC_ID` | Create implementation plan |
 | `/forge:forge-queue --plan PLAN_ID` | Queue tasks for execution |
-| `/forge:forge` | Start autonomous execution |
+| `/forge:forge` | Start single task execution |
+| `/forge:forge-batch` | Process entire queue autonomously |
 | `/forge:forge-adopt TASK_ID` | Formalize WebUI tasks into spec workflow |
 | `/forge:forge-request` | Process pending WebUI requests |
+| `/forge:forge-done` | Mark current task as manually completed |
 
 ### Control
 
@@ -207,9 +214,10 @@ queued → running → completed
 /forge:forge "Fix build" --until "npm run build"
 ```
 
-## Architecture
+## Project Structure
 
 ```
+.forge.json                    # Project link configuration
 .forge/
 ├── specs/                     # Specification documents
 │   └── spec-001.md
@@ -217,13 +225,67 @@ queued → running → completed
 │   └── plan-001.md
 ├── tasks/                     # Task definitions
 │   └── t001.yaml
-├── config.json                # Project configuration
+├── rules.yaml                 # Project rules and constraints
 ├── node-identity.json         # Plugin node ID (v2)
 ├── execution.json             # Execution state (v2)
 └── pending-sync.json          # Queued status updates
 
 .claude/
 └── forge-state.json           # Active loop state
+```
+
+## Configuration
+
+Create `.forge.json` in your project root:
+
+```json
+{
+  "projectId": "proj-abc123",
+  "controlUrl": "http://127.0.0.1:3344"
+}
+```
+
+Or use `/forge:forge-register` to create it automatically.
+
+## Project Rules
+
+Create `.forge/rules.yaml` to enforce project standards:
+
+```yaml
+name: My Project
+description: Project description
+
+techStack:
+  language:
+    primary: TypeScript
+    version: "5.0"
+    strict: true
+  runtime:
+    name: Node.js
+    version: "20"
+  framework:
+    name: React
+    version: "18"
+  testing:
+    framework: Vitest
+    coverage: 80
+
+conventions:
+  fileNaming: kebab-case
+  componentNaming: PascalCase
+  functionStyle: arrow
+  exportStyle: named
+
+constraints:
+  forbidden:
+    libraries: [moment, lodash]
+    patterns: [any type, class components]
+  required:
+    patterns: [error boundaries]
+
+customRules:
+  - Always use semantic HTML
+  - Document all public APIs
 ```
 
 ## Packages
@@ -235,34 +297,61 @@ queued → running → completed
 | `@claudeforge/forge-server` | Control Center API (Hono + SQLite + Sync v2) |
 | `@claudeforge/forge-web` | Web Dashboard (React + TanStack Query + Sync Monitor) |
 
-## API v2 Endpoints
+## API Endpoints
 
-### Sync Protocol
+### Projects
 ```
-POST /api/v2/sync/nodes/register        # Register plugin node
-POST /api/v2/sync/handshake/:projectId  # Sync handshake
-POST /api/v2/sync/push/:projectId       # Push updates
-POST /api/v2/sync/pull/:projectId       # Pull updates
-```
-
-### Task Locking
-```
-POST /api/v2/sync/tasks/:taskId/claim     # Claim task (lock)
-POST /api/v2/sync/tasks/:taskId/heartbeat # Heartbeat (extend)
-POST /api/v2/sync/tasks/:taskId/release   # Release lock
+GET  /api/projects           # List projects
+POST /api/projects           # Create project
+GET  /api/projects/:id       # Get project
 ```
 
-### Interventions
+### Tasks
 ```
-POST /api/v2/sync/intervene             # Create intervention
-GET  /api/v2/sync/interventions/:taskId # Get history
+GET  /api/tasks              # List tasks
+POST /api/tasks              # Create task
+GET  /api/tasks/:id          # Get task
+PUT  /api/tasks/:id          # Update task
 ```
 
-### Monitoring
+### Queue
 ```
-GET  /api/v2/sync/status/:projectId     # Sync status
-GET  /api/v2/sync/log/:projectId        # Sync log
-POST /api/v2/sync/fix-expired-locks     # Fix stuck locks
+GET  /api/queue/:projectId   # Get queue for project
+POST /api/queue/reorder      # Reorder queue
+```
+
+### Sync v2 - Node Management
+```
+POST /api/v2/sync/nodes/register           # Register plugin node
+POST /api/v2/sync/nodes/:nodeId/heartbeat  # Node heartbeat
+GET  /api/v2/sync/nodes/:projectId         # List connected nodes
+```
+
+### Sync v2 - Protocol
+```
+POST /api/v2/sync/handshake/:projectId     # Sync handshake (exchange versions)
+POST /api/v2/sync/push/:projectId          # Push updates with optimistic locking
+POST /api/v2/sync/pull/:projectId          # Pull updates by task IDs
+```
+
+### Sync v2 - Task Locking
+```
+POST /api/v2/sync/tasks/:taskId/claim      # Claim task (exclusive lock)
+POST /api/v2/sync/tasks/:taskId/heartbeat  # Heartbeat (extend lock)
+POST /api/v2/sync/tasks/:taskId/release    # Release lock
+```
+
+### Sync v2 - Interventions
+```
+POST /api/v2/sync/intervene                # Create intervention (pause/abort/retry)
+GET  /api/v2/sync/interventions/:taskId    # Get intervention history
+```
+
+### Sync v2 - Monitoring
+```
+GET  /api/v2/sync/status/:projectId        # Get sync status (health, nodes, locks)
+GET  /api/v2/sync/log/:projectId           # Get sync activity log
+POST /api/v2/sync/fix-expired-locks        # Fix all expired locks
 ```
 
 ## Development
@@ -282,24 +371,10 @@ pnpm typecheck
 
 # Run tests
 pnpm test
+
+# Run tests with coverage
+pnpm test:coverage
 ```
-
-## Configuration
-
-Create `.forge/config.json` in your project:
-
-```json
-{
-  "controlCenter": {
-    "enabled": true,
-    "url": "http://127.0.0.1:3344",
-    "projectId": "proj-abc123"
-  },
-  "autoSync": true
-}
-```
-
-Or use `/forge:forge-register` to create it automatically.
 
 ## Task Sources
 
