@@ -2,7 +2,8 @@
  * API Types - Control Center REST API
  */
 
-import type { TaskStatus, ForgeMetrics, QualityGate } from "./state.js";
+import type { ForgeMetrics, QualityGate } from "./state.js";
+import type { TaskStatus } from "./sync.js";
 import type { CompletionCriterion, CriterionResult } from "./criteria.js";
 
 // ============================================

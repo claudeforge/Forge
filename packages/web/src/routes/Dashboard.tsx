@@ -15,16 +15,21 @@ import { TaskCard } from "../components/task/TaskCard";
 import { StatusBadge } from "../components/common/StatusBadge";
 import { ExecutionMonitor } from "../components/execution/ExecutionMonitor";
 import { IterationLogViewer } from "../components/iteration/IterationLogViewer";
+import { SyncMonitor } from "../components/sync/SyncMonitor";
 import { useStats, useQueue } from "../hooks/useStats";
 import { useTasks } from "../hooks/useTasks";
+import { useProjects } from "../hooks/useTasks";
 
 export function Dashboard() {
   const { data: stats } = useStats();
   const { data: queue } = useQueue();
   const { data: tasks } = useTasks();
+  const { data: projects } = useProjects();
   const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
+  const [showSyncMonitor, setShowSyncMonitor] = useState(false);
 
   const recentTasks = tasks?.slice(0, 5) ?? [];
+  const activeProject = projects?.[0]; // Use first project as default
 
   return (
     <Layout title="Dashboard">
@@ -51,6 +56,29 @@ export function Dashboard() {
           icon={<Hash className="h-5 w-5" />}
         />
       </div>
+
+      {/* Toggle for Sync Monitor */}
+      {activeProject && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowSyncMonitor(!showSyncMonitor)}
+            className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
+              showSyncMonitor
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            {showSyncMonitor ? "Hide Sync Monitor" : "Show Sync Monitor"}
+          </button>
+        </div>
+      )}
+
+      {/* Sync Monitor (collapsible) */}
+      {showSyncMonitor && activeProject && (
+        <div className="mb-8">
+          <SyncMonitor projectId={activeProject.id} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Execution Monitor - Real-time status */}

@@ -5,6 +5,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type CreateTaskRequest, type UpdateTaskRequest } from "../lib/api";
 
+export function useProjects() {
+  return useQuery({
+    queryKey: ["projects"],
+    queryFn: () => api.getProjects(),
+  });
+}
+
 export function useTasks(projectId?: string) {
   return useQuery({
     queryKey: ["tasks", projectId],

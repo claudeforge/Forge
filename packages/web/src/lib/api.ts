@@ -160,6 +160,29 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ taskDefIds }),
     }),
+
+  // Sync v2 - Monitoring
+  getSyncStatus: (projectId: string) =>
+    request<SyncStatusResponse>(`/v2/sync/status/${projectId}`),
+  getSyncLog: (projectId: string, limit?: number) =>
+    request<SyncLogResponse>(`/v2/sync/log/${projectId}${limit ? `?limit=${limit}` : ""}`),
+  getProjectNodes: (projectId: string) =>
+    request<NodesResponse>(`/v2/sync/nodes/${projectId}`),
+
+  // Sync v2 - Interventions
+  createIntervention: (data: CreateInterventionRequest) =>
+    request<InterventionResponse>(`/v2/sync/intervene`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getInterventions: (taskId: string) =>
+    request<InterventionsResponse>(`/v2/sync/interventions/${taskId}`),
+
+  // Sync v2 - Lock Management
+  fixExpiredLocks: () =>
+    request<FixLocksResponse>(`/v2/sync/fix-expired-locks`, {
+      method: "POST",
+    }),
 };
 
 // Types
@@ -432,6 +455,124 @@ interface MarkDoneResult {
   message: string;
 }
 
+// Sync v2 types
+interface SyncNode {
+  nodeId: string;
+  nodeType: "plugin" | "server";
+  displayName: string | null;
+  lastSeen: string;
+  isOnline: boolean;
+}
+
+interface TaskLock {
+  taskId: string;
+  lockedBy: string;
+  lockedAt: string;
+  expiresAt: string;
+  heartbeatAt: string;
+}
+
+interface StuckTask {
+  id: string;
+  name: string;
+  startedAt: string;
+  lockedBy: string | null;
+}
+
+interface SyncStatusResponse {
+  projectId: string;
+  serverClock: number;
+  nodes: SyncNode[];
+  activeLocks: TaskLock[];
+  stuckTasks: StuckTask[];
+  health: "healthy" | "degraded" | "offline";
+  stats: {
+    totalTasks: number;
+    queued: number;
+    running: number;
+    completed: number;
+    failed: number;
+  };
+}
+
+interface SyncLogEntry {
+  id: string;
+  projectId: string;
+  taskId: string | null;
+  nodeId: string;
+  operation: string;
+  oldValue: unknown;
+  newValue: unknown;
+  logicalClock: number;
+  timestamp: string;
+}
+
+interface SyncLogResponse {
+  logs: SyncLogEntry[];
+}
+
+interface NodesResponse {
+  nodes: Array<SyncNode & {
+    capabilities: string[];
+    registeredAt: string;
+  }>;
+}
+
+type InterventionType =
+  | "FORCE_STATUS"
+  | "RELEASE_LOCK"
+  | "REASSIGN"
+  | "ABORT"
+  | "PAUSE"
+  | "RESUME"
+  | "RETRY";
+
+interface CreateInterventionRequest {
+  type: InterventionType;
+  taskId: string;
+  requestedBy: string;
+  reason: string;
+  params?: {
+    newStatus?: string;
+    newNodeId?: string;
+    resetIteration?: boolean;
+  };
+}
+
+interface InterventionResponse {
+  success: boolean;
+  action: string;
+  error?: string;
+  newState?: {
+    status: string;
+    version: number;
+    lockedBy?: string;
+  };
+}
+
+interface InterventionRecord {
+  id: string;
+  taskId: string;
+  type: InterventionType;
+  requestedBy: string;
+  reason: string;
+  params: Record<string, unknown>;
+  status: "pending" | "applied" | "failed";
+  result: unknown;
+  createdAt: string;
+  appliedAt: string | null;
+}
+
+interface InterventionsResponse {
+  interventions: InterventionRecord[];
+}
+
+interface FixLocksResponse {
+  success: boolean;
+  fixed: number;
+  message: string;
+}
+
 export type {
   Project,
   Task,
@@ -460,4 +601,18 @@ export type {
   MarkDoneResult,
   QueueTaskResult,
   QueueTasksResult,
+  // Sync v2
+  SyncNode,
+  TaskLock,
+  StuckTask,
+  SyncStatusResponse,
+  SyncLogEntry,
+  SyncLogResponse,
+  NodesResponse,
+  InterventionType,
+  CreateInterventionRequest,
+  InterventionResponse,
+  InterventionRecord,
+  InterventionsResponse,
+  FixLocksResponse,
 };

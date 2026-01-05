@@ -262,3 +262,23 @@ $ /forge:forge
 - Show task dependencies
 - Block/unblock indicators
 - Progress by spec/plan
+
+### Sync Monitor
+- Real-time sync health indicator
+- Connected plugin nodes list
+- Active task locks with expiry countdown
+- Stuck task detection (>1 hour)
+- Intervention actions (pause, abort, retry, release lock)
+- Sync activity log
+
+## Sync During Execution
+
+When tasks execute, the sync v2 protocol ensures reliable synchronization:
+
+1. **Task Claim** - Plugin acquires exclusive lock before execution
+2. **Heartbeat** - 30-second heartbeat extends lock and reports progress
+3. **Status Sync** - Updates pushed with optimistic locking (version-based)
+4. **Conflict Resolution** - Terminal states win, active runner wins
+5. **Interventions** - Control Center can pause/abort/retry via heartbeat response
+
+See [docs/design/sync-strategy-v2.md](design/sync-strategy-v2.md) for full protocol details.

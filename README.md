@@ -13,7 +13,9 @@ FORGE transforms Claude Code into a powerful iterative development system that a
 - **Checkpoints & Rollback** - Git-based snapshots, never lose progress
 - **Control Center** - Web dashboard for real-time monitoring
 - **Task Queue** - Schedule, prioritize, and auto-advance through tasks
-- **Guaranteed Sync** - Status updates never lost, queued for retry
+- **Sync v2 Protocol** - Conflict-free sync with optimistic locking
+- **Task Locking** - Exclusive execution with heartbeat renewal
+- **Intervention System** - Pause, abort, retry tasks from Control Center
 
 ## Quick Start
 
@@ -67,7 +69,7 @@ Generates a detailed plan with:
 ```
 
 FORGE will:
-1. Claim the next task from queue
+1. Claim the next task from queue (with exclusive lock)
 2. Work iteratively until criteria pass
 3. Auto-advance to the next task
 4. Repeat until queue is empty
@@ -106,6 +108,7 @@ FORGE will:
 |---------|-------------|
 | `/forge:forge-register` | Register with Control Center |
 | `/forge:forge-link PROJECT_ID` | Link to existing project |
+| `/forge:forge-sync` | Full bidirectional sync |
 
 ### Info
 
@@ -122,7 +125,7 @@ Access the web dashboard at http://127.0.0.1:3344
 
 ### Pages
 
-- **Dashboard** - Overview of current task and stats
+- **Dashboard** - Overview with sync monitor toggle
 - **Specs** - View and manage specifications
 - **Tasks** - Browse all tasks with filtering
 - **Queue** - Manage task queue, reorder priorities
@@ -130,13 +133,60 @@ Access the web dashboard at http://127.0.0.1:3344
 - **Analytics** - Token usage and success rates
 - **Commands** - Full command reference
 
-### Features
+### Sync Monitor Features
 
-- Real-time task progress monitoring
-- Specification and plan management
-- Task queue control (pause, resume, reorder)
-- Token usage analytics
-- WebUI → Claude Code request workflow
+- **Health Status** - Real-time sync health (healthy/degraded/offline)
+- **Connected Nodes** - View all plugin instances
+- **Active Locks** - Monitor task locks with expiry countdown
+- **Stuck Detection** - Auto-detect tasks running too long
+- **Intervention Actions** - Pause, abort, retry, release locks
+- **Sync Log** - Activity history with timestamps
+
+### Interventions
+
+From Control Center, operators can:
+
+| Action | Description |
+|--------|-------------|
+| **Pause** | Send pause command to running task |
+| **Abort** | Force abort a stuck task |
+| **Release Lock** | Free a task lock for reassignment |
+| **Retry** | Requeue a failed task |
+| **Force Status** | Override task status |
+
+## Sync Protocol v2
+
+FORGE uses a robust sync protocol with:
+
+### Optimistic Locking
+```
+Plugin: "I have version 5, updating to 6"
+Server: "OK" or "Conflict: I have version 7"
+```
+
+### Task Locking
+- Exclusive lock per task (only one executor)
+- Heartbeat renewal (30-second interval)
+- Auto-release on timeout (5 minutes)
+- Manual release from Control Center
+
+### Conflict Resolution
+1. Terminal states (completed/aborted) are immutable
+2. Invalid transitions are rejected
+3. Active runner's completion states win
+4. Higher (more final) state wins
+5. Server wins by default
+
+### State Machine
+```
+queued → running → completed
+           ↓
+         paused → running
+           ↓
+         failed → queued (retry)
+           ↓
+         aborted (terminal)
+```
 
 ## Completion Criteria
 
@@ -168,6 +218,8 @@ Access the web dashboard at http://127.0.0.1:3344
 ├── tasks/                     # Task definitions
 │   └── t001.yaml
 ├── config.json                # Project configuration
+├── node-identity.json         # Plugin node ID (v2)
+├── execution.json             # Execution state (v2)
 └── pending-sync.json          # Queued status updates
 
 .claude/
@@ -178,10 +230,40 @@ Access the web dashboard at http://127.0.0.1:3344
 
 | Package | Description |
 |---------|-------------|
-| `@claudeforge/forge-shared` | Shared types, constants, utilities |
-| `@claudeforge/forge-plugin` | Claude Code plugin (hooks + commands) |
-| `@claudeforge/forge-server` | Control Center API (Hono + SQLite) |
-| `@claudeforge/forge-web` | Web Dashboard (React + TanStack Query) |
+| `@claudeforge/forge-shared` | Shared types, constants, utilities, sync protocol |
+| `@claudeforge/forge-plugin` | Claude Code plugin (hooks + commands + sync client) |
+| `@claudeforge/forge-server` | Control Center API (Hono + SQLite + Sync v2) |
+| `@claudeforge/forge-web` | Web Dashboard (React + TanStack Query + Sync Monitor) |
+
+## API v2 Endpoints
+
+### Sync Protocol
+```
+POST /api/v2/sync/nodes/register        # Register plugin node
+POST /api/v2/sync/handshake/:projectId  # Sync handshake
+POST /api/v2/sync/push/:projectId       # Push updates
+POST /api/v2/sync/pull/:projectId       # Pull updates
+```
+
+### Task Locking
+```
+POST /api/v2/sync/tasks/:taskId/claim     # Claim task (lock)
+POST /api/v2/sync/tasks/:taskId/heartbeat # Heartbeat (extend)
+POST /api/v2/sync/tasks/:taskId/release   # Release lock
+```
+
+### Interventions
+```
+POST /api/v2/sync/intervene             # Create intervention
+GET  /api/v2/sync/interventions/:taskId # Get history
+```
+
+### Monitoring
+```
+GET  /api/v2/sync/status/:projectId     # Sync status
+GET  /api/v2/sync/log/:projectId        # Sync log
+POST /api/v2/sync/fix-expired-locks     # Fix stuck locks
+```
 
 ## Development
 
@@ -236,10 +318,11 @@ Tasks can originate from different sources:
 FORGE guarantees status updates are never lost:
 
 1. Status change occurs (completed, failed, paused, etc.)
-2. Immediate sync attempt with 3 retries
-3. If failed, queued to `.forge/pending-sync.json`
-4. Auto-retry on next hook execution
-5. Maximum 10 retry attempts before giving up
+2. Immediate sync attempt with optimistic locking
+3. Conflict resolution if version mismatch
+4. If failed, queued to `.forge/pending-sync.json`
+5. Auto-retry on next hook execution
+6. Maximum 10 retry attempts before giving up
 
 ## License
 

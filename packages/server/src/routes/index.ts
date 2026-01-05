@@ -11,6 +11,7 @@ import stats from "./stats.js";
 import projectFiles from "./project-files.js";
 import rules from "./rules.js";
 import sync from "./sync.js";
+import syncV2 from "./sync-v2.js";
 
 const api = new Hono();
 
@@ -21,6 +22,7 @@ api.route("/queue", queue);
 api.route("/webhooks", webhooks);
 api.route("/stats", stats);
 api.route("/sync", sync);
+api.route("/v2/sync", syncV2);
 
 // Project file access (specs, plans, task-defs)
 api.route("/", projectFiles);

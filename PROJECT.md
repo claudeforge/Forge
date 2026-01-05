@@ -159,6 +159,37 @@ Control Center manages execution:
 - **WebUI** for monitoring and management
 - **Project-scoped** task organization
 
+### Sync Protocol v2
+
+Robust synchronization between plugins and Control Center:
+
+- **Monotonic versioning** - Each entity has incrementing version numbers
+- **Logical clocks** - Lamport timestamps for causality ordering
+- **Optimistic locking** - Version-based conflict detection on updates
+- **Task locking** - Exclusive locks with heartbeat renewal
+- **Conflict resolution** - Hierarchical rules (terminal states win, active runner wins)
+
+### Task Locking
+
+Only one plugin can execute a task at a time:
+
+- **Exclusive lock** - Claim task before execution
+- **Heartbeat** - 30-second interval to keep lock alive
+- **Auto-release** - Locks expire after 5 minutes without heartbeat
+- **Manual release** - Control Center can force-release stuck locks
+
+### Interventions
+
+Control Center operators can intervene in running tasks:
+
+| Action | Description |
+|--------|-------------|
+| `PAUSE` | Send pause command to running task |
+| `ABORT` | Force abort a stuck task |
+| `RELEASE_LOCK` | Free a task lock for reassignment |
+| `RETRY` | Requeue a failed task |
+| `FORCE_STATUS` | Override task status directly |
+
 ### Completion Criteria Types
 
 | Type | Example | Evaluation |
@@ -221,7 +252,10 @@ project/
 │   │       ├── iterations/       # Per-iteration logs
 │   │       └── result.json       # Final outcome
 │   ├── checkpoints/              # Git-based checkpoints
-│   └── .forge.json               # Project config (Control Center link)
+│   ├── config.json               # Project config (Control Center link)
+│   ├── node-identity.json        # Plugin node ID (persistent UUID)
+│   ├── execution.json            # Execution state with sync metadata (v2.0)
+│   └── pending-sync.json         # Queued status updates for retry
 │
 ├── .claude/
 │   └── forge-state.json          # Active task state
@@ -237,12 +271,20 @@ project/
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │   Server    │  │   WebUI     │  │      Database       │  │
 │  │   (Hono)    │◄─┤   (React)   │  │     (SQLite)        │  │
-│  │   :3456     │  │   :5173     │  │                     │  │
+│  │   :3344     │  │   :5173     │  │                     │  │
 │  └──────┬──────┘  └─────────────┘  └─────────────────────┘  │
-│         │                                                    │
+│         │              │                                    │
 │         │ REST API + WebSocket                              │
-└─────────┼───────────────────────────────────────────────────┘
+│         │              │                                    │
+│  ┌──────┴──────────────┴────────────────────────────────┐  │
+│  │                   Sync v2 Layer                       │  │
+│  │  • Node Registry  • Task Locks  • Interventions      │  │
+│  │  • Optimistic Locking  • Conflict Resolution         │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────┬───────────────────────────────────────────────────┘
           │
+          │ Sync Protocol v2
+          │ (handshake, push, pull, claim, heartbeat)
           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    Claude Code + Plugin                      │
@@ -250,6 +292,12 @@ project/
 │  │  Commands   │  │  Stop Hook  │  │    Local State      │  │
 │  │  /forge:*   │  │  (Core)     │  │   .forge/...        │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│         │                                │                   │
+│  ┌──────┴────────────────────────────────┴───────────────┐  │
+│  │                  Sync Client v2                        │  │
+│  │  • Node Identity  • Claim/Release  • Heartbeat        │  │
+│  │  • Push/Pull  • Retry Queue  • Version Tracking       │  │
+│  └────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -264,7 +312,12 @@ src/
 │   ├── criteria.ts    # CriterionType, CriterionResult
 │   ├── spec.ts        # TaskDefinition, SpecMetadata, PlanMetadata
 │   ├── events.ts      # ForgeEvent (webhooks)
-│   └── api.ts         # API request/response types
+│   ├── api.ts         # API request/response types
+│   ├── sync.ts        # Sync protocol types (v2)
+│   │                  # - SyncMetadata, NodeIdentity, TaskLock
+│   │                  # - TaskStatus, VALID_TRANSITIONS
+│   │                  # - resolveConflict(), isValidTransition()
+│   └── execution.ts   # ExecutionFile v2 with sync metadata
 ├── constants/
 │   ├── defaults.ts    # DEFAULT_STATE
 │   └── paths.ts       # Directory paths, file helpers
@@ -285,6 +338,12 @@ src/
 │   └── queue-tasks.ts # Queue YAML tasks
 ├── hooks/
 │   └── stop.ts        # CORE: Exit interception
+├── sync/
+│   ├── sync-client-v2.ts  # Sync protocol client
+│   │                      # - Node identity management
+│   │                      # - Claim/release/heartbeat
+│   │                      # - Push/pull with versions
+│   └── status-sync.ts     # Guaranteed status sync with retry
 
 commands/
 ├── forge.md           # /forge:forge - Execute task
@@ -308,11 +367,18 @@ src/
 ├── db/
 │   ├── index.ts       # Drizzle setup
 │   └── schema.ts      # Database schema
+│                      # Tables: projects, tasks, iterations, specs,
+│                      #         plans, nodes, syncLog, interventions
 └── routes/
     ├── projects.ts    # /api/projects
     ├── tasks.ts       # /api/tasks
     ├── queue.ts       # /api/queue
-    └── stats.ts       # /api/stats
+    ├── stats.ts       # /api/stats
+    └── sync-v2.ts     # /api/v2/sync/* endpoints
+                       # - Node registration & heartbeat
+                       # - Handshake, push, pull
+                       # - Task claim, heartbeat, release
+                       # - Interventions & monitoring
 ```
 
 ### @claudeforge/forge-web
@@ -322,19 +388,29 @@ src/
 ├── main.tsx           # Entry
 ├── App.tsx            # Router
 ├── lib/
-│   ├── api.ts         # API client
+│   ├── api.ts         # API client (includes sync v2 methods)
 │   └── utils.ts       # Helpers
 ├── hooks/
-│   └── useStats.ts    # React Query hooks
+│   ├── useStats.ts    # React Query hooks
+│   └── useTasks.ts    # Task & project hooks
 ├── routes/
-│   ├── Dashboard.tsx
+│   ├── Dashboard.tsx  # Main dashboard with sync monitor toggle
 │   ├── Projects.tsx
 │   ├── Tasks.tsx
-│   └── Queue.tsx
+│   ├── Queue.tsx
+│   └── Commands.tsx   # Command reference page
 └── components/
     ├── layout/
     ├── common/
-    └── task/
+    ├── task/
+    └── sync/
+        └── SyncMonitor.tsx  # Real-time sync monitoring UI
+                             # - Health status indicator
+                             # - Connected nodes list
+                             # - Active locks with expiry
+                             # - Stuck task detection
+                             # - Intervention actions
+                             # - Sync activity log
 ```
 
 ## API Endpoints
@@ -362,23 +438,67 @@ src/
 ### Stats
 - `GET /api/stats` - Get statistics
 
+### Sync v2 (Node Management)
+- `POST /api/v2/sync/nodes/register` - Register plugin node
+- `POST /api/v2/sync/nodes/:nodeId/heartbeat` - Node heartbeat
+- `GET /api/v2/sync/nodes/:projectId` - List connected nodes
+
+### Sync v2 (Protocol)
+- `POST /api/v2/sync/handshake/:projectId` - Sync handshake (exchange versions)
+- `POST /api/v2/sync/push/:projectId` - Push updates with optimistic locking
+- `POST /api/v2/sync/pull/:projectId` - Pull updates by task IDs
+
+### Sync v2 (Task Locking)
+- `POST /api/v2/sync/tasks/:taskId/claim` - Claim task (exclusive lock)
+- `POST /api/v2/sync/tasks/:taskId/heartbeat` - Heartbeat (extend lock)
+- `POST /api/v2/sync/tasks/:taskId/release` - Release lock
+
+### Sync v2 (Interventions)
+- `POST /api/v2/sync/intervene` - Create intervention (pause/abort/retry)
+- `GET /api/v2/sync/interventions/:taskId` - Get intervention history
+
+### Sync v2 (Monitoring)
+- `GET /api/v2/sync/status/:projectId` - Get sync status (health, nodes, locks)
+- `GET /api/v2/sync/log/:projectId` - Get sync activity log
+- `POST /api/v2/sync/fix-expired-locks` - Fix all expired locks
+
 ## Commands Reference
 
+### Workflow
 | Command | Description |
 |---------|-------------|
 | `/forge:forge-spec` | Create specification with clarification |
 | `/forge:forge-plan` | Create implementation plan from spec |
 | `/forge:forge-queue` | Queue tasks to Control Center |
 | `/forge:forge` | Execute next task in loop |
-| `/forge:forge-link` | Link project to Control Center |
+| `/forge:forge-adopt` | Formalize WebUI tasks into spec workflow |
+| `/forge:forge-request` | Process pending WebUI requests |
+
+### Control
+| Command | Description |
+|---------|-------------|
+| `/forge:forge-pause` | Pause current execution |
+| `/forge:forge-resume` | Resume paused execution |
+| `/forge:forge-abort` | Abort and exit |
 | `/forge:forge-status` | Show comprehensive status |
-| `/forge:forge-stop` | Stop current execution |
 | `/forge:forge-help` | Display help information |
+
+### Checkpoints
+| Command | Description |
+|---------|-------------|
+| `/forge:forge-checkpoint` | Create manual checkpoint |
+| `/forge:forge-rollback` | Rollback to checkpoint |
+
+### Sync
+| Command | Description |
+|---------|-------------|
+| `/forge:forge-register` | Register with Control Center |
+| `/forge:forge-link` | Link project to Control Center |
+| `/forge:forge-sync` | Full bidirectional sync |
 
 ## Future Enhancements
 
 - [ ] Parallel task execution (with dependency respect)
-- [ ] Cost budgets per project/spec
 - [ ] Slack/Discord notifications
 - [ ] GitHub PR integration
 - [ ] Test coverage tracking
@@ -386,3 +506,5 @@ src/
 - [ ] Multi-model support
 - [ ] Task templates library
 - [ ] Spec versioning
+- [ ] Multi-project sync dashboard
+- [ ] Offline mode with full sync on reconnect

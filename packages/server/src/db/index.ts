@@ -46,7 +46,11 @@ const createTableStatements = `
     iteration INTEGER NOT NULL DEFAULT 0,
     config TEXT NOT NULL DEFAULT '{}',
     result TEXT,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    sync_version INTEGER NOT NULL DEFAULT 1,
+    locked_by TEXT,
+    locked_at TEXT,
+    lock_expires_at TEXT
   );
 
   CREATE TABLE IF NOT EXISTS iterations (
@@ -73,11 +77,62 @@ const createTableStatements = `
     created_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS nodes (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    node_type TEXT NOT NULL,
+    display_name TEXT,
+    capabilities TEXT NOT NULL DEFAULT '[]',
+    registered_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL,
+    is_online INTEGER NOT NULL DEFAULT 0,
+    logical_clock INTEGER NOT NULL DEFAULT 0,
+    metadata TEXT NOT NULL DEFAULT '{}'
+  );
+
+  CREATE TABLE IF NOT EXISTS sync_log (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    task_id TEXT REFERENCES tasks(id) ON DELETE CASCADE,
+    node_id TEXT NOT NULL,
+    operation TEXT NOT NULL,
+    old_value TEXT,
+    new_value TEXT,
+    logical_clock INTEGER NOT NULL,
+    timestamp TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS interventions (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    requested_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    params TEXT NOT NULL DEFAULT '{}',
+    status TEXT NOT NULL DEFAULT 'pending',
+    result TEXT,
+    created_at TEXT NOT NULL,
+    applied_at TEXT
+  );
+
   CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
   CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
   CREATE INDEX IF NOT EXISTS idx_iterations_task ON iterations(task_id);
   CREATE INDEX IF NOT EXISTS idx_checkpoints_task ON checkpoints(task_id);
+  CREATE INDEX IF NOT EXISTS idx_nodes_project ON nodes(project_id);
+  CREATE INDEX IF NOT EXISTS idx_sync_log_project ON sync_log(project_id);
+  CREATE INDEX IF NOT EXISTS idx_sync_log_task ON sync_log(task_id);
+  CREATE INDEX IF NOT EXISTS idx_interventions_task ON interventions(task_id);
 `;
+
+// Migration statements for existing databases
+const migrationStatements = [
+  // Add sync columns to tasks table if they don't exist
+  "ALTER TABLE tasks ADD COLUMN sync_version INTEGER NOT NULL DEFAULT 1",
+  "ALTER TABLE tasks ADD COLUMN locked_by TEXT",
+  "ALTER TABLE tasks ADD COLUMN locked_at TEXT",
+  "ALTER TABLE tasks ADD COLUMN lock_expires_at TEXT",
+];
 
 // Initialize tables (create if not exist)
 export function initializeDatabase(): void {
@@ -89,6 +144,19 @@ export function initializeDatabase(): void {
 
   for (const statement of statements) {
     sqlite.prepare(statement).run();
+  }
+
+  // Run migrations for existing databases (ignore errors for already-existing columns)
+  for (const migration of migrationStatements) {
+    try {
+      sqlite.prepare(migration).run();
+    } catch (err) {
+      // Ignore "duplicate column name" errors - means migration already applied
+      const error = err as Error;
+      if (!error.message.includes("duplicate column name")) {
+        console.warn(`Migration warning: ${error.message}`);
+      }
+    }
   }
 }
 

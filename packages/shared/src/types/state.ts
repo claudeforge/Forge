@@ -5,18 +5,13 @@
 
 import type { CompletionCriterion, CriterionResult } from "./criteria.js";
 
+// TaskStatus is defined in sync.ts (single source of truth)
+// Import it here for use in this file
+import type { TaskStatus } from "./sync.js";
+
 // ============================================
 // STATUS TYPES
 // ============================================
-
-/** Task status */
-export type TaskStatus =
-  | "running"    // Actively running
-  | "paused"     // Paused
-  | "completed"  // Successfully completed
-  | "failed"     // Failed (budget, timeout, max-iter)
-  | "stuck"      // Stuck and unrecoverable
-  | "aborted";   // Manually aborted
 
 /** Criteria evaluation mode */
 export type CriteriaMode =
