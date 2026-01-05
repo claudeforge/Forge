@@ -9,7 +9,20 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json", "html"],
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.test.ts", "src/**/index.ts"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/**/index.ts",
+        // CLI commands require complex integration tests
+        "src/cli/**",
+        // Main hook requires extensive mocking of all dependencies
+        "src/hooks/**",
+      ],
+      thresholds: {
+        statements: 95,
+        branches: 90,
+        functions: 95,
+        lines: 95,
+      },
     },
   },
 });

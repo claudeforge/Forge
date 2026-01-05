@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { isGitRepo, createStash, applyStash, getChangedFiles } from "./git.js";
+import { isGitRepo, createStash, applyStash, dropStash, getChangedFiles } from "./git.js";
 
 // Mock shell utility
 vi.mock("./shell.js", () => ({
@@ -142,6 +142,35 @@ describe("Git Utilities", () => {
       });
 
       const result = applyStash("abc123");
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("dropStash", () => {
+    it("should drop stash and return true on success", () => {
+      mockGit.mockReturnValue({
+        success: true,
+        exitCode: 0,
+        stdout: "Dropped refs/stash@{0}",
+        stderr: "",
+      });
+
+      const result = dropStash("stash@{0}");
+
+      expect(result).toBe(true);
+      expect(mockGit).toHaveBeenCalledWith(["stash", "drop", "stash@{0}"]);
+    });
+
+    it("should return false when stash drop fails", () => {
+      mockGit.mockReturnValue({
+        success: false,
+        exitCode: 1,
+        stdout: "",
+        stderr: "error: stash not found",
+      });
+
+      const result = dropStash("nonexistent");
 
       expect(result).toBe(false);
     });

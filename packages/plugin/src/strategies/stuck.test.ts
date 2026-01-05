@@ -227,6 +227,24 @@ describe("Stuck Detection", () => {
       expect(result.isStuck).toBe(false);
     });
 
+    it("should not be stuck when pass rate improves by more than 5%", () => {
+      // Two criteria: progress from 0/2 to 1/2 (0% to 50% = 50% improvement)
+      // maxRate < 1.0 so doesn't return early on line 91
+      const state = createMinimalState([
+        createIterationRecord(1, "Attempt 1", [createCriterionResult(false), createCriterionResult(false)]),
+        createIterationRecord(2, "Attempt 2", [createCriterionResult(false), createCriterionResult(false)]),
+        createIterationRecord(3, "Attempt 3", [createCriterionResult(false), createCriterionResult(false)]),
+        createIterationRecord(4, "Attempt 4", [createCriterionResult(true), createCriterionResult(false)]),
+        createIterationRecord(5, "Attempt 5", [createCriterionResult(true), createCriterionResult(false)]),
+      ]);
+      state.stuckDetection.noProgressThreshold = 5;
+
+      const result = detectStuck(state);
+
+      // 50% improvement (0% to 50%) > 5%, so not stuck
+      expect(result.isStuck).toBe(false);
+    });
+
     it("should detect repeating error pattern", () => {
       const state = createMinimalState([
         createIterationRecord(1, "Try 1", [], "error", "Connection refused"),
