@@ -101,41 +101,53 @@ app.get("/:id/next-task", async (c) => {
 
 // POST /api/projects/:id/claim-task - Claim and start next task
 // Used by plugin to atomically claim a task
+// Uses optimistic locking to prevent race conditions
 app.post("/:id/claim-task", async (c) => {
   const projectId = c.req.param("id");
+  const now = new Date().toISOString();
 
-  // Get next queued task
+  // Atomic claim: UPDATE with WHERE status='queued' prevents race conditions
+  // Only one client can successfully update from 'queued' to 'running'
+  const result = await db
+    .update(schema.tasks)
+    .set({
+      status: "running",
+      startedAt: now,
+    })
+    .where(and(
+      eq(schema.tasks.projectId, projectId),
+      eq(schema.tasks.status, "queued"),
+      // Use subquery to get the task with lowest priority
+      sql`${schema.tasks.id} = (
+        SELECT id FROM ${schema.tasks}
+        WHERE project_id = ${projectId} AND status = 'queued'
+        ORDER BY priority ASC
+        LIMIT 1
+      )`
+    ));
+
+  // Check if any row was updated
+  if (!result.changes || result.changes === 0) {
+    return c.json({ error: "No queued tasks" }, 404);
+  }
+
+  // Get the claimed task
   const [task] = await db
     .select()
     .from(schema.tasks)
     .where(and(
       eq(schema.tasks.projectId, projectId),
-      eq(schema.tasks.status, "queued")
+      eq(schema.tasks.status, "running"),
+      eq(schema.tasks.startedAt, now)
     ))
-    .orderBy(asc(schema.tasks.priority))
     .limit(1);
 
   if (!task) {
-    return c.json({ error: "No queued tasks" }, 404);
+    return c.json({ error: "Failed to retrieve claimed task" }, 500);
   }
 
-  // Update to running
-  await db
-    .update(schema.tasks)
-    .set({
-      status: "running",
-      startedAt: new Date().toISOString(),
-    })
-    .where(eq(schema.tasks.id, task.id));
-
-  // Get updated task
-  const [updated] = await db
-    .select()
-    .from(schema.tasks)
-    .where(eq(schema.tasks.id, task.id));
-
   // Broadcast
-  broadcast({ type: "task:update", task: updated });
+  broadcast({ type: "task:update", task });
 
   // Parse config
   const config = JSON.parse(task.config || "{}");

@@ -626,7 +626,9 @@ Task prompt: ${nextTask.prompt}`,
       saveState(state);
       // CRITICAL: Sync paused status to Control Center (with retry/queue)
       await syncTaskStatus(state, "paused");
-      sendWebhook(state, {
+      // Update local execution file
+      updateExecutionStatus(state.task.id, "paused");
+      await sendWebhook(state, {
         type: "task:paused",
         iteration: state.iteration.current,
       });
@@ -646,7 +648,15 @@ Task prompt: ${nextTask.prompt}`,
         summary: "Aborted by user",
         error: "Aborted by user",
       });
-      sendWebhook(state, {
+      // Update local execution file
+      updateExecutionStatus(state.task.id, "aborted", {
+        success: false,
+        iterations: state.iteration.current,
+        duration: state.metrics.totalDuration / 1000,
+        summary: "Aborted by user",
+        error: "Aborted by user",
+      });
+      await sendWebhook(state, {
         type: "task:failed",
         reason: "aborted",
         message: "Aborted by user",

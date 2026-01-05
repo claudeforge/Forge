@@ -3,7 +3,7 @@
  */
 
 import { Hono } from "hono";
-import { eq, desc, sql, max } from "drizzle-orm";
+import { eq, desc, sql, max, and } from "drizzle-orm";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
@@ -150,23 +150,27 @@ app.post("/", async (c) => {
     // Explicit priority takes precedence
     priority = explicitPriority;
   } else if (position === "start") {
-    // Add to start of queue (priority 0, shift others)
+    // Add to start of queue (priority 0, shift others in same project)
     priority = 0;
-    // Increment all existing task priorities
-    await db
-      .update(schema.tasks)
-      .set({ priority: sql`${schema.tasks.priority} + 1` });
-  } else if (typeof position === "number") {
-    // Insert at specific position
-    priority = position;
-    // Shift tasks at or after this position
+    // Increment only this project's task priorities
     await db
       .update(schema.tasks)
       .set({ priority: sql`${schema.tasks.priority} + 1` })
-      .where(sql`${schema.tasks.priority} >= ${position}`);
+      .where(eq(schema.tasks.projectId, projectId));
+  } else if (typeof position === "number") {
+    // Insert at specific position
+    priority = position;
+    // Shift tasks at or after this position (only in same project)
+    await db
+      .update(schema.tasks)
+      .set({ priority: sql`${schema.tasks.priority} + 1` })
+      .where(and(
+        eq(schema.tasks.projectId, projectId),
+        sql`${schema.tasks.priority} >= ${position}`
+      ));
   } else {
-    // Default: add to end of queue
-    priority = await getNextPriority();
+    // Default: add to end of queue (project-specific)
+    priority = await getNextPriority(projectId);
   }
 
   const task = {

@@ -21,17 +21,16 @@ import { extractPromise } from "../utils/transcript.js";
 
 /**
  * Evaluate all criteria against Claude's output
+ * Runs evaluations in parallel for better performance
  */
 export async function evaluateCriteria(
   criteria: CompletionCriterion[],
   output: string
 ): Promise<CriterionResult[]> {
-  const results: CriterionResult[] = [];
-
-  for (const criterion of criteria) {
-    const result = await evaluateCriterion(criterion, output);
-    results.push(result);
-  }
+  // Run all evaluations in parallel
+  const results = await Promise.all(
+    criteria.map((criterion) => evaluateCriterion(criterion, output))
+  );
 
   return results;
 }
@@ -188,14 +187,48 @@ function evaluateLintClean(criterion: CompletionCriterion): CriterionResult {
     result = execFile(cmd, parts.slice(1));
   }
 
-  // Count errors in output (rough heuristic)
-  const errorCount =
-    (result.stdout.match(/error/gi) || []).length +
-    (result.stderr.match(/error/gi) || []).length;
+  // If command succeeded with exit 0, there are no errors
+  if (result.success) {
+    return {
+      criterion,
+      passed: true,
+      currentValue: "0 errors",
+      targetValue: maxErrors === 0 ? "no errors" : `≤${maxErrors} errors`,
+    };
+  }
+
+  // Parse error count from common lint output formats:
+  // ESLint: "✖ 5 problems (3 errors, 2 warnings)"
+  // TSC: "Found 5 errors"
+  // Biome: "5 errors"
+  const allOutput = result.stdout + "\n" + result.stderr;
+
+  // Try common patterns
+  const patterns = [
+    /(\d+)\s+error/i,                           // "5 errors" or "5 error"
+    /✖\s*(\d+)\s+problems?\s*\((\d+)\s+errors?/i, // ESLint format
+    /Found\s+(\d+)\s+errors?/i,                 // TSC format
+    /(\d+)\s+problems?\s+found/i,               // Generic
+  ];
+
+  let errorCount = 0;
+  for (const pattern of patterns) {
+    const match = allOutput.match(pattern);
+    if (match) {
+      // For ESLint format, use the second capture group (actual errors)
+      errorCount = parseInt(match[2] ?? match[1] ?? "0", 10);
+      break;
+    }
+  }
+
+  // If no pattern matched but command failed, count as at least 1 error
+  if (errorCount === 0 && !result.success) {
+    errorCount = 1;
+  }
 
   return {
     criterion,
-    passed: result.success || errorCount <= maxErrors,
+    passed: errorCount <= maxErrors,
     currentValue: `${errorCount} errors`,
     targetValue: maxErrors === 0 ? "no errors" : `≤${maxErrors} errors`,
   };
@@ -216,9 +249,54 @@ function evaluateCoverage(criterion: CompletionCriterion): CriterionResult {
   }
 
   // Try to extract coverage percentage from output
+  // Common formats:
+  // - Jest: "All files | 85.5 | 90 | 80 | 85 |"
+  // - Istanbul/nyc: "Statements : 85.5% ( 100/117 )"
+  // - Vitest: "Coverage: 85.5%"
+  // - Generic: "Total coverage: 85.5%"
   const allOutput = result.stdout + "\n" + result.stderr;
-  const match = allOutput.match(/(\d+(?:\.\d+)?)\s*%/);
-  const coverage = match?.[1] ? parseFloat(match[1]) : 0;
+
+  // Try specific patterns first (more accurate)
+  const patterns = [
+    // Istanbul/nyc summary line: "Statements   : 85.5% ( 100/117 )"
+    /(?:Statements|Branches|Functions|Lines)\s*:\s*(\d+(?:\.\d+)?)\s*%/gi,
+    // Jest table format - look for "All files" row
+    /All files[^|]*\|\s*(\d+(?:\.\d+)?)/i,
+    // Vitest/generic "coverage: XX%"
+    /(?:coverage|total)[:=]\s*(\d+(?:\.\d+)?)\s*%/i,
+    // C8/V8 format: "Lines: 85.5%"
+    /Lines\s*:\s*(\d+(?:\.\d+)?)\s*%/i,
+  ];
+
+  let coverage = 0;
+  let foundMatch = false;
+
+  for (const pattern of patterns) {
+    const matches = allOutput.matchAll(pattern);
+    const matchArray = [...matches];
+    if (matchArray.length > 0) {
+      // For multi-match patterns (like istanbul), take the average or use first
+      // Most tools report "Statements" as the primary coverage metric
+      const lastMatch = matchArray[matchArray.length - 1];
+      if (lastMatch?.[1]) {
+        coverage = parseFloat(lastMatch[1]);
+        foundMatch = true;
+        break;
+      }
+    }
+  }
+
+  // Fallback: try to find any percentage (but prefer ones near the end of output)
+  if (!foundMatch) {
+    const percentMatches = [...allOutput.matchAll(/(\d+(?:\.\d+)?)\s*%/g)];
+    if (percentMatches.length > 0) {
+      // Use the last percentage found (usually the summary)
+      const lastMatch = percentMatches[percentMatches.length - 1];
+      if (lastMatch?.[1]) {
+        coverage = parseFloat(lastMatch[1]);
+      }
+    }
+  }
 
   return {
     criterion,

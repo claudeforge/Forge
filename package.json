@@ -16,6 +16,7 @@
     "dev:web": "turbo dev --filter=@claudeforge/forge-web",
     "build": "turbo build",
     "test": "turbo test",
+    "test:coverage": "turbo test -- --coverage",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean && rm -rf node_modules",
@@ -25,7 +26,8 @@
     "@types/node": "^20.19.27",
     "prettier": "^3.7.4",
     "turbo": "^2.7.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.4"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

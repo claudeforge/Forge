@@ -76,16 +76,28 @@ function detectNoProgress(
     return total > 0 ? passed / total : 0;
   });
 
+  // If no criteria are defined, we can't detect no-progress based on pass rates
+  // This prevents false positives when tasks don't have completion criteria
+  const hasCriteria = recent.some((r) => r.criteriaResults.length > 0);
+  if (!hasCriteria) {
+    return { isStuck: false };
+  }
+
   // Check if pass rates haven't improved
   const maxRate = Math.max(...passRates);
   const minRate = Math.min(...passRates);
+
+  // Also check that we're not at 100% (if all pass rates are 1.0, task should complete not stuck)
+  if (maxRate === 1.0) {
+    return { isStuck: false };
+  }
 
   if (maxRate - minRate < 0.05) {
     // Less than 5% improvement
     return {
       isStuck: true,
       pattern: "no-progress",
-      details: `No progress for ${threshold} iterations`,
+      details: `No progress for ${threshold} iterations (pass rate: ${(maxRate * 100).toFixed(0)}%)`,
     };
   }
 
