@@ -11,6 +11,7 @@ import {
   BarChart3,
   Flame,
   FileText,
+  Terminal,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Queue", href: "/queue", icon: Layers },
   { name: "Projects", href: "/projects", icon: FolderOpen },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "Commands", href: "/commands", icon: Terminal },
 ];
 
 export function Sidebar() {
@@ -61,7 +63,7 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-700">
-        <p className="text-xs text-gray-500">FORGE Control Center v0.1.0</p>
+        <p className="text-xs text-gray-500">FORGE Control Center v0.2.0</p>
       </div>
     </aside>
   );

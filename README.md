@@ -1,18 +1,19 @@
 # FORGE
 
-**Iterative AI Development Engine for Claude Code**
+**Specification-Driven AI Development Engine for Claude Code**
 
-FORGE transforms Claude Code into a powerful iterative development system that can autonomously work on complex tasks until completion criteria are met.
+FORGE transforms Claude Code into a powerful iterative development system that autonomously works on complex tasks through formal specifications, structured planning, and completion criteria verification.
 
 ## Features
 
-- **Multi-criteria Completion** - Tests, coverage, lint, file checks, custom scripts
+- **Specification-Driven Development** - Formal specs with requirements, criteria, and clarification
+- **Structured Planning** - Break down specs into tasks with dependencies
+- **Multi-Criteria Completion** - Tests, coverage, lint, file checks, custom scripts
 - **Intelligent Stuck Detection** - Automatic recovery with multiple strategies
 - **Checkpoints & Rollback** - Git-based snapshots, never lose progress
-- **Budget Controls** - Cost, time, and iteration limits
 - **Control Center** - Web dashboard for real-time monitoring
 - **Task Queue** - Schedule, prioritize, and auto-advance through tasks
-- **Specification-Driven Development** - Decompose big goals into atomic tasks
+- **Guaranteed Sync** - Status updates never lost, queued for retry
 
 ## Quick Start
 
@@ -23,32 +24,41 @@ FORGE transforms Claude Code into a powerful iterative development system that c
 /plugin install @claudeforge/forge-plugin
 ```
 
-### 2. Start Control Center (Optional but Recommended)
+### 2. Start Control Center
 
 ```bash
 npx @claudeforge/forge-server
-# Opens at http://localhost:3344
+# Opens at http://127.0.0.1:3344
 ```
 
-### 3. Link Your Project
+### 3. Create a Specification
 
 ```bash
-/forge:forge-link --project YOUR_PROJECT_ID --control http://localhost:3344
+/forge:forge-spec "Add user authentication with JWT tokens"
 ```
 
-### 4. Decompose a Goal into Tasks
+This creates a formal specification with:
+- Requirements analysis
+- Acceptance criteria
+- Technical considerations
+- Clarifying questions
+
+### 4. Create Implementation Plan
 
 ```bash
-/forge:forge-tasks "Build a REST API with JWT authentication, rate limiting, and comprehensive tests"
+/forge:forge-plan spec-001
 ```
 
-### 5. Review in WebUI
+Generates a detailed plan with:
+- Architecture decisions
+- Task breakdown with dependencies
+- Success criteria per task
 
-Open http://localhost:3344/queue to:
-- See all queued tasks
-- Reorder priorities
-- Edit task details
-- Monitor running tasks
+### 5. Queue Tasks
+
+```bash
+/forge:forge-queue --plan plan-001
+```
 
 ### 6. Execute
 
@@ -64,53 +74,104 @@ FORGE will:
 
 ## Commands
 
+### Workflow
+
 | Command | Description |
 |---------|-------------|
-| `/forge:forge` | Start iterative loop (queue-based or standalone) |
-| `/forge:forge-tasks "GOAL"` | Decompose goal into sub-tasks |
-| `/forge:forge-link` | Link project to Control Center |
-| `/forge:forge-status` | Check current task status |
+| `/forge:forge-spec "desc"` | Create specification from description |
+| `/forge:forge-plan SPEC_ID` | Create implementation plan |
+| `/forge:forge-queue --plan PLAN_ID` | Queue tasks for execution |
+| `/forge:forge` | Start autonomous execution |
+| `/forge:forge-adopt TASK_ID` | Formalize WebUI tasks into spec workflow |
+| `/forge:forge-request` | Process pending WebUI requests |
+
+### Control
+
+| Command | Description |
+|---------|-------------|
 | `/forge:forge-pause` | Pause the current loop |
 | `/forge:forge-resume` | Resume a paused loop |
 | `/forge:forge-abort` | Abort and exit |
+
+### Checkpoints
+
+| Command | Description |
+|---------|-------------|
 | `/forge:forge-checkpoint` | Create manual checkpoint |
 | `/forge:forge-rollback` | Rollback to checkpoint |
+
+### Sync
+
+| Command | Description |
+|---------|-------------|
+| `/forge:forge-register` | Register with Control Center |
+| `/forge:forge-link PROJECT_ID` | Link to existing project |
+
+### Info
+
+| Command | Description |
+|---------|-------------|
+| `/forge:forge-status` | Check current status |
 | `/forge:forge-history` | View iteration history |
+| `/forge:forge-tasks` | List tasks |
+| `/forge:forge-help` | Show help |
+
+## Control Center
+
+Access the web dashboard at http://127.0.0.1:3344
+
+### Pages
+
+- **Dashboard** - Overview of current task and stats
+- **Specs** - View and manage specifications
+- **Tasks** - Browse all tasks with filtering
+- **Queue** - Manage task queue, reorder priorities
+- **Projects** - Manage registered projects
+- **Analytics** - Token usage and success rates
+- **Commands** - Full command reference
+
+### Features
+
+- Real-time task progress monitoring
+- Specification and plan management
+- Task queue control (pause, resume, reorder)
+- Token usage analytics
+- WebUI → Claude Code request workflow
 
 ## Completion Criteria
 
 ```bash
 # Tests must pass
-/forge "Add feature X" --until "tests pass"
+/forge:forge "Add feature X" --until "tests pass"
 
 # Multiple criteria
-/forge "Refactor module" --until "tests pass" --until "lint clean"
+/forge:forge "Refactor module" --until "tests pass" --until "lint clean"
 
 # Coverage threshold
-/forge "Increase coverage" --until "coverage > 80%"
+/forge:forge "Increase coverage" --until "coverage > 80%"
 
 # File must exist
-/forge "Generate config" --until "file exists config.yaml"
+/forge:forge "Generate config" --until "file exists config.yaml"
 
 # Custom command
-/forge "Fix build" --until "npm run build"
+/forge:forge "Fix build" --until "npm run build"
 ```
 
 ## Architecture
 
 ```
 .forge/
-├── state.json                 # Active loop state
-├── command.json               # External commands (pause/abort)
-└── tasks/
-    └── {task-id}/
-        ├── task.json          # Task configuration
-        ├── iterations/
-        │   ├── 001.json       # Iteration 1 details
-        │   ├── 002.json       # Iteration 2 details
-        │   └── ...
-        ├── checkpoints/       # Git stash references
-        └── result.json        # Final outcome
+├── specs/                     # Specification documents
+│   └── spec-001.md
+├── plans/                     # Implementation plans
+│   └── plan-001.md
+├── tasks/                     # Task definitions
+│   └── t001.yaml
+├── config.json                # Project configuration
+└── pending-sync.json          # Queued status updates
+
+.claude/
+└── forge-state.json           # Active loop state
 ```
 
 ## Packages
@@ -143,16 +204,42 @@ pnpm test
 
 ## Configuration
 
-Create `.forge.json` in your project root:
+Create `.forge/config.json` in your project:
 
 ```json
 {
-  "projectId": "proj-abc123",
-  "controlUrl": "http://localhost:3344"
+  "controlCenter": {
+    "enabled": true,
+    "url": "http://127.0.0.1:3344",
+    "projectId": "proj-abc123"
+  },
+  "autoSync": true
 }
 ```
 
-Or use `/forge:forge-link` to create it automatically.
+Or use `/forge:forge-register` to create it automatically.
+
+## Task Sources
+
+Tasks can originate from different sources:
+
+| Source | Created By | Recommended Action |
+|--------|------------|-------------------|
+| `forge-plan` | Plugin workflow | Already proper |
+| `webui-direct` | WebUI form | Run `/forge:forge-adopt` |
+| `webui-quick` | WebUI quick add | Run `/forge:forge-adopt` |
+| `api-import` | External API | Run `/forge:forge-adopt` |
+| `manual` | Hand-written YAML | Verify and link |
+
+## Status Sync
+
+FORGE guarantees status updates are never lost:
+
+1. Status change occurs (completed, failed, paused, etc.)
+2. Immediate sync attempt with 3 retries
+3. If failed, queued to `.forge/pending-sync.json`
+4. Auto-retry on next hook execution
+5. Maximum 10 retry attempts before giving up
 
 ## License
 

@@ -17,6 +17,7 @@ import { Tasks } from "./routes/Tasks";
 import { Queue } from "./routes/Queue";
 import { Projects } from "./routes/Projects";
 import { Analytics } from "./routes/Analytics";
+import { Commands } from "./routes/Commands";
 
 // Create query client
 const queryClient = new QueryClient({
@@ -70,6 +71,12 @@ const analyticsRoute = createRoute({
   component: Analytics,
 });
 
+const commandsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/commands",
+  component: Commands,
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -78,6 +85,7 @@ const routeTree = rootRoute.addChildren([
   queueRoute,
   projectsRoute,
   analyticsRoute,
+  commandsRoute,
 ]);
 
 // Create router
