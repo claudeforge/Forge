@@ -20,21 +20,52 @@ FORGE transforms Claude Code into a powerful iterative development system that a
 
 ## Quick Start
 
-### 1. Install Plugin
+### 1. Clone and Build
 
 ```bash
-# In Claude Code
-/install-plugin @claudeforge/forge-plugin
+git clone https://github.com/anthropics/Forge.git
+cd Forge
+pnpm install
+pnpm build
 ```
 
-### 2. Start Control Center
+### 2. Install Plugin in Claude Code
+
+Add the plugin to your Claude Code settings:
 
 ```bash
-npx @claudeforge/forge-server
+# Open Claude Code settings
+claude mcp add forge /path/to/Forge/packages/plugin
+```
+
+Or add manually to `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "forge": {
+      "command": "node",
+      "args": ["/path/to/Forge/packages/plugin/dist/hooks/stop.js"]
+    }
+  }
+}
+```
+
+### 3. Start Control Center
+
+```bash
+cd /path/to/Forge
+pnpm dev:server
 # Opens at http://127.0.0.1:3344
 ```
 
-### 3. Create a Specification
+Or run directly:
+
+```bash
+node packages/server/dist/index.js
+```
+
+### 4. Create a Specification
 
 ```bash
 /forge:forge-spec "Add user authentication with JWT tokens"
@@ -46,7 +77,7 @@ This creates a formal specification with:
 - Technical considerations
 - Clarifying questions
 
-### 4. Create Implementation Plan
+### 5. Create Implementation Plan
 
 ```bash
 /forge:forge-plan spec-001
@@ -57,13 +88,13 @@ Generates a detailed plan with:
 - Task breakdown with dependencies
 - Success criteria per task
 
-### 5. Queue Tasks
+### 6. Queue Tasks
 
 ```bash
 /forge:forge-queue --plan plan-001
 ```
 
-### 6. Execute
+### 7. Execute
 
 ```bash
 # Single task mode (interactive)
@@ -290,12 +321,12 @@ customRules:
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| `@claudeforge/forge-shared` | Shared types, constants, utilities, sync protocol |
-| `@claudeforge/forge-plugin` | Claude Code plugin (hooks + commands + sync client) |
-| `@claudeforge/forge-server` | Control Center API (Hono + SQLite + Sync v2) |
-| `@claudeforge/forge-web` | Web Dashboard (React + TanStack Query + Sync Monitor) |
+| Package | Path | Description |
+|---------|------|-------------|
+| `forge-shared` | `packages/shared` | Shared types, constants, utilities, sync protocol |
+| `forge-plugin` | `packages/plugin` | Claude Code plugin (hooks + commands + sync client) |
+| `forge-server` | `packages/server` | Control Center API (Hono + SQLite + Sync v2) |
+| `forge-web` | `packages/web` | Web Dashboard (React + TanStack Query + Sync Monitor) |
 
 ## API Endpoints
 
