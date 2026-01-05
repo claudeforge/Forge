@@ -73,19 +73,10 @@ const createTableStatements = `
     created_at TEXT NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS cost_log (
-    id TEXT PRIMARY KEY,
-    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-    tokens INTEGER NOT NULL,
-    cost REAL NOT NULL,
-    created_at TEXT NOT NULL
-  );
-
   CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
   CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
   CREATE INDEX IF NOT EXISTS idx_iterations_task ON iterations(task_id);
   CREATE INDEX IF NOT EXISTS idx_checkpoints_task ON checkpoints(task_id);
-  CREATE INDEX IF NOT EXISTS idx_cost_log_task ON cost_log(task_id);
 `;
 
 // Initialize tables (create if not exist)

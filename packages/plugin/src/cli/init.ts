@@ -4,19 +4,42 @@
  * Creates state file and sends task:started webhook
  */
 
-import { writeFileSync, mkdirSync, existsSync } from "node:fs";
-import { dirname } from "node:path";
-import type { ForgeState, CompletionCriterion } from "@claudeforge/forge-shared";
-import { STATE_FILE } from "@claudeforge/forge-shared/constants";
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import type { ForgeState, CompletionCriterion, TaskFile } from "@claudeforge/forge-shared";
+import {
+  STATE_FILE,
+  FORGE_DIR,
+  getTaskDir,
+  getTaskConfigPath,
+  getIterationsDir,
+  getTaskCheckpointsDir,
+} from "@claudeforge/forge-shared/constants";
 import { DEFAULT_STATE } from "@claudeforge/forge-shared/constants";
 import { generateId } from "@claudeforge/forge-shared/utils";
+
+interface ForgeConfig {
+  projectId?: string;
+  controlUrl?: string;
+}
+
+function loadConfig(): ForgeConfig {
+  const configPath = join(process.cwd(), ".forge.json");
+  if (!existsSync(configPath)) return {};
+
+  try {
+    const content = readFileSync(configPath, "utf-8");
+    return JSON.parse(content);
+  } catch {
+    return {};
+  }
+}
 
 interface InitArgs {
   prompt: string;
   name?: string;
   until: string[];
   maxIterations: number;
-  maxCost?: number;
   maxDuration?: number;
   checkpointEvery: number;
   onStuck: string;
@@ -44,9 +67,6 @@ function parseArgs(): InitArgs {
       result.name = args[++i];
     } else if (arg === "--max-iterations" && args[i + 1]) {
       result.maxIterations = parseInt(args[++i]!, 10);
-    } else if (arg === "--max-cost" && args[i + 1]) {
-      const cost = args[++i]!.replace("$", "");
-      result.maxCost = parseFloat(cost);
     } else if (arg === "--max-duration" && args[i + 1]) {
       result.maxDuration = parseInt(args[++i]!, 10);
     } else if (arg === "--checkpoint-every" && args[i + 1]) {
@@ -148,7 +168,6 @@ interface ServerTask {
   prompt: string;
   criteria: CompletionCriterion[];
   maxIterations: number;
-  maxCost: number | null;
 }
 
 async function claimTaskFromServer(controlUrl: string, projectId: string): Promise<ServerTask | null> {
@@ -167,7 +186,7 @@ async function claimTaskFromServer(controlUrl: string, projectId: string): Promi
       return null;
     }
 
-    return await response.json();
+    return await response.json() as ServerTask;
   } catch (error) {
     console.error("Failed to connect to Control Center:", error);
     return null;
@@ -176,19 +195,23 @@ async function claimTaskFromServer(controlUrl: string, projectId: string): Promi
 
 async function main(): Promise<void> {
   const args = parseArgs();
+  const config = loadConfig();
+
+  // Use config as fallback for --project and --control
+  const projectId = args.project ?? config.projectId;
+  const controlUrl = args.control ?? config.controlUrl;
 
   let taskId: string;
   let taskName: string;
   let taskPrompt: string;
   let criteria: CompletionCriterion[];
   let maxIterations: number;
-  let maxCost: number | null;
 
-  // If --project is provided, fetch task from Control Center
-  if (args.project && args.control) {
-    console.log(`Fetching task from Control Center for project: ${args.project}...`);
+  // If project is available (from args or config), fetch task from Control Center
+  if (projectId && controlUrl) {
+    console.log(`Fetching task from Control Center for project: ${projectId}...`);
 
-    const serverTask = await claimTaskFromServer(args.control, args.project);
+    const serverTask = await claimTaskFromServer(controlUrl, projectId);
     if (!serverTask) {
       console.log("No tasks to run. Exiting.");
       process.exit(0);
@@ -199,13 +222,16 @@ async function main(): Promise<void> {
     taskPrompt = serverTask.prompt;
     criteria = serverTask.criteria;
     maxIterations = serverTask.maxIterations;
-    maxCost = serverTask.maxCost;
+
+    // Update args for later use
+    args.control = controlUrl;
+    args.project = projectId;
 
     console.log(`Claimed task: ${taskName}`);
   } else {
     // Traditional mode: use command-line args
     if (!args.prompt) {
-      console.error("Error: PROMPT is required (or use --project with --control)");
+      console.error("Error: PROMPT is required (or use --project with --control, or link with /forge:forge-link)");
       process.exit(1);
     }
 
@@ -214,7 +240,6 @@ async function main(): Promise<void> {
     taskPrompt = args.prompt;
     criteria = buildCriteria(args.until);
     maxIterations = args.maxIterations;
-    maxCost = args.maxCost ?? null;
   }
 
   const now = new Date().toISOString();
@@ -241,7 +266,6 @@ async function main(): Promise<void> {
       items: criteria,
     },
     budget: {
-      maxCost: maxCost,
       maxDuration: args.maxDuration ?? null,
       maxTokens: null,
     },
@@ -267,11 +291,42 @@ async function main(): Promise<void> {
     },
   };
 
-  // Create directory if needed
-  const dir = dirname(STATE_FILE);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
+  // Create .forge directory if needed
+  if (!existsSync(FORGE_DIR)) {
+    mkdirSync(FORGE_DIR, { recursive: true });
   }
+
+  // Create task folder structure
+  const taskDir = getTaskDir(taskId);
+  const iterationsDir = getIterationsDir(taskId);
+  const checkpointsDir = getTaskCheckpointsDir(taskId);
+
+  mkdirSync(taskDir, { recursive: true });
+  mkdirSync(iterationsDir, { recursive: true });
+  mkdirSync(checkpointsDir, { recursive: true });
+
+  // Write task.json
+  const taskFile: TaskFile = {
+    id: taskId,
+    name: taskName,
+    prompt: taskPrompt,
+    startedAt: now,
+    endedAt: null,
+    status: "running",
+    project: {
+      id: projectId ?? null,
+      controlUrl: controlUrl ?? null,
+    },
+    config: {
+      criteria: criteria,
+      maxIterations: maxIterations,
+      maxDuration: args.maxDuration ?? null,
+      checkpointInterval: args.checkpointEvery,
+      stuckStrategy: args.onStuck as TaskFile["config"]["stuckStrategy"],
+    },
+  };
+
+  writeFileSync(getTaskConfigPath(taskId), JSON.stringify(taskFile, null, 2));
 
   // Write state file
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));

@@ -5,7 +5,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { config } from "./config.js";
 import api from "./routes/index.js";
 
 // Create Hono app

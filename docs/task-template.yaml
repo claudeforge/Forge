@@ -1,0 +1,150 @@
+# ============================================
+# FORGE Task Definition Template
+# ============================================
+# Copy this template to .forge/tasks/tNNN.yaml
+# Replace all placeholder values
+
+# IDENTITY
+id: t001                           # Unique ID: t001, t002, etc.
+title: "Short descriptive title"   # Max 80 chars
+description: |
+  Detailed description of what this task should accomplish.
+  Include context, background, and any relevant information
+  that will help Claude understand the full scope.
+
+# DEPENDENCIES
+depends_on: []                     # Task IDs this depends on, e.g., [t001, t002]
+blocks: []                         # Task IDs that are blocked by this task
+
+# CLASSIFICATION
+type: feature                      # feature | bugfix | refactor | test | docs | chore
+priority: 1                        # 1 = highest priority
+complexity: medium                 # low | medium | high
+
+# TECHNICAL DETAILS
+technical:
+  approach: |
+    Describe the implementation approach:
+    - What patterns to use
+    - Architecture decisions
+    - Key algorithms or logic
+
+  files_to_create:
+    - src/new-module/index.ts
+    - src/new-module/types.ts
+
+  files_to_modify:
+    - src/existing/file.ts
+    - package.json
+
+  considerations:
+    - Consider backward compatibility
+    - Handle edge cases for X
+    - Ensure proper error handling
+
+# SUCCESS CRITERIA
+# These are automatically verified by FORGE
+criteria:
+  # Test pass criterion
+  - type: test_pass
+    name: "All tests pass"
+    config:
+      pattern: "**/*.test.ts"
+      command: "pnpm test"
+
+  # TypeScript type check
+  - type: type_check
+    name: "No type errors"
+    config:
+      tsconfig: "./tsconfig.json"
+
+  # File exists check
+  - type: file_exists
+    name: "Module created"
+    config:
+      path: "src/new-module/index.ts"
+
+  # File contains content
+  - type: file_contains
+    name: "Export exists"
+    config:
+      path: "src/new-module/index.ts"
+      pattern: "export function"
+
+  # Build success
+  - type: build_success
+    name: "Build succeeds"
+    config:
+      command: "pnpm build"
+
+  # Lint pass
+  - type: lint_pass
+    name: "No lint errors"
+    config:
+      command: "pnpm lint"
+
+# EXECUTION CONFIG
+execution:
+  max_iterations: 30               # Max attempts before failing
+  checkpoint_every: 10             # Create checkpoint every N iterations
+  on_stuck: retry-variation        # retry | retry-variation | checkpoint | stop | ask
+  timeout_minutes: null            # null = no timeout, or number of minutes
+
+# GOALS (Human-readable)
+goals:
+  - "Implement the core functionality"
+  - "Ensure all tests pass"
+  - "Maintain code quality standards"
+  - "Update documentation if needed"
+
+# STATUS TRACKING (Updated automatically)
+status: pending                    # pending | queued | blocked | running | completed | failed | skipped
+queued_at: null
+started_at: null
+completed_at: null
+iterations: 0
+result: null
+
+# METADATA
+spec_id: null                      # Link to specification: spec-001
+plan_id: null                      # Link to plan: plan-001
+created_at: "2024-01-15T10:00:00Z"
+created_by: "claude"
+
+# ============================================
+# CRITERION TYPE REFERENCE
+# ============================================
+#
+# test_pass:
+#   Runs test command and checks exit code
+#   config: { pattern?, command? }
+#
+# type_check:
+#   Runs TypeScript compiler
+#   config: { tsconfig? }
+#
+# lint_pass:
+#   Runs linter
+#   config: { command? }
+#
+# file_exists:
+#   Checks if file exists
+#   config: { path }
+#
+# file_contains:
+#   Checks if file contains pattern
+#   config: { path, pattern }
+#
+# build_success:
+#   Runs build command
+#   config: { command? }
+#
+# manual:
+#   Requires human verification
+#   config: { description }
+#
+# custom:
+#   Runs custom script
+#   config: { script, args? }
+#
+# ============================================

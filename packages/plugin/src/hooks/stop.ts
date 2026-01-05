@@ -19,15 +19,27 @@
  * 12. If not: block exit, feed prompt back
  */
 
-import { readFileSync, existsSync, unlinkSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, unlinkSync, mkdirSync } from "node:fs";
 import type {
   ForgeState,
   IterationRecord,
   IterationOutcome,
   CriterionResult,
   CompletionCriterion,
+  IterationFile,
+  TaskResultFile,
+  TaskFile,
 } from "@claudeforge/forge-shared";
-import { COMMAND_FILE, DEFAULT_STATE } from "@claudeforge/forge-shared/constants";
+import {
+  COMMAND_FILE,
+  DEFAULT_STATE,
+  getIterationPath,
+  getTaskResultPath,
+  getTaskConfigPath,
+  getTaskDir,
+  getIterationsDir,
+  getTaskCheckpointsDir,
+} from "@claudeforge/forge-shared/constants";
 import { loadState, saveState } from "../core/state.js";
 import {
   evaluateCriteria,
@@ -42,8 +54,13 @@ import {
   parseTranscript,
   extractLastAssistantOutput,
 } from "../utils/transcript.js";
-import { estimateTokens, estimateCostFromTotal } from "../utils/cost.js";
 import { execFile } from "../utils/shell.js";
+
+/** Estimate token count from text (rough approximation) */
+function estimateTokens(text: string): number {
+  // Rough estimate: ~4 characters per token for English
+  return Math.ceil(text.length / 4);
+}
 import { getChangedFiles } from "../utils/git.js";
 
 // ============================================
@@ -115,7 +132,6 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
 
   // Update cumulative metrics
   state.metrics.totalTokens += tokens;
-  state.metrics.estimatedCost = estimateCostFromTotal(state.metrics.totalTokens);
   state.metrics.totalDuration += iterDuration;
 
   // Track file changes
@@ -136,6 +152,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
   if (budgetResult) {
     state.task.status = "failed";
     saveState(state);
+    writeTaskResult(state, []);
     await sendWebhook(state, {
       type: "task:failed",
       reason: budgetResult.reason as "budget" | "timeout",
@@ -152,6 +169,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
   ) {
     state.task.status = "failed";
     saveState(state);
+    writeTaskResult(state, []);
     await sendWebhook(state, {
       type: "task:failed",
       reason: "max-iterations",
@@ -183,6 +201,16 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
     summary: await generateIterationSummary(lastOutput),
   };
 
+  // 8.5 Write iteration file
+  const filesChanged = [...changes.created, ...changes.modified];
+  writeIterationFile(
+    state.task.id,
+    state.iteration.current,
+    iterRecord,
+    tokens,
+    filesChanged
+  );
+
   // 9. Check if complete
   const complete = isComplete(
     criteriaResults,
@@ -194,6 +222,10 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
     state.task.status = "completed";
     state.iteration.history.push(iterRecord);
     saveState(state);
+
+    // Write task result file
+    writeTaskResult(state, criteriaResults);
+
     await sendWebhook(state, {
       type: "task:completed",
       iterations: state.iteration.current,
@@ -250,6 +282,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       if (recovery.action === "abort") {
         state.task.status = "stuck";
         saveState(state);
+        writeTaskResult(state, criteriaResults);
         return {
           decision: "approve",
           reason: `Task stuck and aborted: ${recovery.reason}`,
@@ -323,7 +356,6 @@ interface ServerTask {
   prompt: string;
   criteria: CompletionCriterion[];
   maxIterations: number;
-  maxCost: number | null;
 }
 
 async function claimNextTask(controlUrl: string, projectId: string): Promise<ServerTask | null> {
@@ -355,6 +387,9 @@ function initializeNewTask(
 ): ForgeState {
   const now = new Date().toISOString();
 
+  // Create task folder structure
+  createTaskFolderStructure(task, controlCenter, now);
+
   return {
     ...DEFAULT_STATE,
     version: "1.0.0",
@@ -377,7 +412,6 @@ function initializeNewTask(
       items: task.criteria,
     },
     budget: {
-      maxCost: task.maxCost,
       maxDuration: null,
       maxTokens: null,
     },
@@ -388,6 +422,47 @@ function initializeNewTask(
       taskId: task.id,
     },
   };
+}
+
+/**
+ * Create task folder structure for auto-advance
+ */
+function createTaskFolderStructure(
+  task: ServerTask,
+  controlCenter: ForgeState["controlCenter"],
+  startedAt: string
+): void {
+  const taskDir = getTaskDir(task.id);
+  const iterationsDir = getIterationsDir(task.id);
+  const checkpointsDir = getTaskCheckpointsDir(task.id);
+
+  // Create directories
+  mkdirSync(taskDir, { recursive: true });
+  mkdirSync(iterationsDir, { recursive: true });
+  mkdirSync(checkpointsDir, { recursive: true });
+
+  // Write task.json
+  const taskFile: TaskFile = {
+    id: task.id,
+    name: task.name,
+    prompt: task.prompt,
+    startedAt,
+    endedAt: null,
+    status: "running",
+    project: {
+      id: controlCenter.projectId,
+      controlUrl: controlCenter.url,
+    },
+    config: {
+      criteria: task.criteria,
+      maxIterations: task.maxIterations,
+      maxDuration: null,
+      checkpointInterval: 10,
+      stuckStrategy: "retry-variation",
+    },
+  };
+
+  writeFileSync(getTaskConfigPath(task.id), JSON.stringify(taskFile, null, 2));
 }
 
 function checkExternalCommand(): { command: string; [key: string]: unknown } | null {
@@ -436,16 +511,6 @@ function checkBudgetLimits(
   state: ForgeState
 ): { reason: string; message: string } | null {
   if (
-    state.budget.maxCost !== null &&
-    state.metrics.estimatedCost > state.budget.maxCost
-  ) {
-    return {
-      reason: "budget",
-      message: `Budget exceeded: $${state.metrics.estimatedCost.toFixed(2)} > $${state.budget.maxCost}`,
-    };
-  }
-
-  if (
     state.budget.maxDuration !== null &&
     state.metrics.totalDuration > state.budget.maxDuration * 1000
   ) {
@@ -484,6 +549,97 @@ ${names.map((n) => `   - ${n}`).join("\n")}
 Great work!`;
 }
 
+/**
+ * Write iteration result to file
+ */
+function writeIterationFile(
+  taskId: string,
+  iterNum: number,
+  record: IterationRecord,
+  tokens: number,
+  filesChanged: string[]
+): void {
+  const iterFile: IterationFile = {
+    num: iterNum,
+    startedAt: record.startedAt,
+    endedAt: record.endedAt,
+    duration: record.duration,
+    tokens: {
+      input: Math.floor(tokens * 0.3), // Estimate
+      output: Math.floor(tokens * 0.7), // Estimate
+      total: tokens,
+    },
+    outcome: record.outcome,
+    criteriaResults: record.criteriaResults.map((r) => ({
+      id: r.criterion.id,
+      name: r.criterion.name,
+      passed: r.passed,
+      output: r.currentValue ?? r.error ?? "",
+      duration: 0, // TODO: track per-criterion duration
+    })),
+    summary: record.summary,
+    filesChanged,
+    error: record.error,
+  };
+
+  // Ensure directory exists
+  const iterDir = getIterationsDir(taskId);
+  if (!existsSync(iterDir)) {
+    mkdirSync(iterDir, { recursive: true });
+  }
+
+  const path = getIterationPath(taskId, iterNum);
+  writeFileSync(path, JSON.stringify(iterFile, null, 2));
+}
+
+/**
+ * Write task result file when task completes/fails
+ */
+function writeTaskResult(
+  state: ForgeState,
+  criteriaResults: CriterionResult[]
+): void {
+  const taskId = state.task.id;
+
+  const result: TaskResultFile = {
+    status: state.task.status,
+    iterations: state.iteration.current,
+    duration: state.metrics.totalDuration / 1000,
+    tokens: state.metrics.totalTokens,
+    criteriaResults: criteriaResults.map((r) => ({
+      id: r.criterion.id,
+      name: r.criterion.name,
+      passed: r.passed,
+    })),
+    summary: `Task ${state.task.status} after ${state.iteration.current} iterations`,
+    filesCreated: state.metrics.filesCreated,
+    filesModified: state.metrics.filesModified,
+    completedAt: new Date().toISOString(),
+  };
+
+  // Ensure directory exists
+  const taskDir = getTaskDir(taskId);
+  if (!existsSync(taskDir)) {
+    mkdirSync(taskDir, { recursive: true });
+  }
+
+  const path = getTaskResultPath(taskId);
+  writeFileSync(path, JSON.stringify(result, null, 2));
+
+  // Also update task.json with endedAt and status
+  const configPath = getTaskConfigPath(taskId);
+  if (existsSync(configPath)) {
+    try {
+      const taskFile: TaskFile = JSON.parse(readFileSync(configPath, "utf-8"));
+      taskFile.endedAt = result.completedAt;
+      taskFile.status = state.task.status;
+      writeFileSync(configPath, JSON.stringify(taskFile, null, 2));
+    } catch {
+      // Ignore errors updating task.json
+    }
+  }
+}
+
 function buildSystemMessage(
   state: ForgeState,
   results: CriterionResult[]
@@ -504,7 +660,6 @@ function buildSystemMessage(
   lines.push("");
   lines.push("**Metrics:**");
   lines.push(`- Tokens: ${state.metrics.totalTokens.toLocaleString()}`);
-  lines.push(`- Cost: $${state.metrics.estimatedCost.toFixed(4)}`);
   lines.push(`- Duration: ${Math.round(state.metrics.totalDuration / 1000)}s`);
 
   if (state.iteration.max > 0) {

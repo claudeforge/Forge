@@ -92,7 +92,6 @@ app.get("/:id/next-task", async (c) => {
     prompt: task.prompt,
     criteria: config.criteria || [],
     maxIterations: config.maxIterations || 30,
-    maxCost: config.maxCost || null,
   });
 });
 
@@ -143,7 +142,6 @@ app.post("/:id/claim-task", async (c) => {
     prompt: task.prompt,
     criteria: config.criteria || [],
     maxIterations: config.maxIterations || 30,
-    maxCost: config.maxCost || null,
   });
 });
 

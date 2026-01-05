@@ -3,7 +3,7 @@
  */
 
 import { useState } from "react";
-import { FolderOpen, Plus, Trash2 } from "lucide-react";
+import { FolderOpen, Plus, Trash2, Copy, Check } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "../components/layout/Layout";
 import { EmptyState } from "../components/common/EmptyState";
@@ -14,6 +14,14 @@ import { formatRelativeTime } from "../lib/utils";
 export function Projects() {
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyCommand = (id: string) => {
+    const command = `/forge:forge --project ${id} --control http://127.0.0.1:3344`;
+    navigator.clipboard.writeText(command);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
@@ -79,7 +87,25 @@ export function Projects() {
                 </button>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-700 text-sm text-gray-400">
+              {/* Plugin Command - Copy to clipboard */}
+              <div className="mt-3">
+                <button
+                  onClick={() => copyCommand(project.id)}
+                  className="w-full flex items-center gap-2 bg-gray-900 hover:bg-gray-900/80 border border-gray-700 hover:border-forge-500/50 rounded px-3 py-2 transition-colors group"
+                  title="Click to copy command"
+                >
+                  <code className="text-xs text-gray-400 group-hover:text-forge-400 font-mono flex-1 text-left truncate">
+                    /forge:forge --project {project.id} ...
+                  </code>
+                  {copiedId === project.id ? (
+                    <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
+                  ) : (
+                    <Copy className="h-4 w-4 text-gray-500 group-hover:text-forge-400 flex-shrink-0" />
+                  )}
+                </button>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-gray-700 text-sm text-gray-400">
                 {project.lastActivityAt
                   ? `Last activity ${formatRelativeTime(project.lastActivityAt)}`
                   : `Created ${formatRelativeTime(project.createdAt)}`}

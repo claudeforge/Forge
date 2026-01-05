@@ -15,7 +15,6 @@ import { TaskCard } from "../components/task/TaskCard";
 import { StatusBadge } from "../components/common/StatusBadge";
 import { useStats, useQueue } from "../hooks/useStats";
 import { useTasks } from "../hooks/useTasks";
-import { formatCost } from "../lib/utils";
 
 export function Dashboard() {
   const { data: stats } = useStats();
@@ -107,18 +106,6 @@ export function Dashboard() {
                 <span className="text-gray-400">Tasks</span>
                 <span className="text-white font-medium">
                   {stats?.tasksToday ?? 0}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Cost</span>
-                <span className="text-white font-medium">
-                  {formatCost(stats?.costToday ?? 0)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Total Cost</span>
-                <span className="text-white font-medium">
-                  {formatCost(stats?.totalCost ?? 0)}
                 </span>
               </div>
             </div>

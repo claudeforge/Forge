@@ -3,7 +3,7 @@
  */
 
 import { Hono } from "hono";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, desc, or } from "drizzle-orm";
 import { db, schema } from "../db/index.js";
 import { broadcast } from "../broadcast.js";
 
@@ -15,22 +15,50 @@ let isPaused = false;
 
 // GET /api/queue - Get queue status
 app.get("/", async (c) => {
-  // Get running task
-  const [running] = await db
+  const projectId = c.req.query("projectId");
+
+  // Get running task (optionally filtered by project)
+  let runningQuery = db
     .select()
     .from(schema.tasks)
     .where(eq(schema.tasks.status, "running"));
 
-  // Get queued tasks ordered by priority
-  const queued = await db
+  const runningTasks = await runningQuery;
+  const running = projectId
+    ? runningTasks.find(t => t.projectId === projectId) ?? null
+    : runningTasks[0] ?? null;
+
+  // Get queued tasks ordered by priority (optionally filtered by project)
+  let queuedQuery = db
     .select()
     .from(schema.tasks)
     .where(eq(schema.tasks.status, "queued"))
     .orderBy(asc(schema.tasks.priority));
 
+  let queued = await queuedQuery;
+  if (projectId) {
+    queued = queued.filter(t => t.projectId === projectId);
+  }
+
+  // Get recent completed/failed tasks (last 5)
+  const completed = await db
+    .select()
+    .from(schema.tasks)
+    .where(or(
+      eq(schema.tasks.status, "completed"),
+      eq(schema.tasks.status, "failed")
+    ))
+    .orderBy(desc(schema.tasks.completedAt))
+    .limit(5);
+
+  const filteredCompleted = projectId
+    ? completed.filter(t => t.projectId === projectId)
+    : completed;
+
   return c.json({
-    running: running ?? null,
+    running,
     queued,
+    completed: filteredCompleted,
     concurrency: 1,
     isProcessing,
     isPaused,
@@ -78,6 +106,60 @@ app.post("/reorder", async (c) => {
   });
 
   return c.json({ reordered: true });
+});
+
+// POST /api/queue/run/:id - Run a specific task from queue
+app.post("/run/:id", async (c) => {
+  const taskId = c.req.param("id");
+
+  if (isPaused) {
+    return c.json({ error: "Queue is paused" }, 400);
+  }
+
+  // Check if already running
+  const [running] = await db
+    .select()
+    .from(schema.tasks)
+    .where(eq(schema.tasks.status, "running"));
+
+  if (running) {
+    return c.json({ error: "A task is already running" }, 400);
+  }
+
+  // Get the specified task
+  const [task] = await db
+    .select()
+    .from(schema.tasks)
+    .where(eq(schema.tasks.id, taskId));
+
+  if (!task) {
+    return c.json({ error: "Task not found" }, 404);
+  }
+
+  if (task.status !== "queued") {
+    return c.json({ error: "Task is not queued" }, 400);
+  }
+
+  // Update status to running
+  await db
+    .update(schema.tasks)
+    .set({
+      status: "running",
+      startedAt: new Date().toISOString(),
+    })
+    .where(eq(schema.tasks.id, taskId));
+
+  // Get updated task
+  const [updated] = await db
+    .select()
+    .from(schema.tasks)
+    .where(eq(schema.tasks.id, taskId));
+
+  isProcessing = true;
+
+  broadcast({ type: "task:update", task: updated });
+
+  return c.json({ started: updated });
 });
 
 // POST /api/queue/run-next - Run next task in queue

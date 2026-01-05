@@ -2,7 +2,7 @@
  * Task card component
  */
 
-import { Clock, Hash, Coins } from "lucide-react";
+import { Clock, Hash } from "lucide-react";
 import { StatusBadge } from "../common/StatusBadge";
 import { formatRelativeTime, formatDuration } from "../../lib/utils";
 import type { Task } from "../../lib/api";
@@ -39,12 +39,6 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
             <span>{formatDuration(result.metrics.totalDuration / 1000)}</span>
-          </div>
-        )}
-        {result?.metrics?.estimatedCost && (
-          <div className="flex items-center gap-1">
-            <Coins className="h-4 w-4" />
-            <span>${result.metrics.estimatedCost.toFixed(4)}</span>
           </div>
         )}
         <span className="ml-auto">{formatRelativeTime(task.createdAt)}</span>

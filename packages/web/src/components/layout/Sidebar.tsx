@@ -10,11 +10,13 @@ import {
   FolderOpen,
   BarChart3,
   Flame,
+  FileText,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Specs", href: "/specs", icon: FileText },
   { name: "Tasks", href: "/tasks", icon: ListTodo },
   { name: "Queue", href: "/queue", icon: Layers },
   { name: "Projects", href: "/projects", icon: FolderOpen },

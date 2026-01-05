@@ -24,6 +24,5 @@ Read `.claude/forge-state.json` and display:
 - Success rate: X%
 - Total duration: X minutes
 - Total tokens: X
-- Estimated cost: $X.XX
 
 If no `.claude/forge-state.json` exists or history is empty, display appropriate message.

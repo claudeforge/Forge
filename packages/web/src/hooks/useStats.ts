@@ -13,18 +13,23 @@ export function useStats() {
   });
 }
 
-export function useCostByDay(days = 7) {
+export function useQueue(projectId?: string) {
   return useQuery({
-    queryKey: ["costByDay", days],
-    queryFn: () => api.getCostByDay(days),
+    queryKey: ["queue", projectId],
+    queryFn: () => api.getQueue(projectId),
+    refetchInterval: 3000,
   });
 }
 
-export function useQueue() {
-  return useQuery({
-    queryKey: ["queue"],
-    queryFn: () => api.getQueue(),
-    refetchInterval: 3000,
+export function useRunTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => api.runTask(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["queue"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
   });
 }
 

@@ -46,7 +46,6 @@ export interface Task {
 export interface TaskConfig {
   criteria: CompletionCriterion[];
   maxIterations: number;
-  maxCost: number | null;
   maxDuration: number | null;
   checkpointInterval: number;
   stuckStrategy: string;
@@ -101,10 +100,8 @@ export interface Stats {
   completedTasks: number;
   failedTasks: number;
   totalIterations: number;
-  totalCost: number;
   totalDuration: number;
   tasksToday: number;
-  costToday: number;
 }
 
 // ============================================

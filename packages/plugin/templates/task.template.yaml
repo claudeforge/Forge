@@ -1,0 +1,201 @@
+# =============================================================================
+# FORGE Task Definition
+# =============================================================================
+# This file defines a single atomic task for FORGE to execute.
+# Each task should be completable in 10-40 iterations.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# IDENTITY
+# -----------------------------------------------------------------------------
+id: t001                          # Unique task ID (t001, t002, etc.)
+title: "Create user authentication service"  # Clear, action-oriented title
+description: |
+  Create a JWT-based authentication service that handles user login,
+  token generation, and token validation. This service will be used
+  by the API middleware to authenticate requests.
+
+  Key responsibilities:
+  - Validate user credentials against the database
+  - Generate JWT access tokens with appropriate claims
+  - Validate incoming tokens and extract user info
+  - Handle token refresh logic
+
+# -----------------------------------------------------------------------------
+# DEPENDENCIES
+# -----------------------------------------------------------------------------
+depends_on: []                    # Task IDs that must complete first
+                                  # Examples: [t001], [t001, t002]
+blocks: [t003, t004]              # Task IDs that depend on this task
+
+# -----------------------------------------------------------------------------
+# CLASSIFICATION
+# -----------------------------------------------------------------------------
+type: feature                     # Type of work:
+                                  #   feature  - New functionality
+                                  #   bugfix   - Fix existing bug
+                                  #   refactor - Code improvement
+                                  #   test     - Add/improve tests
+                                  #   docs     - Documentation
+                                  #   chore    - Maintenance
+
+priority: 1                       # Execution priority (1 = highest)
+                                  # Lower numbers execute first
+
+complexity: medium                # Complexity estimate:
+                                  #   low    - 10-15 iterations
+                                  #   medium - 15-25 iterations
+                                  #   high   - 25-40 iterations
+
+# -----------------------------------------------------------------------------
+# TECHNICAL SPECIFICATION
+# -----------------------------------------------------------------------------
+technical:
+  approach: |
+    Implementation steps:
+    1. Create AuthService class with dependency injection
+    2. Implement login method with credential validation
+    3. Add JWT generation using jsonwebtoken library
+    4. Create token validation middleware
+    5. Add unit tests for all methods
+    6. Integrate with existing user repository
+
+  files_to_create:
+    - src/services/auth.service.ts
+    - src/middleware/auth.middleware.ts
+    - src/types/auth.types.ts
+    - tests/services/auth.service.test.ts
+
+  files_to_modify:
+    - src/services/index.ts          # Export new service
+    - src/middleware/index.ts        # Export new middleware
+    - src/types/index.ts             # Export new types
+
+  considerations:
+    - Use bcrypt for password hashing comparison
+    - Token expiry should be configurable via environment
+    - Refresh tokens should be stored in httpOnly cookies
+    - Consider rate limiting for login attempts
+
+# -----------------------------------------------------------------------------
+# SUCCESS CRITERIA
+# -----------------------------------------------------------------------------
+# All criteria must pass for task to be considered complete.
+# Available types: test-pass, file-exists, lint-clean,
+#                 command-output, code-contains, build-passes
+
+criteria:
+  - type: test-pass
+    name: "Unit tests pass"
+    config:
+      cmd: "npm test -- --grep AuthService"
+      required: true
+
+  - type: lint-clean
+    name: "No lint errors in new files"
+    config:
+      cmd: "npm run lint"
+      required: true
+
+  - type: file-exists
+    name: "Service file exists"
+    config:
+      path: "src/services/auth.service.ts"
+      required: true
+
+  - type: build-passes
+    name: "TypeScript compiles"
+    config:
+      cmd: "npm run typecheck"
+      required: true
+
+  - type: code-contains
+    name: "JWT signing implemented"
+    config:
+      file: "src/services/auth.service.ts"
+      pattern: "jwt.sign"
+      required: true
+
+# -----------------------------------------------------------------------------
+# EXECUTION CONFIG
+# -----------------------------------------------------------------------------
+execution:
+  max_iterations: 25              # Maximum iterations before task fails
+  checkpoint_every: 5             # Create checkpoint every N iterations
+  on_stuck: retry-variation       # Strategy when stuck:
+                                  #   retry-variation - Try different approach
+                                  #   expand-context  - Read more files
+                                  #   simplify        - Reduce scope
+                                  #   ask-user        - Request help
+  timeout_minutes: 30             # Optional timeout (null = no timeout)
+
+# -----------------------------------------------------------------------------
+# HUMAN-READABLE GOALS
+# -----------------------------------------------------------------------------
+# These are shown in progress updates and help Claude understand intent
+
+goals:
+  - "Users can log in with email and password"
+  - "Valid credentials return a JWT token"
+  - "Invalid credentials return appropriate error"
+  - "Tokens can be validated by middleware"
+  - "All edge cases are covered by tests"
+
+# -----------------------------------------------------------------------------
+# STATE (Updated by FORGE)
+# -----------------------------------------------------------------------------
+status: pending                   # Current status:
+                                  #   pending   - Not started
+                                  #   queued    - In queue, waiting
+                                  #   blocked   - Waiting on dependencies
+                                  #   running   - Currently executing
+                                  #   completed - Successfully finished
+                                  #   failed    - Failed after max iterations
+                                  #   skipped   - Skipped by user
+
+queued_at: null                   # When added to queue
+started_at: null                  # When execution started
+completed_at: null                # When execution ended
+iterations: 0                     # Current iteration count
+
+# Result is populated when task completes
+result: null
+# On completion, result looks like:
+# result:
+#   success: true
+#   iterations: 18
+#   duration: 1234567           # milliseconds
+#   tokens: 45000
+#   files_created:
+#     - src/services/auth.service.ts
+#     - tests/services/auth.service.test.ts
+#   files_modified:
+#     - src/services/index.ts
+#   summary: "Created auth service with login, token generation, and validation"
+#   error: null                 # Error message if failed
+
+# -----------------------------------------------------------------------------
+# METADATA
+# -----------------------------------------------------------------------------
+spec_id: spec-001                 # Parent specification
+plan_id: plan-001                 # Parent plan
+created_at: "2024-01-15T10:30:00Z"
+created_by: forge-plan            # Who/what created this task
+
+# -----------------------------------------------------------------------------
+# SOURCE TRACKING
+# -----------------------------------------------------------------------------
+# Tracks where the task came from and if it needs formalization
+
+source: forge-plan                # Task source:
+                                  #   forge-plan   - Created by /forge:forge-plan (proper workflow)
+                                  #   forge-adopt  - Adopted from WebUI via /forge:forge-adopt
+                                  #   webui-direct - Created directly in WebUI (needs adoption)
+                                  #   webui-quick  - Quick-add from WebUI (needs adoption)
+                                  #   api-import   - Imported via API (needs adoption)
+                                  #   manual       - Hand-written YAML file
+
+original_id: null                 # If adopted, the original task ID before adoption
+needs_formalization: false        # True if created outside proper workflow
+                                  # Tasks with needs_formalization=true should be
+                                  # processed with /forge:forge-adopt before execution

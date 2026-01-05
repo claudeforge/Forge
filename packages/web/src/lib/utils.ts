@@ -21,13 +21,6 @@ export function formatDuration(seconds: number): string {
 }
 
 /**
- * Format cost as USD
- */
-export function formatCost(cost: number): string {
-  return `$${cost.toFixed(4)}`;
-}
-
-/**
  * Format date relative to now
  */
 export function formatRelativeTime(date: string): string {

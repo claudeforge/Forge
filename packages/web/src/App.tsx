@@ -12,6 +12,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Dashboard } from "./routes/Dashboard";
+import { Specs } from "./routes/Specs";
 import { Tasks } from "./routes/Tasks";
 import { Queue } from "./routes/Queue";
 import { Projects } from "./routes/Projects";
@@ -37,6 +38,12 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: Dashboard,
+});
+
+const specsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/specs",
+  component: Specs,
 });
 
 const tasksRoute = createRoute({
@@ -66,6 +73,7 @@ const analyticsRoute = createRoute({
 // Route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  specsRoute,
   tasksRoute,
   queueRoute,
   projectsRoute,

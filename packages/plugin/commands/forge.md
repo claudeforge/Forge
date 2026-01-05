@@ -21,7 +21,6 @@ Parse arguments and initialize the forge state file. Can work in two modes:
 - `--until CRITERIA`: Completion criterion (can be used multiple times)
 - `--name NAME`: Task name (default: derived from prompt)
 - `--max-iterations N`: Maximum iterations (default: unlimited)
-- `--max-cost AMOUNT`: Maximum cost in USD (e.g., "$5")
 - `--max-duration SECONDS`: Maximum duration
 - `--checkpoint-every N`: Auto-checkpoint interval (default: 10)
 - `--on-stuck STRATEGY`: Recovery strategy (retry-variation|simplify|rollback|abort)
@@ -64,10 +63,9 @@ Parse arguments and initialize the forge state file. Can work in two modes:
   --until "coverage > 80%" \
   --max-iterations 50
 
-# With budget controls
+# With duration limit
 /forge "Refactor database layer" \
   --until "tests pass" \
-  --max-cost "$3" \
   --max-duration 1800 \
   --checkpoint-every 5
 

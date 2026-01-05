@@ -1,0 +1,157 @@
+# =============================================================================
+# FORGE Task Definition - Example: AuthService
+# =============================================================================
+
+id: t003
+title: "Create AuthService with registration, login, and token management"
+description: |
+  Create the core AuthService that handles all authentication business logic.
+  This is the central service that coordinates between PasswordService,
+  TokenService, and the UserRepository.
+
+  Key functionality:
+  - User registration with password hashing
+  - Login with credential validation
+  - Token refresh with rotation
+  - Logout (token invalidation)
+  - Password reset request and completion
+
+depends_on: [t001, t002]          # Needs PasswordService and TokenService
+blocks: [t005, t006]              # Auth routes and integration tests depend on this
+
+type: feature
+priority: 3
+complexity: high                   # 25-30 iterations expected
+
+technical:
+  approach: |
+    1. Define AuthResult and related types
+    2. Create AuthService class with constructor injection
+    3. Implement register():
+       - Validate email format and uniqueness
+       - Validate password strength
+       - Hash password using PasswordService
+       - Create user in database
+       - Generate tokens using TokenService
+       - Return AuthResult with user and tokens
+    4. Implement login():
+       - Find user by email
+       - Compare password using PasswordService
+       - Generate new tokens on success
+       - Return AuthResult
+    5. Implement refresh():
+       - Verify refresh token
+       - Generate new token pair
+       - Invalidate old refresh token
+       - Return new tokens
+    6. Implement logout():
+       - Invalidate refresh token
+       - (Future: add to blacklist)
+    7. Implement requestPasswordReset():
+       - Generate reset token with expiry
+       - Store reset token in database
+       - Send email with reset link
+    8. Implement resetPassword():
+       - Verify reset token
+       - Hash new password
+       - Update user record
+       - Invalidate reset token
+    9. Write comprehensive unit tests
+    10. Handle all error cases properly
+
+  files_to_create:
+    - src/services/auth.service.ts
+    - tests/services/auth.service.test.ts
+
+  files_to_modify:
+    - src/services/index.ts           # Export AuthService
+    - prisma/schema.prisma            # Add password, resetToken fields
+    - prisma/migrations/              # Migration for new fields
+
+  considerations:
+    - Use transactions for register to prevent partial creates
+    - Reset tokens should be hashed in database
+    - Reset tokens expire after 1 hour
+    - Refresh token rotation prevents replay attacks
+    - Log failed login attempts for security monitoring
+    - Return generic error for invalid credentials (prevent enumeration)
+
+criteria:
+  - type: test-pass
+    name: "AuthService unit tests pass"
+    config:
+      cmd: "npm test -- --grep 'AuthService'"
+    required: true
+
+  - type: lint-clean
+    name: "No lint errors"
+    config:
+      cmd: "npm run lint"
+    required: true
+
+  - type: build-passes
+    name: "TypeScript compiles without errors"
+    config:
+      cmd: "npm run typecheck"
+    required: true
+
+  - type: file-exists
+    name: "AuthService file exists"
+    config:
+      path: "src/services/auth.service.ts"
+    required: true
+
+  - type: code-contains
+    name: "Register method implemented"
+    config:
+      file: "src/services/auth.service.ts"
+      pattern: "async register"
+    required: true
+
+  - type: code-contains
+    name: "Login method implemented"
+    config:
+      file: "src/services/auth.service.ts"
+      pattern: "async login"
+    required: true
+
+  - type: code-contains
+    name: "Refresh method implemented"
+    config:
+      file: "src/services/auth.service.ts"
+      pattern: "async refresh"
+    required: true
+
+execution:
+  max_iterations: 35
+  checkpoint_every: 5
+  on_stuck: expand-context         # Read more of existing code if stuck
+  timeout_minutes: 45
+
+goals:
+  - "New users can register with email and password"
+  - "Registered users can log in with correct credentials"
+  - "Invalid credentials are rejected with appropriate error"
+  - "Access tokens can be refreshed using refresh token"
+  - "Refresh tokens are rotated on each use"
+  - "Users can request password reset email"
+  - "Password can be reset using valid reset token"
+  - "All methods have comprehensive test coverage"
+
+# -----------------------------------------------------------------------------
+# STATE
+# -----------------------------------------------------------------------------
+status: pending
+queued_at: null
+started_at: null
+completed_at: null
+iterations: 0
+result: null
+
+# -----------------------------------------------------------------------------
+# METADATA
+# -----------------------------------------------------------------------------
+spec_id: spec-001
+plan_id: plan-001
+created_at: "2024-01-15T12:00:00Z"
+created_by: forge-plan

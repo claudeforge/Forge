@@ -2,62 +2,125 @@
 
 **Iterative AI Development Engine for Claude Code**
 
-FORGE transforms Claude Code into a powerful iterative development system with:
+FORGE transforms Claude Code into a powerful iterative development system that can autonomously work on complex tasks until completion criteria are met.
 
-- **Multi-criteria completion** - Tests, coverage, lint, custom checks
-- **Intelligent stuck detection** - Automatic recovery strategies
-- **Checkpoints & rollback** - Never lose progress
-- **Budget controls** - Cost and time limits
-- **Control Center** - Web dashboard for monitoring
-- **Task queue** - Schedule and queue multiple tasks
+## Features
+
+- **Multi-criteria Completion** - Tests, coverage, lint, file checks, custom scripts
+- **Intelligent Stuck Detection** - Automatic recovery with multiple strategies
+- **Checkpoints & Rollback** - Git-based snapshots, never lose progress
+- **Budget Controls** - Cost, time, and iteration limits
+- **Control Center** - Web dashboard for real-time monitoring
+- **Task Queue** - Schedule, prioritize, and auto-advance through tasks
+- **Specification-Driven Development** - Decompose big goals into atomic tasks
 
 ## Quick Start
 
-### Install Plugin
+### 1. Install Plugin
 
 ```bash
-# Add the FORGE marketplace
-/plugin marketplace add claudeforge/Forge
-
-# Install the plugin
-/plugin install forge@claudeforge
+# In Claude Code
+/plugin install @claudeforge/forge-plugin
 ```
 
-### Start a Forge Loop
+### 2. Start Control Center (Optional but Recommended)
 
 ```bash
-/forge "Build a REST API with user authentication" \
-  --until "tests pass" \
-  --until "lint clean" \
-  --max-iterations 50
-```
-
-### Monitor Progress
-
-```bash
-/forge-status
-```
-
-## Control Center (Optional)
-
-For multi-project monitoring and task queuing:
-
-```bash
-# Install and run
 npx @claudeforge/forge-server
+# Opens at http://localhost:3344
+```
 
-# Open dashboard
-open http://localhost:3344
+### 3. Link Your Project
+
+```bash
+/forge:forge-link --project YOUR_PROJECT_ID --control http://localhost:3344
+```
+
+### 4. Decompose a Goal into Tasks
+
+```bash
+/forge:forge-tasks "Build a REST API with JWT authentication, rate limiting, and comprehensive tests"
+```
+
+### 5. Review in WebUI
+
+Open http://localhost:3344/queue to:
+- See all queued tasks
+- Reorder priorities
+- Edit task details
+- Monitor running tasks
+
+### 6. Execute
+
+```bash
+/forge:forge
+```
+
+FORGE will:
+1. Claim the next task from queue
+2. Work iteratively until criteria pass
+3. Auto-advance to the next task
+4. Repeat until queue is empty
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/forge:forge` | Start iterative loop (queue-based or standalone) |
+| `/forge:forge-tasks "GOAL"` | Decompose goal into sub-tasks |
+| `/forge:forge-link` | Link project to Control Center |
+| `/forge:forge-status` | Check current task status |
+| `/forge:forge-pause` | Pause the current loop |
+| `/forge:forge-resume` | Resume a paused loop |
+| `/forge:forge-abort` | Abort and exit |
+| `/forge:forge-checkpoint` | Create manual checkpoint |
+| `/forge:forge-rollback` | Rollback to checkpoint |
+| `/forge:forge-history` | View iteration history |
+
+## Completion Criteria
+
+```bash
+# Tests must pass
+/forge "Add feature X" --until "tests pass"
+
+# Multiple criteria
+/forge "Refactor module" --until "tests pass" --until "lint clean"
+
+# Coverage threshold
+/forge "Increase coverage" --until "coverage > 80%"
+
+# File must exist
+/forge "Generate config" --until "file exists config.yaml"
+
+# Custom command
+/forge "Fix build" --until "npm run build"
+```
+
+## Architecture
+
+```
+.forge/
+├── state.json                 # Active loop state
+├── command.json               # External commands (pause/abort)
+└── tasks/
+    └── {task-id}/
+        ├── task.json          # Task configuration
+        ├── iterations/
+        │   ├── 001.json       # Iteration 1 details
+        │   ├── 002.json       # Iteration 2 details
+        │   └── ...
+        ├── checkpoints/       # Git stash references
+        └── result.json        # Final outcome
 ```
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| [@claudeforge/forge-shared](./packages/shared) | Shared types & utilities |
-| [@claudeforge/forge-plugin](./packages/plugin) | Claude Code plugin |
-| [@claudeforge/forge-server](./packages/server) | Control Center API |
-| [@claudeforge/forge-web](./packages/web) | Web Dashboard |
+| `@claudeforge/forge-shared` | Shared types, constants, utilities |
+| `@claudeforge/forge-plugin` | Claude Code plugin (hooks + commands) |
+| `@claudeforge/forge-server` | Control Center API (Hono + SQLite) |
+| `@claudeforge/forge-web` | Web Dashboard (React + TanStack Query) |
 
 ## Development
 
@@ -65,26 +128,32 @@ open http://localhost:3344
 # Install dependencies
 pnpm install
 
-# Start development
-pnpm dev
-
 # Build all packages
 pnpm build
+
+# Start development (server + web)
+pnpm dev
+
+# Type check
+pnpm typecheck
 
 # Run tests
 pnpm test
 ```
 
-## Documentation
+## Configuration
 
-- [Plugin Commands](./packages/plugin/README.md)
-- [Control Center API](./packages/server/README.md)
-- [Configuration Guide](./docs/configuration.md)
+Create `.forge.json` in your project root:
 
-## Repository
+```json
+{
+  "projectId": "proj-abc123",
+  "controlUrl": "http://localhost:3344"
+}
+```
 
-[https://github.com/claudeforge/Forge](https://github.com/claudeforge/Forge)
+Or use `/forge:forge-link` to create it automatically.
 
 ## License
 
-MIT © ClaudeForge
+MIT

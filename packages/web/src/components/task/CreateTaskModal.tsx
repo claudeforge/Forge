@@ -3,7 +3,7 @@
  */
 
 import { useState } from "react";
-import { X, Plus, Trash2, AlertCircle } from "lucide-react";
+import { X, Plus, Trash2, AlertCircle, Zap } from "lucide-react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
 import { cn } from "../../lib/utils";
@@ -28,6 +28,13 @@ const CRITERION_PRESETS = [
   { label: "TypeCheck", type: "command", name: "TypeCheck", config: { cmd: "npm run typecheck" } },
 ];
 
+const CRITERIA_TEMPLATES = [
+  { label: "Full CI", criteria: ["Tests Pass", "Lint Clean", "Build", "TypeCheck"] },
+  { label: "Tests Only", criteria: ["Tests Pass"] },
+  { label: "Quality Check", criteria: ["Lint Clean", "TypeCheck"] },
+  { label: "Build Ready", criteria: ["Tests Pass", "Build"] },
+];
+
 export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTaskModalProps) {
   const queryClient = useQueryClient();
   const { data: projects } = useQuery({ queryKey: ["projects"], queryFn: api.getProjects });
@@ -36,7 +43,6 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [maxIterations, setMaxIterations] = useState(30);
-  const [maxCost, setMaxCost] = useState<number | undefined>();
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [customCmd, setCustomCmd] = useState("");
 
@@ -57,8 +63,16 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
 
   const addCustom = () => {
     if (!customCmd.trim()) return;
-    setCriteria([...criteria, { id: "c" + criteria.length, type: "command", name: customCmd, config: { cmd: customCmd } }]);
+    setCriteria([...criteria, { id: "c" + Date.now(), type: "command", name: customCmd, config: { cmd: customCmd } }]);
     setCustomCmd("");
+  };
+
+  const applyTemplate = (template: typeof CRITERIA_TEMPLATES[number]) => {
+    const newCriteria = template.criteria
+      .map(name => CRITERION_PRESETS.find(p => p.name === name))
+      .filter(Boolean)
+      .map((p, i) => ({ id: "c" + Date.now() + i, type: p!.type, name: p!.name, config: p!.config }));
+    setCriteria(newCriteria);
   };
 
   const submit = (e: React.FormEvent) => {
@@ -66,7 +80,7 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
     if (!projectId || !name || !prompt) return;
     createTask.mutate({
       projectId, name, prompt,
-      config: { criteria, maxIterations, maxCost: maxCost || null },
+      config: { criteria, maxIterations },
     });
   };
 
@@ -83,7 +97,7 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
         <form onSubmit={submit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Project</label>
-            <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white" required>
+            <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white focus:border-forge-500 focus:outline-none" required>
               <option value="">Select...</option>
               {projects?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -92,23 +106,69 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Task Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Add auth" className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500" required />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Add auth" className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:border-forge-500 focus:outline-none" required />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Prompt</label>
-            <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the task..." rows={4} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 resize-none" required />
+            <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the task..." rows={4} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 resize-none focus:border-forge-500 focus:outline-none" required />
+          </div>
+
+          {/* Max Iterations - Prominent */}
+          <div className="bg-forge-500/10 border border-forge-500/30 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Zap className="h-5 w-5 text-forge-400" />
+              <label className="text-sm font-medium text-forge-300">Max Iterations</label>
+            </div>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                value={maxIterations}
+                onChange={(e) => setMaxIterations(Number(e.target.value))}
+                min={1}
+                max={100}
+                className="flex-1 accent-forge-500"
+              />
+              <input
+                type="number"
+                value={maxIterations}
+                onChange={(e) => setMaxIterations(Number(e.target.value) || 30)}
+                min={1}
+                max={100}
+                className="w-20 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-center focus:border-forge-500 focus:outline-none"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Number of times Claude will iterate until success criteria are met</p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Success Criteria</label>
+
+            {/* Templates */}
+            <div className="mb-3">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">Templates</span>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {CRITERIA_TEMPLATES.map((t) => (
+                  <button
+                    key={t.label}
+                    type="button"
+                    onClick={() => applyTemplate(t)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 border border-purple-500/30"
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Individual Criteria */}
             <div className="flex flex-wrap gap-2 mb-3">
               {CRITERION_PRESETS.map((p) => (
                 <button key={p.label} type="button" onClick={() => addCriterion(p)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium", criteria.some(c => c.name === p.name) ? "bg-forge-500/20 text-forge-400 border border-forge-500/50" : "bg-gray-700 text-gray-300 hover:bg-gray-600")}>{p.label}</button>
               ))}
             </div>
             <div className="flex gap-2 mb-3">
-              <input type="text" value={customCmd} onChange={(e) => setCustomCmd(e.target.value)} placeholder="Custom command" className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500" onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustom())} />
+              <input type="text" value={customCmd} onChange={(e) => setCustomCmd(e.target.value)} placeholder="Custom command" className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-forge-500 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustom())} />
               <button type="button" onClick={addCustom} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"><Plus className="h-5 w-5" /></button>
             </div>
             {criteria.length > 0 ? (
@@ -120,18 +180,7 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
                   </div>
                 ))}
               </div>
-            ) : <p className="text-gray-500 text-sm">Select criteria</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Max Iterations</label>
-              <input type="number" value={maxIterations} onChange={(e) => setMaxIterations(Number(e.target.value) || 30)} min={1} max={100} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Max Cost ($)</label>
-              <input type="number" value={maxCost || ""} onChange={(e) => setMaxCost(e.target.value ? Number(e.target.value) : undefined)} min={0} step={0.5} placeholder="No limit" className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500" />
-            </div>
+            ) : <p className="text-gray-500 text-sm">Select criteria or apply a template</p>}
           </div>
         </form>
 

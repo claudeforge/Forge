@@ -165,15 +165,6 @@ async function handleTaskProgress(event: ForgeEvent & { type: "task:progress" })
     createdAt: new Date().toISOString(),
   });
 
-  // Record cost
-  await db.insert(schema.costLog).values({
-    id: generateId(),
-    taskId: event.taskId,
-    tokens: event.iterationRecord.tokens,
-    cost: event.metrics.estimatedCost,
-    createdAt: new Date().toISOString(),
-  });
-
   // Update task iteration count
   await db
     .update(schema.tasks)

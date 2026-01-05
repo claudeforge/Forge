@@ -17,7 +17,13 @@ export default defineConfig([
   },
   // Other files - no shebang (called via node explicitly)
   {
-    entry: ["src/hooks/stop.ts", "src/cli/init.ts"],
+    entry: [
+      "src/hooks/stop.ts",
+      "src/cli/init.ts",
+      "src/cli/add-tasks.ts",
+      "src/cli/link.ts",
+      "src/cli/queue-tasks.ts",
+    ],
     format: ["esm"],
     dts: false,
     clean: false, // Don't clean, setup.ts already built

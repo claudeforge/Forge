@@ -76,20 +76,6 @@ export const checkpoints = sqliteTable("checkpoints", {
 });
 
 // ============================================
-// COST LOG
-// ============================================
-
-export const costLog = sqliteTable("cost_log", {
-  id: text("id").primaryKey(),
-  taskId: text("task_id")
-    .notNull()
-    .references(() => tasks.id, { onDelete: "cascade" }),
-  tokens: integer("tokens").notNull(),
-  cost: real("cost").notNull(),
-  createdAt: text("created_at").notNull(),
-});
-
-// ============================================
 // TYPES
 // ============================================
 
@@ -104,6 +90,3 @@ export type NewIteration = typeof iterations.$inferInsert;
 
 export type CheckpointRecord = typeof checkpoints.$inferSelect;
 export type NewCheckpoint = typeof checkpoints.$inferInsert;
-
-export type CostLogEntry = typeof costLog.$inferSelect;
-export type NewCostLogEntry = typeof costLog.$inferInsert;

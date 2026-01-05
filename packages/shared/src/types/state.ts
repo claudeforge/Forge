@@ -102,8 +102,6 @@ export interface QualityGate {
 export interface ForgeMetrics {
   /** Total token usage */
   totalTokens: number;
-  /** Estimated cost (USD) */
-  estimatedCost: number;
   /** Total duration (milliseconds) */
   totalDuration: number;
   /** Created files */
@@ -174,8 +172,6 @@ export interface ForgeState {
 
   /** Resource limits */
   budget: {
-    /** Maximum cost USD (null = unlimited) */
-    maxCost: number | null;
     /** Maximum duration seconds (null = unlimited) */
     maxDuration: number | null;
     /** Maximum tokens (null = unlimited) */
@@ -215,4 +211,113 @@ export interface ForgeState {
 
   /** Control Center config */
   controlCenter: ControlCenterConfig;
+}
+
+// ============================================
+// TASK FILE TYPES (stored in .forge/tasks/{id}/)
+// ============================================
+
+/**
+ * Task configuration file
+ * Stored in .forge/tasks/{taskId}/task.json
+ */
+export interface TaskFile {
+  /** Task ID */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Original prompt */
+  prompt: string;
+  /** Start time (ISO) */
+  startedAt: string;
+  /** End time (ISO, null if running) */
+  endedAt: string | null;
+  /** Current status */
+  status: TaskStatus;
+  /** Project info */
+  project: {
+    /** Project ID (from Control Center) */
+    id: string | null;
+    /** Control Center URL */
+    controlUrl: string | null;
+  };
+  /** Task configuration */
+  config: {
+    /** Completion criteria */
+    criteria: CompletionCriterion[];
+    /** Max iterations (0 = unlimited) */
+    maxIterations: number;
+    /** Max duration seconds (null = unlimited) */
+    maxDuration: number | null;
+    /** Checkpoint interval */
+    checkpointInterval: number;
+    /** Stuck detection strategy */
+    stuckStrategy: StuckStrategy;
+  };
+}
+
+/**
+ * Iteration result file
+ * Stored in .forge/tasks/{taskId}/iterations/{num}.json
+ */
+export interface IterationFile {
+  /** Iteration number */
+  num: number;
+  /** Start time (ISO) */
+  startedAt: string;
+  /** End time (ISO) */
+  endedAt: string;
+  /** Duration (seconds) */
+  duration: number;
+  /** Token usage */
+  tokens: {
+    input: number;
+    output: number;
+    total: number;
+  };
+  /** Outcome */
+  outcome: IterationOutcome;
+  /** Criteria evaluation results */
+  criteriaResults: Array<{
+    id: string;
+    name: string;
+    passed: boolean;
+    output: string;
+    duration: number;
+  }>;
+  /** Brief summary of what happened */
+  summary: string;
+  /** Files changed in this iteration */
+  filesChanged: string[];
+  /** Error message (if outcome=error) */
+  error?: string;
+}
+
+/**
+ * Task result file
+ * Stored in .forge/tasks/{taskId}/result.json
+ */
+export interface TaskResultFile {
+  /** Final status */
+  status: TaskStatus;
+  /** Total iterations */
+  iterations: number;
+  /** Total duration (seconds) */
+  duration: number;
+  /** Total tokens used */
+  tokens: number;
+  /** Final criteria results */
+  criteriaResults: Array<{
+    id: string;
+    name: string;
+    passed: boolean;
+  }>;
+  /** Summary of what was accomplished */
+  summary: string;
+  /** All files created */
+  filesCreated: string[];
+  /** All files modified */
+  filesModified: string[];
+  /** Completion time (ISO) */
+  completedAt: string;
 }
