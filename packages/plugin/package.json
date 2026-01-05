@@ -1,6 +1,6 @@
 {
   "name": "@claudeforge/forge-plugin",
-  "version": "0.2.0",
+  "version": "v0.2.1",
   "description": "FORGE Plugin for Claude Code - Iterative AI Development Engine",
   "type": "module",
   "main": "./dist/hooks/stop.js",

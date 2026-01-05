@@ -63,7 +63,7 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-700">
-        <p className="text-xs text-gray-500">FORGE Control Center v0.2.0</p>
+        <p className="text-xs text-gray-500">FORGE Control Center vv0.2.1</p>
       </div>
     </aside>
   );
