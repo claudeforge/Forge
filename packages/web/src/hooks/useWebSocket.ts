@@ -10,6 +10,61 @@ interface WSMessage {
   [key: string]: unknown;
 }
 
+// Store for execution updates (reactive)
+let executionListeners: ((data: ExecutionUpdate | null) => void)[] = [];
+let currentExecution: ExecutionUpdate | null = null;
+
+export interface ExecutionUpdate {
+  projectId: string;
+  taskId?: string;
+  taskName?: string;
+  status: "idle" | "running" | "paused" | "completed" | "failed" | "stuck";
+  iteration?: number;
+  maxIterations?: number;
+  criteria?: Array<{
+    name: string;
+    type: string;
+    passed: boolean;
+    required: boolean;
+  }>;
+  stuckDetection?: {
+    isStuck: boolean;
+    pattern?: string;
+    suggestion?: string;
+  };
+  error?: string;
+  metrics?: {
+    totalTokens: number;
+    totalDuration: number;
+    filesCreated: string[];
+    filesModified: string[];
+  };
+}
+
+export function subscribeToExecution(listener: (data: ExecutionUpdate | null) => void) {
+  executionListeners.push(listener);
+  // Send current state immediately
+  listener(currentExecution);
+  return () => {
+    executionListeners = executionListeners.filter((l) => l !== listener);
+  };
+}
+
+function notifyExecutionListeners(data: ExecutionUpdate | null) {
+  currentExecution = data;
+  executionListeners.forEach((l) => l(data));
+}
+
+export function useExecution() {
+  const [execution, setExecution] = useState<ExecutionUpdate | null>(null);
+
+  useEffect(() => {
+    return subscribeToExecution(setExecution);
+  }, []);
+
+  return execution;
+}
+
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
   const queryClient = useQueryClient();
@@ -79,6 +134,12 @@ export function useWebSocket() {
             queryKey: ["iterations", message.taskId],
           });
           queryClient.invalidateQueries({ queryKey: ["stats"] });
+          break;
+
+        case "execution:update":
+          // Real-time execution status from file watcher
+          notifyExecutionListeners(message.execution as ExecutionUpdate);
+          queryClient.invalidateQueries({ queryKey: ["queue"] });
           break;
       }
     },

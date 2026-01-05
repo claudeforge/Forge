@@ -7,12 +7,12 @@ import {
   CheckCircle,
   XCircle,
   Hash,
-  TrendingUp,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
 import { MetricCard } from "../components/common/MetricCard";
 import { TaskCard } from "../components/task/TaskCard";
 import { StatusBadge } from "../components/common/StatusBadge";
+import { ExecutionMonitor } from "../components/execution/ExecutionMonitor";
 import { useStats, useQueue } from "../hooks/useStats";
 import { useTasks } from "../hooks/useTasks";
 
@@ -50,49 +50,9 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Running Task */}
+        {/* Execution Monitor - Real-time status */}
         <div className="lg:col-span-2">
-          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-forge-500" />
-              Current Task
-            </h2>
-
-            {queue?.running ? (
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-medium text-white">
-                      {queue.running.name}
-                    </h3>
-                    <p className="text-sm text-gray-400 mt-1">
-                      {queue.running.prompt}
-                    </p>
-                  </div>
-                  <StatusBadge status={queue.running.status} />
-                </div>
-
-                <div className="flex items-center gap-6 text-sm">
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <Hash className="h-4 w-4" />
-                    <span>Iteration {queue.running.iteration}</span>
-                  </div>
-                </div>
-
-                {/* Progress bar placeholder */}
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className="bg-forge-500 h-2 rounded-full animate-pulse-forge"
-                    style={{ width: "60%" }}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                No task currently running
-              </div>
-            )}
-          </div>
+          <ExecutionMonitor />
         </div>
 
         {/* Quick Stats */}
