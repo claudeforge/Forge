@@ -51,6 +51,11 @@ import { applyRecovery } from "../strategies/recovery.js";
 import { createCheckpoint } from "../checkpoints/manager.js";
 import { sendWebhook } from "../sync/webhook.js";
 import {
+  syncTaskStatus,
+  syncTaskComplete,
+  processPendingSync,
+} from "../sync/status-sync.js";
+import {
   parseTranscript,
   extractLastAssistantOutput,
 } from "../utils/transcript.js";
@@ -104,6 +109,9 @@ async function main(): Promise<void> {
 // ============================================
 
 async function stopHook(input: HookInput): Promise<HookOutput> {
+  // 0. Process any pending status syncs from previous runs
+  await processPendingSync();
+
   // 1. Load state
   const state = loadState();
   if (!state || state.task.status !== "running") {
@@ -113,7 +121,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
   // 2. Check for external commands (pause, abort)
   const command = checkExternalCommand();
   if (command) {
-    return handleExternalCommand(state, command);
+    return await handleExternalCommand(state, command);
   }
 
   // 3. Parse transcript and get last output
@@ -153,6 +161,17 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
     state.task.status = "failed";
     saveState(state);
     writeTaskResult(state, []);
+    // CRITICAL: Sync status to Control Center (with retry/queue)
+    await syncTaskStatus(state, "failed", {
+      success: false,
+      iterations: state.iteration.current,
+      duration: state.metrics.totalDuration,
+      tokens: state.metrics.totalTokens,
+      filesCreated: state.metrics.filesCreated,
+      filesModified: state.metrics.filesModified,
+      summary: budgetResult.message,
+      error: budgetResult.message,
+    });
     await sendWebhook(state, {
       type: "task:failed",
       reason: budgetResult.reason as "budget" | "timeout",
@@ -170,10 +189,22 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
     state.task.status = "failed";
     saveState(state);
     writeTaskResult(state, []);
+    const maxIterMsg = `Reached maximum iterations (${state.iteration.max})`;
+    // CRITICAL: Sync status to Control Center (with retry/queue)
+    await syncTaskStatus(state, "failed", {
+      success: false,
+      iterations: state.iteration.current,
+      duration: state.metrics.totalDuration,
+      tokens: state.metrics.totalTokens,
+      filesCreated: state.metrics.filesCreated,
+      filesModified: state.metrics.filesModified,
+      summary: maxIterMsg,
+      error: maxIterMsg,
+    });
     await sendWebhook(state, {
       type: "task:failed",
       reason: "max-iterations",
-      message: `Reached maximum iterations (${state.iteration.max})`,
+      message: maxIterMsg,
       metrics: state.metrics,
     });
     return {
@@ -225,6 +256,9 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
 
     // Write task result file
     writeTaskResult(state, criteriaResults);
+
+    // CRITICAL: Sync completed status to Control Center (with retry/queue)
+    await syncTaskComplete(state, criteriaResults);
 
     await sendWebhook(state, {
       type: "task:completed",
@@ -283,6 +317,17 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
         state.task.status = "stuck";
         saveState(state);
         writeTaskResult(state, criteriaResults);
+        // CRITICAL: Sync stuck status to Control Center (with retry/queue)
+        await syncTaskStatus(state, "stuck", {
+          success: false,
+          iterations: state.iteration.current,
+          duration: state.metrics.totalDuration,
+          tokens: state.metrics.totalTokens,
+          filesCreated: state.metrics.filesCreated,
+          filesModified: state.metrics.filesModified,
+          summary: `Task stuck: ${recovery.reason}`,
+          error: recovery.reason,
+        });
         return {
           decision: "approve",
           reason: `Task stuck and aborted: ${recovery.reason}`,
@@ -477,14 +522,16 @@ function checkExternalCommand(): { command: string; [key: string]: unknown } | n
   }
 }
 
-function handleExternalCommand(
+async function handleExternalCommand(
   state: ForgeState,
   command: { command: string }
-): HookOutput {
+): Promise<HookOutput> {
   switch (command.command) {
     case "pause":
       state.task.status = "paused";
       saveState(state);
+      // CRITICAL: Sync paused status to Control Center (with retry/queue)
+      await syncTaskStatus(state, "paused");
       sendWebhook(state, {
         type: "task:paused",
         iteration: state.iteration.current,
@@ -494,6 +541,17 @@ function handleExternalCommand(
     case "abort":
       state.task.status = "aborted";
       saveState(state);
+      // CRITICAL: Sync aborted status to Control Center (with retry/queue)
+      await syncTaskStatus(state, "aborted", {
+        success: false,
+        iterations: state.iteration.current,
+        duration: state.metrics.totalDuration,
+        tokens: state.metrics.totalTokens,
+        filesCreated: state.metrics.filesCreated,
+        filesModified: state.metrics.filesModified,
+        summary: "Aborted by user",
+        error: "Aborted by user",
+      });
       sendWebhook(state, {
         type: "task:failed",
         reason: "aborted",
