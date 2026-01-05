@@ -24,6 +24,7 @@ export default defineConfig([
       "src/cli/link.ts",
       "src/cli/queue-tasks.ts",
       "src/cli/register.ts",
+      "src/cli/sync.ts",
     ],
     format: ["esm"],
     dts: false,

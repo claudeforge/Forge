@@ -324,21 +324,21 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  // Queue tasks
+  // Queue tasks - use array index as priority for deterministic order
   const queued: Array<{ id: string; taskId: string; title: string }> = [];
   const failed: string[] = [];
 
-  for (const task of pendingTasks) {
-    const priority = taskPriorities.get(task.id) ?? 0;
-    const result = await queueTask(controlUrl, projectId, task, priority);
+  for (let i = 0; i < pendingTasks.length; i++) {
+    const task = pendingTasks[i]!;
+    const result = await queueTask(controlUrl, projectId, task, i);
 
     if (result) {
       queued.push({ id: result.id, taskId: task.id, title: task.title });
       updateTaskStatus(task.id, "queued");
-      console.log(`  ✅ ${task.id}: ${task.title}`);
+      console.log(`  ✅ #${i + 1} ${task.id}: ${task.title}`);
     } else {
       failed.push(task.id);
-      console.log(`  ❌ ${task.id}: ${task.title} (failed)`);
+      console.log(`  ❌ #${i + 1} ${task.id}: ${task.title} (failed)`);
     }
   }
 

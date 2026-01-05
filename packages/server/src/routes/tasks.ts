@@ -3,13 +3,34 @@
  */
 
 import { Hono } from "hono";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql, max } from "drizzle-orm";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { db, schema } from "../db/index.js";
 import { generateId } from "@claudeforge/forge-shared/utils";
 import { broadcast } from "../broadcast.js";
+
+/**
+ * Get the next priority value for queue ordering
+ * Returns MAX(priority) + 1, or 1 if no tasks exist
+ */
+async function getNextPriority(projectId?: string): Promise<number> {
+  let query;
+  if (projectId) {
+    query = db
+      .select({ maxPriority: max(schema.tasks.priority) })
+      .from(schema.tasks)
+      .where(eq(schema.tasks.projectId, projectId));
+  } else {
+    query = db
+      .select({ maxPriority: max(schema.tasks.priority) })
+      .from(schema.tasks);
+  }
+  
+  const [result] = await query;
+  return (result?.maxPriority ?? 0) + 1;
+}
 
 /**
  * Sync task status back to project's task definition YAML file
@@ -47,7 +68,7 @@ async function syncTaskDefStatus(
   if (!taskDefId) return;
 
   // Update task definition YAML
-  const taskDefPath = join(project.path, ".forge", "tasks", `${taskDefId}.yaml`);
+  const taskDefPath = join(project.path, ".forge", "tasks", taskDefId + ".yaml");
   if (!existsSync(taskDefPath)) return;
 
   try {
@@ -105,13 +126,15 @@ app.get("/", async (c) => {
 });
 
 // POST /api/tasks - Create task
+// Supports position parameter: "start" | "end" | number (specific priority)
 app.post("/", async (c) => {
   const body = await c.req.json();
   const {
     projectId,
     name,
     prompt,
-    priority = 0,
+    priority: explicitPriority,
+    position = "end",
     dependsOn = [],
     scheduledAt = null,
     config = {},
@@ -119,6 +142,31 @@ app.post("/", async (c) => {
 
   if (!projectId || !name || !prompt) {
     return c.json({ error: "projectId, name, and prompt are required" }, 400);
+  }
+
+  // Determine priority based on position
+  let priority: number;
+  if (explicitPriority !== undefined) {
+    // Explicit priority takes precedence
+    priority = explicitPriority;
+  } else if (position === "start") {
+    // Add to start of queue (priority 0, shift others)
+    priority = 0;
+    // Increment all existing task priorities
+    await db
+      .update(schema.tasks)
+      .set({ priority: sql`${schema.tasks.priority} + 1` });
+  } else if (typeof position === "number") {
+    // Insert at specific position
+    priority = position;
+    // Shift tasks at or after this position
+    await db
+      .update(schema.tasks)
+      .set({ priority: sql`${schema.tasks.priority} + 1` })
+      .where(sql`${schema.tasks.priority} >= ${position}`);
+  } else {
+    // Default: add to end of queue
+    priority = await getNextPriority();
   }
 
   const task = {
@@ -142,6 +190,7 @@ app.post("/", async (c) => {
 
   // Broadcast update
   broadcast({ type: "task:update", task });
+  broadcast({ type: "queue:update" });
 
   return c.json(task, 201);
 });
@@ -202,11 +251,60 @@ app.patch("/:id", async (c) => {
   return c.json(task);
 });
 
+// POST /api/tasks/:id/complete - Mark task as complete
+app.post("/:id/complete", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json();
+  const now = new Date().toISOString();
+
+  // Get existing task
+  const [existing] = await db
+    .select()
+    .from(schema.tasks)
+    .where(eq(schema.tasks.id, id));
+
+  if (!existing) {
+    return c.json({ error: "Task not found" }, 404);
+  }
+
+  // Update task
+  await db
+    .update(schema.tasks)
+    .set({
+      status: body.status || "completed",
+      completedAt: now,
+      result: body.result ? JSON.stringify(body.result) : null,
+    })
+    .where(eq(schema.tasks.id, id));
+
+  // Get updated task
+  const [task] = await db
+    .select()
+    .from(schema.tasks)
+    .where(eq(schema.tasks.id, id));
+
+  if (!task) {
+    return c.json({ error: "Task not found after update" }, 500);
+  }
+
+  // Sync to YAML
+  await syncTaskDefStatus(id, task.status, body.result);
+
+  // Broadcast update
+  broadcast({ type: "task:update", task });
+  broadcast({ type: "queue:update" });
+
+  return c.json(task);
+});
+
 // DELETE /api/tasks/:id - Delete task
 app.delete("/:id", async (c) => {
   const id = c.req.param("id");
 
   await db.delete(schema.tasks).where(eq(schema.tasks.id, id));
+
+  // Broadcast queue update
+  broadcast({ type: "queue:update" });
 
   return c.json({ deleted: true });
 });

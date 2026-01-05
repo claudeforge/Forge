@@ -35,6 +35,73 @@ function loadConfig(): ForgeConfig {
   }
 }
 
+
+
+/**
+ * Load existing state file if present
+ */
+function loadExistingState(): ForgeState | null {
+  try {
+    if (existsSync(STATE_FILE)) {
+      const content = readFileSync(STATE_FILE, "utf-8");
+      return JSON.parse(content);
+    }
+  } catch {
+    // Corrupted state, ignore
+  }
+  return null;
+}
+
+/**
+ * Complete the previous task before claiming a new one
+ */
+async function completePreviousTask(state: ForgeState): Promise<void> {
+  const config = state.controlCenter;
+
+  if (!config.enabled || !config.url || !config.taskId) {
+    console.log("[FORGE] No previous task to complete");
+    return;
+  }
+
+  if (state.task.status !== "running") {
+    console.log("[FORGE] Previous task already " + state.task.status);
+    return;
+  }
+
+  console.log("[FORGE] Completing previous task: " + state.task.name);
+
+  try {
+    const response = await fetch(
+      config.url + "/api/tasks/" + config.taskId + "/complete",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "completed",
+          result: {
+            success: true,
+            iterations: state.iteration.current,
+            duration: state.metrics.totalDuration,
+            tokens: state.metrics.totalTokens,
+            filesCreated: state.metrics.filesCreated,
+            filesModified: state.metrics.filesModified,
+            summary: "Task completed (manual advance) after " + state.iteration.current + " iterations",
+          },
+        }),
+        signal: AbortSignal.timeout(10000),
+      }
+    );
+
+    if (response.ok) {
+      console.log("[FORGE] Previous task marked as complete");
+    } else {
+      console.error("[FORGE] Failed to complete previous task: " + response.status);
+    }
+  } catch (error) {
+    console.error("[FORGE] Error completing previous task:", error);
+  }
+}
+
 interface InitArgs {
   prompt: string;
   name?: string;
@@ -201,6 +268,14 @@ async function main(): Promise<void> {
   const projectId = args.project ?? config.projectId;
   const controlUrl = args.control ?? config.controlUrl;
 
+  // CRITICAL: Check for existing running task and complete it first
+  const existingState = loadExistingState();
+  if (existingState && existingState.task.status === "running" && controlUrl) {
+    console.log("[FORGE] Found running task: " + existingState.task.name);
+    await completePreviousTask(existingState);
+  }
+
+
   let taskId: string;
   let taskName: string;
   let taskPrompt: string;
@@ -286,7 +361,7 @@ async function main(): Promise<void> {
     controlCenter: {
       enabled: !!args.control,
       url: args.control ?? null,
-      projectId: process.cwd(), // Use cwd as project identifier
+      projectId: projectId ?? process.cwd(), // Use server projectId or cwd as fallback
       taskId: taskId,
     },
   };

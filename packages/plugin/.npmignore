@@ -1,0 +1,14 @@
+# Source files (not needed in package)
+src/
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+tsup.config.ts
+
+# Dev files
+.turbo/
+node_modules/
+
+# Keep dist, commands, hooks, templates, .claude-plugin

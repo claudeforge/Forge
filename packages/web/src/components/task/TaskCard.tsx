@@ -1,8 +1,8 @@
 /**
- * Task card component
+ * Task card component with task type indicators
  */
 
-import { Clock, Hash } from "lucide-react";
+import { Clock, Hash, FileCode, AlertTriangle } from "lucide-react";
 import { StatusBadge } from "../common/StatusBadge";
 import { formatRelativeTime, formatDuration } from "../../lib/utils";
 import type { Task } from "../../lib/api";
@@ -10,10 +10,22 @@ import type { Task } from "../../lib/api";
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
+  showTypeIndicator?: boolean;
 }
 
-export function TaskCard({ task, onClick }: TaskCardProps) {
+export function TaskCard({ task, onClick, showTypeIndicator = true }: TaskCardProps) {
   const result = task.result ? JSON.parse(task.result) : null;
+  
+  // Parse config to check if YAML-linked
+  let isYamlLinked = false;
+  let taskDefId: string | null = null;
+  try {
+    const config = typeof task.config === "string" ? JSON.parse(task.config) : task.config;
+    taskDefId = config?.taskDefId || null;
+    isYamlLinked = !!taskDefId;
+  } catch {
+    // ignore
+  }
 
   return (
     <div
@@ -21,8 +33,23 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
       className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors cursor-pointer"
     >
       <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="font-medium text-white">{task.name}</h3>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-white truncate">{task.name}</h3>
+            {showTypeIndicator && (
+              isYamlLinked ? (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-forge-500/20 text-forge-400 border border-forge-500/30 flex-shrink-0">
+                  <FileCode className="h-3 w-3" />
+                  <span className="hidden sm:inline">YAML</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30 flex-shrink-0">
+                  <AlertTriangle className="h-3 w-3" />
+                  <span className="hidden sm:inline">Raw</span>
+                </span>
+              )
+            )}
+          </div>
           <p className="text-sm text-gray-400 mt-1 line-clamp-2">
             {task.prompt}
           </p>

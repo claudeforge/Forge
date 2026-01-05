@@ -53,8 +53,13 @@ import { sendWebhook } from "../sync/webhook.js";
 import {
   syncTaskStatus,
   syncTaskComplete,
+  completeQueueTask,
   processPendingSync,
 } from "../sync/status-sync.js";
+import {
+  updateTaskStatus as updateExecutionStatus,
+  updateIteration as updateExecutionIteration,
+} from "../sync/execution.js";
 import {
   parseTranscript,
   extractLastAssistantOutput,
@@ -172,6 +177,18 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       summary: budgetResult.message,
       error: budgetResult.message,
     });
+    // Complete the database task as failed
+    await completeQueueTask(state, []);
+    
+    // Update local execution file
+    updateExecutionStatus(state.task.id, "failed", {
+      success: false,
+      iterations: state.iteration.current,
+      duration: state.metrics.totalDuration / 1000,
+      summary: budgetResult.message,
+      error: budgetResult.message,
+    });
+    
     await sendWebhook(state, {
       type: "task:failed",
       reason: budgetResult.reason as "budget" | "timeout",
@@ -201,6 +218,18 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       summary: maxIterMsg,
       error: maxIterMsg,
     });
+    // Complete the database task as failed
+    await completeQueueTask(state, []);
+    
+    // Update local execution file
+    updateExecutionStatus(state.task.id, "failed", {
+      success: false,
+      iterations: state.iteration.current,
+      duration: state.metrics.totalDuration / 1000,
+      summary: maxIterMsg,
+      error: maxIterMsg,
+    });
+    
     await sendWebhook(state, {
       type: "task:failed",
       reason: "max-iterations",
@@ -259,6 +288,17 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
 
     // CRITICAL: Sync completed status to Control Center (with retry/queue)
     await syncTaskComplete(state, criteriaResults);
+    
+    // Also complete the database task (the one claimed from queue)
+    await completeQueueTask(state, criteriaResults);
+
+    // Update local execution file
+    updateExecutionStatus(state.task.id, "completed", {
+      success: true,
+      iterations: state.iteration.current,
+      duration: state.metrics.totalDuration / 1000,
+      summary: `Completed after ${state.iteration.current} iterations`,
+    });
 
     await sendWebhook(state, {
       type: "task:completed",
@@ -268,10 +308,19 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
     });
 
     // Auto-advance: Check for next task in queue if using Control Center
+    console.error("[FORGE] Task completed! Checking for auto-advance...");
+    console.error("[FORGE] Control Center config:", JSON.stringify({
+      enabled: state.controlCenter.enabled,
+      url: state.controlCenter.url,
+      projectId: state.controlCenter.projectId
+    }));
+    
     if (state.controlCenter.enabled && state.controlCenter.url && state.controlCenter.projectId) {
+      console.error("[FORGE] Attempting to claim next task...");
       const nextTask = await claimNextTask(state.controlCenter.url, state.controlCenter.projectId);
 
       if (nextTask) {
+        console.error("[FORGE] ✅ Next task claimed:", nextTask.name);
         // Initialize new state for the next task
         const newState = initializeNewTask(nextTask, state.controlCenter);
         saveState(newState);
@@ -287,6 +336,7 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
       }
     }
 
+    console.error("[FORGE] No more tasks in queue. Allowing exit.");
     return {
       decision: "approve",
       reason: buildCompletionMessage(criteriaResults),
@@ -373,6 +423,9 @@ async function stopHook(input: HookInput): Promise<HookOutput> {
   state.iteration.current++;
   state.iteration.currentStartedAt = new Date().toISOString();
   saveState(state);
+  
+  // Update execution file with new iteration
+  updateExecutionIteration(state.task.id, state.iteration.current);
 
   // 15. Send progress webhook
   await sendWebhook(state, {
@@ -527,6 +580,47 @@ async function handleExternalCommand(
   command: { command: string }
 ): Promise<HookOutput> {
   switch (command.command) {
+    case "complete":
+      // Claude explicitly signals task completion
+      state.task.status = "completed";
+      saveState(state);
+      writeTaskResult(state, []);
+      await syncTaskComplete(state, []);
+      await completeQueueTask(state, []);
+      updateExecutionStatus(state.task.id, "completed", {
+        success: true,
+        iterations: state.iteration.current,
+        duration: state.metrics.totalDuration / 1000,
+        summary: "Completed by explicit command",
+      });
+      await sendWebhook(state, {
+        type: "task:completed",
+        iterations: state.iteration.current,
+        metrics: state.metrics,
+        criteriaResults: [],
+      });
+      
+      // Try to auto-advance to next task
+      if (state.controlCenter.enabled && state.controlCenter.url && state.controlCenter.projectId) {
+        const nextTask = await claimNextTask(state.controlCenter.url, state.controlCenter.projectId);
+        if (nextTask) {
+          const newState = initializeNewTask(nextTask, state.controlCenter);
+          saveState(newState);
+          return {
+            decision: "block",
+            reason: nextTask.prompt,
+            systemMessage: `**FORGE Auto-Advance**
+
+Previous task completed!
+Now starting: "${nextTask.name}"
+
+Task prompt: ${nextTask.prompt}`,
+          };
+        }
+      }
+      
+      return { decision: "approve", reason: "Task completed by explicit command" };
+
     case "pause":
       state.task.status = "paused";
       saveState(state);

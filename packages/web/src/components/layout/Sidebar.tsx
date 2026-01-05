@@ -12,6 +12,7 @@ import {
   Flame,
   FileText,
   Terminal,
+  Shield,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Tasks", href: "/tasks", icon: ListTodo },
   { name: "Queue", href: "/queue", icon: Layers },
   { name: "Projects", href: "/projects", icon: FolderOpen },
+  { name: "Rules", href: "/rules", icon: Shield },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Commands", href: "/commands", icon: Terminal },
 ];
@@ -63,7 +65,7 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-700">
-        <p className="text-xs text-gray-500">FORGE Control Center vv0.2.1</p>
+        <p className="text-xs text-gray-500">FORGE Control Center v0.2.1</p>
       </div>
     </aside>
   );

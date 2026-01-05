@@ -8,7 +8,8 @@ import { existsSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { db } from "../db/index.js";
-import { projects } from "../db/schema.js";
+import { projects, tasks } from "../db/schema.js";
+import { broadcast } from "../broadcast.js";
 import { eq } from "drizzle-orm";
 
 const app = new Hono();
@@ -371,7 +372,8 @@ app.patch("/projects/:projectId/task-defs/:taskId", async (c) => {
 
 /** Update task definition status (convenience endpoint) */
 app.post("/projects/:projectId/task-defs/:taskId/status", async (c) => {
-  const projectPath = getProjectPath(c.req.param("projectId"));
+  const projectId = c.req.param("projectId");
+  const projectPath = getProjectPath(projectId);
   if (!projectPath) {
     return c.json({ error: "Project not found" }, 404);
   }
@@ -387,23 +389,67 @@ app.post("/projects/:projectId/task-defs/:taskId/status", async (c) => {
     const { status, result } = await c.req.json();
     const content = readFileSync(taskPath, "utf-8");
     const taskDef = parseYaml(content) as Record<string, unknown>;
+    const now = new Date().toISOString();
 
     taskDef.status = status;
 
     if (status === "running" && !taskDef.started_at) {
-      taskDef.started_at = new Date().toISOString();
+      taskDef.started_at = now;
     }
 
     if (status === "completed" || status === "failed") {
-      taskDef.completed_at = new Date().toISOString();
+      taskDef.completed_at = now;
       if (result) {
         taskDef.result = result;
       }
     }
 
+    // Update YAML file
     writeFileSync(taskPath, stringifyYaml(taskDef));
+
+    // Update database task if it exists
+    const dbTask = db.select().from(tasks).where(eq(tasks.id, taskId)).get();
+    if (dbTask) {
+      const dbUpdate: Record<string, unknown> = { status };
+
+      if (status === "running" && !dbTask.startedAt) {
+        dbUpdate.startedAt = now;
+      }
+
+      if (status === "completed" || status === "failed") {
+        dbUpdate.completedAt = now;
+        if (result) {
+          dbUpdate.result = JSON.stringify(result);
+        }
+      }
+
+      db.update(tasks).set(dbUpdate).where(eq(tasks.id, taskId)).run();
+
+      // Get updated task for broadcast
+      const updatedTask = db.select().from(tasks).where(eq(tasks.id, taskId)).get();
+
+      // Broadcast task update to WebUI
+      broadcast({ type: "task:update", task: updatedTask });
+
+      // Broadcast queue update when task completes so UI can show next task
+      if (status === "completed" || status === "failed") {
+        broadcast({ type: "queue:update" });
+      }
+    } else {
+      // No DB task, broadcast taskDef update for real-time UI
+      broadcast({
+        type: "task:update",
+        task: { id: taskId, projectId, status, ...taskDef }
+      });
+
+      if (status === "completed" || status === "failed") {
+        broadcast({ type: "queue:update" });
+      }
+    }
+
     return c.json(taskDef);
   } catch (error) {
+    console.error("Failed to update task status:", error);
     return c.json({ error: "Failed to update task status" }, 500);
   }
 });

@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Trash2,
   Pencil,
+  GripVertical,
   CheckCircle2,
   XCircle,
   Clock,
@@ -43,6 +44,8 @@ export function Queue() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [projectFilter, setProjectFilter] = useState<string>("");
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const { data: projects } = useQuery({
     queryKey: ["projects"],
@@ -66,6 +69,53 @@ export function Queue() {
     const [moved] = newOrder.splice(index, 1);
     if (moved) newOrder.splice(newIndex, 0, moved);
     reorderQueue.mutate(newOrder.map((t) => t.id));
+  };
+
+  // Drag & Drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+    // Add drag image styling
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = "0.5";
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = "1";
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || !queue?.queued) return;
+    if (draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const newOrder = [...queue.queued];
+    const [moved] = newOrder.splice(draggedIndex, 1);
+    if (moved) newOrder.splice(dropIndex, 0, moved);
+    reorderQueue.mutate(newOrder.map((t) => t.id));
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const handleDelete = (taskId: string) => {
@@ -234,7 +284,27 @@ export function Queue() {
         {queue?.queued && queue.queued.length > 0 ? (
           <div className="space-y-3">
             {queue.queued.map((task, index) => (
-              <div key={task.id} className="flex items-center gap-3">
+              <div 
+                key={task.id} 
+                className={cn(
+                  "flex items-center gap-3 transition-all duration-150",
+                  dragOverIndex === index && draggedIndex !== null && draggedIndex !== index
+                    ? "border-t-2 border-forge-500 pt-2"
+                    : "",
+                  draggedIndex === index ? "opacity-50" : ""
+                )}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
+              >
+                {/* Drag Handle */}
+                <div className="cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-300 p-1">
+                  <GripVertical className="h-5 w-5" />
+                </div>
+
                 {/* Position */}
                 <span className="text-gray-500 font-mono text-sm w-8">
                   #{index + 1}

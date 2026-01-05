@@ -26,6 +26,9 @@ export const TASKS_DIR = ".forge/runs";
 /** External command file */
 export const COMMAND_FILE = ".forge/command.json";
 
+/** Execution status file (queue & status sync) */
+export const EXECUTION_FILE = ".forge/execution.json";
+
 /** Log file */
 export const LOG_FILE = ".forge/forge.log";
 

@@ -6,5 +6,6 @@
     "name": "ClaudeForge",
     "url": "https://github.com/claudeforge"
   },
-  "repository": "https://github.com/claudeforge/Forge"
+  "repository": "https://github.com/claudeforge/Forge",
+  "hooks": "../hooks/hooks.json"
 }

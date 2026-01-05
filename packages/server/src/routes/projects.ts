@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { eq, and, asc } from "drizzle-orm";
 import { db, schema } from "../db/index.js";
 import { generateId } from "@claudeforge/forge-shared/utils";
+import { watchProject } from "../watcher.js";
 import { broadcast } from "../broadcast.js";
 
 const app = new Hono();
@@ -34,6 +35,9 @@ app.post("/", async (c) => {
   };
 
   await db.insert(schema.projects).values(project);
+  
+  // Start watching the project folder
+  watchProject(project.id, project.path);
 
   return c.json(project, 201);
 });

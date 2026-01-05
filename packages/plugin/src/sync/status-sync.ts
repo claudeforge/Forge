@@ -7,7 +7,7 @@
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
-import type { ForgeState, ForgeMetrics, CriterionResult } from "@claudeforge/forge-shared";
+import type { ForgeState, CriterionResult } from "@claudeforge/forge-shared";
 
 // ============================================
 // TYPES
@@ -277,6 +277,62 @@ export async function processPendingSync(): Promise<{
   savePendingQueue(updatedQueue);
 
   return { processed, failed };
+}
+
+
+/**
+ * Complete the database task (the one claimed from queue)
+ * This is separate from syncTaskComplete which handles task-defs
+ */
+export async function completeQueueTask(
+  state: ForgeState,
+  criteriaResults: CriterionResult[]
+): Promise<boolean> {
+  const config = state.controlCenter;
+
+  // Skip if not enabled or no task ID
+  if (!config.enabled || !config.url || !config.taskId) {
+    return true;
+  }
+
+  try {
+    const response = await fetch(
+      `${config.url}/api/tasks/${config.taskId}/complete`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: state.task.status,
+          result: {
+            success: state.task.status === "completed",
+            iterations: state.iteration.current,
+            duration: state.metrics.totalDuration,
+            tokens: state.metrics.totalTokens,
+            filesCreated: state.metrics.filesCreated,
+            filesModified: state.metrics.filesModified,
+            summary: `Task ${state.task.status} after ${state.iteration.current} iterations`,
+            criteriaResults: criteriaResults.map((r) => ({
+              id: r.criterion.id,
+              name: r.criterion.name,
+              passed: r.passed,
+            })),
+          },
+        }),
+        signal: AbortSignal.timeout(10000),
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`[FORGE] Queue task complete failed: ${response.status}`);
+      return false;
+    }
+
+    console.error("[FORGE] Queue task marked as complete");
+    return true;
+  } catch (error) {
+    console.error("[FORGE] Queue task complete error:", error);
+    return false;
+  }
 }
 
 /**
