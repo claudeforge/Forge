@@ -23,7 +23,9 @@ import type {
   TaskHeartbeatRequest,
   TaskHeartbeatResponse,
   TaskLock,
+  HeartbeatExecutionState,
 } from "@claudeforge/forge-shared";
+import { loadExecution, getExecutionSummary } from "./execution.js";
 
 // ============================================
 // TYPES
@@ -259,10 +261,14 @@ export class SyncClientV2 {
     progress?: number
   ): Promise<TaskHeartbeatResponse> {
     try {
+      // Build execution state from local file
+      const executionState = this.buildExecutionState(taskId);
+
       const request: TaskHeartbeatRequest = {
         nodeId: this.state.nodeId,
         iteration,
         progress,
+        executionState,
       };
 
       const response = await fetch(
@@ -301,6 +307,37 @@ export class SyncClientV2 {
         success: false,
         error: "LOCK_LOST",
       };
+    }
+  }
+
+  /**
+   * Build execution state from local execution file for heartbeat
+   */
+  private buildExecutionState(taskId: string): HeartbeatExecutionState | undefined {
+    try {
+      const execution = loadExecution();
+      const task = execution.queue.find(t => t.id === taskId);
+
+      if (!task) return undefined;
+
+      const summary = getExecutionSummary();
+
+      return {
+        status: execution.current.isPaused ? "paused" : "running",
+        iteration: task.iteration ?? 1,
+        maxIterations: task.maxIterations ?? 10,
+        startedAt: task.startedAt ?? new Date().toISOString(),
+        criteriaResults: task.result?.criteriaResults,
+        queueSummary: {
+          total: summary.total,
+          queued: summary.queued,
+          completed: summary.completed,
+          failed: summary.failed,
+        },
+      };
+    } catch {
+      // If execution file can't be read, skip execution state
+      return undefined;
     }
   }
 

@@ -554,7 +554,7 @@ app.post("/tasks/:taskId/claim", async (c) => {
 app.post("/tasks/:taskId/heartbeat", async (c) => {
   const taskId = c.req.param("taskId");
   const body = (await c.req.json()) as TaskHeartbeatRequest;
-  const { nodeId, iteration, progress, extendLock = DEFAULT_LOCK_DURATION_MS } = body;
+  const { nodeId, iteration, progress, extendLock = DEFAULT_LOCK_DURATION_MS, executionState } = body;
 
   const now = new Date();
 
@@ -621,12 +621,13 @@ app.post("/tasks/:taskId/heartbeat", async (c) => {
       .where(eq(schema.interventions.id, intervention.id));
   }
 
-  // Broadcast progress
+  // Broadcast progress with execution state
   broadcast({
     type: "task:progress",
     taskId,
     iteration,
     progress,
+    executionState,
   });
 
   const response: TaskHeartbeatResponse = {

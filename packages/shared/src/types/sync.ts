@@ -442,6 +442,36 @@ export interface TaskClaimResponse {
 // HEARTBEAT
 // ============================================
 
+/** Execution state sent with heartbeat for real-time monitoring */
+export interface HeartbeatExecutionState {
+  /** Current task status */
+  status: "running" | "paused" | "stuck";
+
+  /** Current iteration number */
+  iteration: number;
+
+  /** Maximum iterations allowed */
+  maxIterations: number;
+
+  /** Task started at */
+  startedAt: string;
+
+  /** Criteria check results (if any) */
+  criteriaResults?: Array<{
+    name: string;
+    passed: boolean;
+    message?: string;
+  }>;
+
+  /** Queue summary */
+  queueSummary?: {
+    total: number;
+    queued: number;
+    completed: number;
+    failed: number;
+  };
+}
+
 export interface TaskHeartbeatRequest {
   /** Plugin's node ID */
   nodeId: string;
@@ -457,6 +487,9 @@ export interface TaskHeartbeatRequest {
 
   /** Extend lock duration (ms) */
   extendLock?: number;
+
+  /** Full execution state for monitoring (v2.1+) */
+  executionState?: HeartbeatExecutionState;
 }
 
 export interface TaskHeartbeatResponse {
