@@ -153,6 +153,23 @@ Request types:
 Enables WebUI → Claude Code workflow.`,
     category: "workflow",
   },
+  {
+    name: "/forge:forge-batch",
+    description: "Run all queued tasks until queue is empty (batch mode)",
+    icon: Layers,
+    args: "",
+    examples: ["/forge:forge-batch"],
+    details: `Runs in BATCH MODE - processes ALL tasks in the queue continuously.
+
+Key behaviors:
+- NO confirmation needed: Works autonomously
+- AUTO-ADVANCE: Stop hook automatically claims next task
+- CONTINUOUS: Keeps working until queue is empty
+- NO interaction: Makes reasonable decisions autonomously
+
+When a task completes, the stop hook claims the next task and blocks exit with the new task prompt.`,
+    category: "workflow",
+  },
 
   // Control Commands
   {
@@ -199,6 +216,22 @@ Options:
 - --save-progress: Save current state before aborting
 
 Use when task is stuck or going in wrong direction.`,
+    category: "control",
+  },
+  {
+    name: "/forge:forge-done",
+    description: "Mark current task as complete manually",
+    icon: CheckCircle,
+    args: "",
+    examples: ["/forge:forge-done"],
+    details: `Explicitly signal task completion when criteria checks might not capture your success.
+
+This will:
+1. Mark the current task as completed
+2. Sync completion status to Control Center
+3. Auto-advance to the next queued task (if any)
+
+Use when all requirements are met and verified.`,
     category: "control",
   },
 
@@ -280,6 +313,27 @@ Use when:
 - Cloning a repo with existing FORGE setup
 - Reconnecting after project move
 - Linking multiple workspaces to same project`,
+    category: "sync",
+  },
+  {
+    name: "/forge:forge-sync",
+    description: "Sync project state with Control Center",
+    icon: RefreshCw,
+    args: "[full|push|pull|pending]",
+    examples: [
+      "/forge:forge-sync",
+      "/forge:forge-sync push",
+      "/forge:forge-sync pull",
+    ],
+    details: `Synchronize local project state with Control Center.
+
+Modes:
+- full (default): Bidirectional sync
+- push: Send local state to server
+- pull: Fetch latest from server
+- pending: Process queued updates only
+
+Use when tasks show wrong status or are stuck as "running".`,
     category: "sync",
   },
 
