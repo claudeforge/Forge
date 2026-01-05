@@ -31,14 +31,15 @@ pnpm build
 
 ### 2. Install Plugin in Claude Code
 
-Add the plugin path to Claude Code:
-
 ```bash
-# Add plugin via CLI
-claude plugins add /path/to/Forge/packages/plugin
+# Add the marketplace
+/plugin marketplace add claudeforge/forge
+
+# Install the plugin
+/plugin install forge@claudeforge
 ```
 
-Or add manually to `~/.claude/settings.json`:
+Or for local development, add to `~/.claude/settings.json`:
 
 ```json
 {
@@ -48,9 +49,9 @@ Or add manually to `~/.claude/settings.json`:
 }
 ```
 
-The plugin registers:
+The plugin provides:
 - **Stop Hook** - Intercepts exit to check completion criteria
-- **Commands** - All `/forge:*` slash commands
+- **Commands** - All `/forge:*` slash commands (21 total)
 
 ### 3. Start Control Center
 
