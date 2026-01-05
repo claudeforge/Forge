@@ -1,6 +1,6 @@
 {
   "name": "@claudeforge/forge-shared",
-  "version": "v0.2.2",
+  "version": "0.2.2",
   "description": "Shared types and utilities for FORGE",
   "type": "module",
   "main": "./dist/index.js",
