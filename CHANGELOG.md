@@ -5,6 +5,41 @@ All notable changes to FORGE will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-01-06
+
+### Added
+
+#### Test Coverage Improvements
+- **sync-client-v2.test.ts** - Comprehensive tests for SyncClientV2 class
+  - Node identity management
+  - Registration, handshake, claim, heartbeat, push, release
+  - Full sync and factory singleton tests
+- **rules.test.ts** - Tests for project rules loader
+  - loadProjectRules, formatRulesForPrompt, getRulesSection
+  - Tech stack, conventions, structure, constraints formatting
+- Coverage increased from 69% to **99.47%**
+
+#### Documentation
+- Updated README.md with accurate command list (21 commands)
+- Added missing commands: `forge-batch`, `forge-done`
+- Fixed configuration path documentation (`.forge.json`)
+- Added Project Rules section with `rules.yaml` example
+- Complete API v2 endpoints documentation
+
+### Fixed
+
+- **Version format** - Changed `v0.2.2` to `0.2.2` (npm standard)
+- **Type assertions** - Fixed `response.json()` type assertions in sync-client-v2.ts
+- **CriterionConfig** - Fixed test files using correct config shape `{ cmd: "test" }`
+- **ExecutionFile** - Added required fields in test fixtures
+- **Windows paths** - Fixed path separator issues in rules.test.ts
+
+### Changed
+
+- All package versions now use standard semver format (without `v` prefix)
+
+---
+
 ## [v0.3.0] - 2026-01-05
 
 ### Added
