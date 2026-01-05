@@ -39,6 +39,20 @@ Tasks can come from different sources:
 
 ## Process
 
+### Step 0: Load Project Rules
+
+First, check if this project has defined rules:
+
+```bash
+cat .forge/rules.yaml 2>/dev/null || echo "NO_RULES"
+```
+
+If rules exist, all adopted tasks and their specifications MUST comply with:
+- **Tech Stack**: Only use specified technologies
+- **Conventions**: Follow naming and formatting rules
+- **Structure**: Place files in correct directories
+- **Constraints**: Respect forbidden patterns
+
 ### Step 1: Load WebUI Tasks
 
 ```bash

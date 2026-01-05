@@ -17,7 +17,25 @@ cat .forge.json 2>/dev/null || echo "NOT LINKED - run /forge:forge-link first"
 
 If "NOT LINKED" appears, you must first run `/forge:forge-link --project YOUR_PROJECT_ID --control http://localhost:3344`.
 
-## STEP 2: Initialize First Task
+## STEP 2: Load Project Rules
+
+Check if this project has defined rules:
+
+```bash
+cat .forge/rules.yaml 2>/dev/null || echo "NO_RULES"
+```
+
+If rules exist, you **MUST** follow them for ALL tasks in the batch:
+
+- **Tech Stack**: Use ONLY the specified languages, frameworks, and libraries
+- **Conventions**: Follow ALL naming, formatting, and documentation rules
+- **Structure**: Place files in the CORRECT directories as defined
+- **Constraints**: NEVER use forbidden libraries or patterns
+- **Custom Rules**: Follow ALL custom rules defined in the project
+
+**IMPORTANT**: Violating project rules is considered a task failure.
+
+## STEP 3: Initialize First Task
 
 Claim the first task from the queue:
 
@@ -27,7 +45,7 @@ node "${CLAUDE_PLUGIN_ROOT}/dist/cli/init.js"
 
 If you see "No tasks to run", the queue is empty.
 
-## STEP 3: Work on Current Task
+## STEP 4: Work on Current Task
 
 Read the state file to understand your current task:
 
@@ -69,4 +87,4 @@ The key fields are:
 
 ## Start Now
 
-Run the commands in Steps 1-3 above, then begin implementing the first task!
+Run the commands in Steps 1-4 above, then begin implementing the first task!

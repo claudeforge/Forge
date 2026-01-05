@@ -15,15 +15,26 @@ Read a specification and create an implementation plan, then decompose it into a
 
 ## Process
 
-### Step 1: Load Specification
+### Step 1: Load Project Rules & Specification
+
+First, load project rules (if defined):
 
 ```bash
+# Load project rules
+cat .forge/rules.yaml 2>/dev/null || echo "NO_RULES"
+
 # Read the specification
 cat .forge/specs/${SPEC_ID}.md
 cat .forge/specs/${SPEC_ID}.json
 ```
 
-Understand:
+If rules exist, ALL architectural decisions and task implementations MUST comply with:
+- **Tech Stack**: Use only the specified languages, frameworks, and libraries
+- **Conventions**: Follow naming, formatting, and documentation rules
+- **Structure**: Place files in the correct directories
+- **Constraints**: Respect forbidden libraries/patterns
+
+Understand from spec:
 - Requirements (functional & non-functional)
 - Technical approach
 - Success criteria
@@ -114,6 +125,13 @@ blocks: [t002, t003]
 type: feature  # feature | bugfix | refactor | test | docs
 priority: 1
 complexity: medium  # low | medium | high
+
+# Project rules reference (if .forge/rules.yaml exists)
+rules_applied:
+  tech_stack: true      # Must use specified technologies
+  conventions: true     # Must follow naming/formatting rules
+  structure: true       # Must place files in correct directories
+  constraints: true     # Must respect forbidden patterns
 
 technical:
   approach: |

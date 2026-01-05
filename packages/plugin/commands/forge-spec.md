@@ -15,15 +15,32 @@ Create a specification for a development goal through guided clarification. This
 
 ## Process
 
-### Step 1: Understand the Goal
+### Step 1: Load Project Rules
+
+First, check if this project has defined rules:
+
+```bash
+cat .forge/rules.yaml 2>/dev/null || echo "NO_RULES"
+```
+
+If rules exist, you MUST follow them throughout the specification. The rules define:
+- Tech stack (languages, frameworks, databases)
+- Code conventions (naming, formatting, documentation)
+- Project structure (directories, patterns)
+- Constraints (forbidden libraries, required patterns)
+- Custom rules
+
+**IMPORTANT**: All requirements and technical decisions in the specification MUST comply with these project rules.
+
+### Step 2: Understand the Goal
 
 Read the GOAL and identify what needs clarification:
 - Unclear requirements
-- Missing technical decisions
+- Missing technical decisions (that aren't already defined in rules)
 - Scope ambiguities
 - Success criteria
 
-### Step 2: Clarification (unless --no-clarify)
+### Step 3: Clarification (unless --no-clarify)
 
 Ask the user 3-7 focused questions to clarify:
 
@@ -47,7 +64,7 @@ Please answer each question, or type "skip" for any you'd like me to decide.
 
 Wait for user response before proceeding.
 
-### Step 3: Explore Codebase
+### Step 4: Explore Codebase
 
 After clarification, explore the existing codebase:
 
@@ -57,7 +74,7 @@ After clarification, explore the existing codebase:
 # Identify integration points
 ```
 
-### Step 4: Create Specification
+### Step 5: Create Specification
 
 Create the specification file:
 
@@ -90,6 +107,11 @@ Write `.forge/specs/spec-XXX.md`:
 
 ## Technical Approach
 [High-level technical decisions and architecture]
+
+**Project Rules Applied**: [Reference .forge/rules.yaml if exists, otherwise "None defined"]
+- Tech Stack: [List technologies from rules that apply]
+- Conventions: [Key conventions that must be followed]
+- Constraints: [Any constraints that affect this spec]
 
 ## Integration Points
 [How this integrates with existing code]
@@ -128,7 +150,7 @@ Write `.forge/specs/spec-XXX.json` (metadata):
 }
 ```
 
-### Step 5: Confirm
+### Step 6: Confirm
 
 Output confirmation:
 

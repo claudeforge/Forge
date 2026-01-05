@@ -85,4 +85,24 @@ node "${CLAUDE_PLUGIN_ROOT}/dist/cli/init.js" $ARGUMENTS
 
 The stop hook will automatically evaluate progress on each exit attempt.
 
-After initialization, immediately start working on the task described in the PROMPT.
+## Load Project Rules
+
+Before starting work, check if this project has defined rules:
+
+```bash
+cat .forge/rules.yaml 2>/dev/null || echo "NO_RULES"
+```
+
+If rules exist, you **MUST** follow them throughout the entire task execution:
+
+- **Tech Stack**: Use ONLY the specified languages, frameworks, and libraries
+- **Conventions**: Follow ALL naming, formatting, and documentation rules
+- **Structure**: Place files in the CORRECT directories as defined
+- **Constraints**: NEVER use forbidden libraries or patterns
+- **Custom Rules**: Follow ALL custom rules defined in the project
+
+**IMPORTANT**: Violating project rules is considered a task failure. All code, tests, and documentation must comply with the defined rules.
+
+## Execute Task
+
+After initialization and loading rules, immediately start working on the task described in the PROMPT.
