@@ -2,7 +2,7 @@
  * Task card component with task type indicators
  */
 
-import { Clock, Hash, FileCode, AlertTriangle } from "lucide-react";
+import { Clock, Hash, FileCode, AlertTriangle, List } from "lucide-react";
 import { StatusBadge } from "../common/StatusBadge";
 import { formatRelativeTime, formatDuration } from "../../lib/utils";
 import type { Task } from "../../lib/api";
@@ -10,10 +10,11 @@ import type { Task } from "../../lib/api";
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
+  onViewIterations?: () => void;
   showTypeIndicator?: boolean;
 }
 
-export function TaskCard({ task, onClick, showTypeIndicator = true }: TaskCardProps) {
+export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = true }: TaskCardProps) {
   const result = task.result ? JSON.parse(task.result) : null;
   
   // Parse config to check if YAML-linked
@@ -62,6 +63,19 @@ export function TaskCard({ task, onClick, showTypeIndicator = true }: TaskCardPr
           <Hash className="h-4 w-4" />
           <span>{task.iteration}</span>
         </div>
+        {task.iteration > 0 && onViewIterations && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewIterations();
+            }}
+            className="flex items-center gap-1 text-forge-400 hover:text-forge-300 transition-colors"
+            title="View iteration log"
+          >
+            <List className="h-4 w-4" />
+            <span className="text-xs">Log</span>
+          </button>
+        )}
         {result?.metrics?.totalDuration && (
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />

@@ -11,6 +11,8 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import { NotificationProvider } from "./components/notification/NotificationProvider";
+import { TaskNotificationListener } from "./components/notification/TaskNotificationListener";
 import { Dashboard } from "./routes/Dashboard";
 import { Specs } from "./routes/Specs";
 import { Tasks } from "./routes/Tasks";
@@ -109,7 +111,10 @@ declare module "@tanstack/react-router" {
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <NotificationProvider>
+        <TaskNotificationListener />
+        <RouterProvider router={router} />
+      </NotificationProvider>
     </QueryClientProvider>
   );
 }

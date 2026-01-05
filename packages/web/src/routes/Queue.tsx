@@ -20,9 +20,11 @@ import {
   Clock,
   Zap,
   Filter,
+  List,
 } from "lucide-react";
 import { CreateTaskModal } from "../components/task/CreateTaskModal";
 import { EditTaskModal } from "../components/task/EditTaskModal";
+import { IterationLogViewer } from "../components/iteration/IterationLogViewer";
 import type { Task } from "../lib/api";
 import { api } from "../lib/api";
 import { Layout } from "../components/layout/Layout";
@@ -43,6 +45,7 @@ import { cn } from "../lib/utils";
 export function Queue() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
   const [projectFilter, setProjectFilter] = useState<string>("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -342,7 +345,10 @@ export function Queue() {
 
                 {/* Task Card */}
                 <div className="flex-1">
-                  <TaskCard task={task} />
+                  <TaskCard
+                    task={task}
+                    onViewIterations={() => setViewingTaskId(task.id)}
+                  />
                 </div>
 
                 {/* Run This Button */}
@@ -428,10 +434,28 @@ export function Queue() {
                     )}
                   </div>
                 </div>
+                {task.iteration > 0 && (
+                  <button
+                    onClick={() => setViewingTaskId(task.id)}
+                    className="flex items-center gap-1 px-2 py-1 text-sm text-forge-400 hover:text-forge-300 hover:bg-forge-500/10 rounded transition-colors"
+                    title="View iteration log"
+                  >
+                    <List className="h-4 w-4" />
+                    Log
+                  </button>
+                )}
               </div>
             ))}
           </div>
         </div>
+      )}
+
+      {/* Iteration Log Viewer Modal */}
+      {viewingTaskId && (
+        <IterationLogViewer
+          taskId={viewingTaskId}
+          onClose={() => setViewingTaskId(null)}
+        />
       )}
     </Layout>
   );

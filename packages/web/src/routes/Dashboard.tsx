@@ -2,6 +2,7 @@
  * Dashboard page
  */
 
+import { useState } from "react";
 import {
   ListTodo,
   CheckCircle,
@@ -13,6 +14,7 @@ import { MetricCard } from "../components/common/MetricCard";
 import { TaskCard } from "../components/task/TaskCard";
 import { StatusBadge } from "../components/common/StatusBadge";
 import { ExecutionMonitor } from "../components/execution/ExecutionMonitor";
+import { IterationLogViewer } from "../components/iteration/IterationLogViewer";
 import { useStats, useQueue } from "../hooks/useStats";
 import { useTasks } from "../hooks/useTasks";
 
@@ -20,6 +22,7 @@ export function Dashboard() {
   const { data: stats } = useStats();
   const { data: queue } = useQueue();
   const { data: tasks } = useTasks();
+  const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
 
   const recentTasks = tasks?.slice(0, 5) ?? [];
 
@@ -98,7 +101,11 @@ export function Dashboard() {
         <h2 className="text-lg font-semibold text-white mb-4">Recent Tasks</h2>
         <div className="space-y-3">
           {recentTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              onViewIterations={() => setViewingTaskId(task.id)}
+            />
           ))}
           {recentTasks.length === 0 && (
             <div className="text-center py-8 text-gray-400">
@@ -107,6 +114,14 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Iteration Log Viewer Modal */}
+      {viewingTaskId && (
+        <IterationLogViewer
+          taskId={viewingTaskId}
+          onClose={() => setViewingTaskId(null)}
+        />
+      )}
     </Layout>
   );
 }

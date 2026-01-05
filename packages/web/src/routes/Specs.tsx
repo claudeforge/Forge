@@ -14,8 +14,11 @@ import {
   Loader2,
   XCircle,
   Pause,
+  List,
+  GitBranch,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
+import { DependencyGraph } from "../components/task/DependencyGraph";
 import { api, Spec, TaskDef } from "../lib/api";
 import { cn } from "../lib/utils";
 
@@ -214,6 +217,7 @@ function TaskDefCard({ task }: { task: TaskDef }) {
 // Spec card with tasks
 function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
   const [expanded, setExpanded] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "graph">("list");
 
   const { data: specDetail, isLoading } = useQuery({
     queryKey: ["spec", projectId, spec.id],
@@ -260,24 +264,57 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
                 <h4 className="text-sm font-medium text-gray-300">
                   Tasks ({specDetail.taskDefs.length})
                 </h4>
-                <div className="flex gap-2 text-xs text-gray-500">
-                  <span className="text-green-400">
-                    {specDetail.taskCounts.completed} done
-                  </span>
-                  <span className="text-yellow-400">
-                    {specDetail.taskCounts.running} running
-                  </span>
-                  <span className="text-gray-400">
-                    {specDetail.taskCounts.pending} pending
-                  </span>
+                <div className="flex items-center gap-4">
+                  {/* View Mode Toggle */}
+                  <div className="flex rounded-lg bg-gray-700 p-0.5">
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors",
+                        viewMode === "list"
+                          ? "bg-gray-600 text-white"
+                          : "text-gray-400 hover:text-white"
+                      )}
+                    >
+                      <List className="h-3 w-3" />
+                      List
+                    </button>
+                    <button
+                      onClick={() => setViewMode("graph")}
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors",
+                        viewMode === "graph"
+                          ? "bg-gray-600 text-white"
+                          : "text-gray-400 hover:text-white"
+                      )}
+                    >
+                      <GitBranch className="h-3 w-3" />
+                      Graph
+                    </button>
+                  </div>
+                  <div className="flex gap-2 text-xs text-gray-500">
+                    <span className="text-green-400">
+                      {specDetail.taskCounts.completed} done
+                    </span>
+                    <span className="text-yellow-400">
+                      {specDetail.taskCounts.running} running
+                    </span>
+                    <span className="text-gray-400">
+                      {specDetail.taskCounts.pending} pending
+                    </span>
+                  </div>
                 </div>
               </div>
               {specDetail.taskDefs.length > 0 ? (
-                <div className="space-y-2">
-                  {specDetail.taskDefs.map((task) => (
-                    <TaskDefCard key={task.id} task={task} />
-                  ))}
-                </div>
+                viewMode === "list" ? (
+                  <div className="space-y-2">
+                    {specDetail.taskDefs.map((task) => (
+                      <TaskDefCard key={task.id} task={task} />
+                    ))}
+                  </div>
+                ) : (
+                  <DependencyGraph tasks={specDetail.taskDefs} />
+                )
               ) : (
                 <p className="text-sm text-gray-500 text-center py-4">
                   No tasks created yet. Run /forge:forge-plan {spec.id}
