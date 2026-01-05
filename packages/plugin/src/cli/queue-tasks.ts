@@ -112,10 +112,11 @@ function findPlanTasks(planId: string): string[] {
 }
 
 function calculatePriority(task: TaskDefinition, allTasks: Map<string, TaskDefinition>): number {
-  if (task.depends_on.length === 0) return 0;
+  const deps = task.depends_on ?? [];
+  if (deps.length === 0) return 0;
 
   let maxDepPriority = 0;
-  for (const depId of task.depends_on) {
+  for (const depId of deps) {
     const dep = allTasks.get(depId);
     if (dep) {
       const depPriority = calculatePriority(dep, allTasks);
@@ -130,50 +131,63 @@ function generatePrompt(task: TaskDefinition): string {
     `# Task: ${task.id} - ${task.title}`,
     "",
     "## Description",
-    task.description,
+    task.description ?? "",
     "",
   ];
 
-  if (task.technical.approach) {
-    lines.push("## Technical Approach", task.technical.approach, "");
+  const technical = task.technical ?? {};
+  const filesToCreate = technical.files_to_create ?? [];
+  const filesToModify = technical.files_to_modify ?? [];
+  const considerations = technical.considerations ?? [];
+  const goals = task.goals ?? [];
+  const criteria = task.criteria ?? [];
+  const dependsOn = task.depends_on ?? [];
+  const execution = task.execution ?? {};
+
+  if (technical.approach) {
+    lines.push("## Technical Approach", technical.approach, "");
   }
 
-  if (task.technical.files_to_create.length > 0) {
+  if (filesToCreate.length > 0) {
     lines.push("## Files to Create");
-    task.technical.files_to_create.forEach(f => lines.push(`- ${f}`));
+    filesToCreate.forEach(f => lines.push(`- ${f}`));
     lines.push("");
   }
 
-  if (task.technical.files_to_modify.length > 0) {
+  if (filesToModify.length > 0) {
     lines.push("## Files to Modify");
-    task.technical.files_to_modify.forEach(f => lines.push(`- ${f}`));
+    filesToModify.forEach(f => lines.push(`- ${f}`));
     lines.push("");
   }
 
-  if (task.technical.considerations.length > 0) {
+  if (considerations.length > 0) {
     lines.push("## Considerations");
-    task.technical.considerations.forEach(c => lines.push(`- ${c}`));
+    considerations.forEach(c => lines.push(`- ${c}`));
     lines.push("");
   }
 
-  if (task.goals.length > 0) {
+  if (goals.length > 0) {
     lines.push("## Goals");
-    task.goals.forEach(g => lines.push(`- ${g}`));
+    goals.forEach(g => lines.push(`- ${g}`));
     lines.push("");
   }
 
-  lines.push("## Success Criteria");
-  lines.push("This task is complete when:");
-  task.criteria.forEach(c => lines.push(`- ${c.name}`));
-  lines.push("");
+  if (criteria.length > 0) {
+    lines.push("## Success Criteria");
+    lines.push("This task is complete when:");
+    criteria.forEach(c => lines.push(`- ${c.name}`));
+    lines.push("");
+  }
 
   lines.push("---");
   if (task.spec_id) lines.push(`Spec: ${task.spec_id}`);
   if (task.plan_id) lines.push(`Plan: ${task.plan_id}`);
-  if (task.depends_on.length > 0) {
-    lines.push(`Dependencies: ${task.depends_on.join(", ")}`);
+  if (dependsOn.length > 0) {
+    lines.push(`Dependencies: ${dependsOn.join(", ")}`);
   }
-  lines.push(`Max Iterations: ${task.execution.max_iterations}`);
+  if (execution.max_iterations) {
+    lines.push(`Max Iterations: ${execution.max_iterations}`);
+  }
 
   return lines.join("\n");
 }
@@ -186,7 +200,11 @@ async function queueTask(
 ): Promise<{ id: string; name: string } | null> {
   try {
     const prompt = generatePrompt(task);
-    const criteria = task.criteria.map((c, i) => ({
+    const taskCriteria = task.criteria ?? [];
+    const execution = task.execution ?? {};
+    const technical = task.technical ?? {};
+
+    const criteria = taskCriteria.map((c, i) => ({
       id: `criterion-${i + 1}`,
       type: c.type,
       name: c.name,
@@ -205,14 +223,14 @@ async function queueTask(
         priority,
         config: {
           criteria,
-          maxIterations: task.execution.max_iterations,
+          maxIterations: execution.max_iterations ?? 10,
           taskDefId: task.id,
           specId: task.spec_id,
           planId: task.plan_id,
-          dependencies: task.depends_on,
-          checkpointEvery: task.execution.checkpoint_every,
-          onStuck: task.execution.on_stuck,
-          technical: task.technical,
+          dependencies: task.depends_on ?? [],
+          checkpointEvery: execution.checkpoint_every,
+          onStuck: execution.on_stuck,
+          technical,
         },
       }),
     });
