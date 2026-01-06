@@ -35,25 +35,25 @@ export function formatRelativeTime(date: string): string {
 }
 
 /**
- * Get status color class
+ * Get status color class (darker in light mode for better contrast)
  */
 export function getStatusColor(status: string): string {
   switch (status) {
     case "running":
-      return "text-green-400 bg-green-400/10";
+      return "text-green-600 dark:text-green-400 bg-green-400/10";
     case "completed":
-      return "text-blue-400 bg-blue-400/10";
+      return "text-blue-600 dark:text-blue-400 bg-blue-400/10";
     case "failed":
-      return "text-red-400 bg-red-400/10";
+      return "text-red-600 dark:text-red-400 bg-red-400/10";
     case "stuck":
-      return "text-orange-400 bg-orange-400/10";
+      return "text-orange-600 dark:text-orange-400 bg-orange-400/10";
     case "paused":
-      return "text-yellow-400 bg-yellow-400/10";
+      return "text-yellow-600 dark:text-yellow-400 bg-yellow-400/10";
     case "queued":
-      return "text-purple-400 bg-purple-400/10";
+      return "text-purple-600 dark:text-purple-400 bg-purple-400/10";
     case "aborted":
-      return "text-gray-400 bg-gray-400/10";
+      return "text-gray-600 dark:text-gray-400 bg-gray-400/10";
     default:
-      return "text-gray-400 bg-gray-400/10";
+      return "text-gray-600 dark:text-gray-400 bg-gray-400/10";
   }
 }

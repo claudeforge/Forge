@@ -7,21 +7,21 @@ import { StatusBadge } from "../common/StatusBadge";
 import { formatRelativeTime, formatDuration } from "../../lib/utils";
 import type { Task, TaskType, TaskComplexity } from "../../lib/api";
 
-// Type icons and colors
+// Type icons and colors (light mode uses darker text colors for better contrast)
 const typeConfig: Record<TaskType, { icon: typeof Zap; color: string; label: string }> = {
-  feature: { icon: Zap, color: "text-blue-400 bg-blue-500/20 border-blue-500/30", label: "Feature" },
-  bugfix: { icon: Bug, color: "text-red-400 bg-red-500/20 border-red-500/30", label: "Bug" },
-  refactor: { icon: RefreshCw, color: "text-purple-400 bg-purple-500/20 border-purple-500/30", label: "Refactor" },
-  test: { icon: TestTube, color: "text-green-400 bg-green-500/20 border-green-500/30", label: "Test" },
-  docs: { icon: FileText, color: "text-cyan-400 bg-cyan-500/20 border-cyan-500/30", label: "Docs" },
-  chore: { icon: Settings, color: "text-gray-400 bg-gray-500/20 border-gray-500/30", label: "Chore" },
+  feature: { icon: Zap, color: "text-blue-600 dark:text-blue-400 bg-blue-500/20 border-blue-500/30", label: "Feature" },
+  bugfix: { icon: Bug, color: "text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/30", label: "Bug" },
+  refactor: { icon: RefreshCw, color: "text-purple-600 dark:text-purple-400 bg-purple-500/20 border-purple-500/30", label: "Refactor" },
+  test: { icon: TestTube, color: "text-green-600 dark:text-green-400 bg-green-500/20 border-green-500/30", label: "Test" },
+  docs: { icon: FileText, color: "text-cyan-600 dark:text-cyan-400 bg-cyan-500/20 border-cyan-500/30", label: "Docs" },
+  chore: { icon: Settings, color: "text-gray-600 dark:text-gray-400 bg-gray-500/20 border-gray-500/30", label: "Chore" },
 };
 
 // Complexity colors
 const complexityConfig: Record<TaskComplexity, { color: string; label: string }> = {
-  low: { color: "text-green-400", label: "Low" },
-  medium: { color: "text-yellow-400", label: "Med" },
-  high: { color: "text-red-400", label: "High" },
+  low: { color: "text-green-600 dark:text-green-400", label: "Low" },
+  medium: { color: "text-yellow-600 dark:text-yellow-400", label: "Med" },
+  high: { color: "text-red-600 dark:text-red-400", label: "High" },
 };
 
 interface TaskCardProps {

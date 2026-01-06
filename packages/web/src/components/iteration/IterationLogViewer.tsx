@@ -65,27 +65,27 @@ export function IterationLogViewer({ taskId, onClose }: IterationLogViewerProps)
   const getOutcomeConfig = (outcome: string) => {
     const config: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
       progress: {
-        color: "text-green-400",
+        color: "text-green-600 dark:text-green-400",
         icon: <CheckCircle className="h-4 w-4" />,
         label: "Progress",
       },
       stuck: {
-        color: "text-yellow-400",
+        color: "text-yellow-600 dark:text-yellow-400",
         icon: <AlertTriangle className="h-4 w-4" />,
         label: "Stuck",
       },
       error: {
-        color: "text-red-400",
+        color: "text-red-600 dark:text-red-400",
         icon: <XCircle className="h-4 w-4" />,
         label: "Error",
       },
       "gate-failed": {
-        color: "text-orange-400",
+        color: "text-orange-600 dark:text-orange-400",
         icon: <XCircle className="h-4 w-4" />,
         label: "Gate Failed",
       },
     };
-    return config[outcome] || { color: "text-gray-400", icon: null, label: outcome };
+    return config[outcome] || { color: "text-gray-600 dark:text-gray-400", icon: null, label: outcome };
   };
 
   const parseCriteriaResults = (resultsJson: string): CriterionResult[] => {

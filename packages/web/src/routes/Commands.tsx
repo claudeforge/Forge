@@ -415,31 +415,31 @@ const categories = {
   workflow: {
     label: "Workflow",
     description: "Spec → Plan → Queue → Execute",
-    color: "text-forge-400",
+    color: "text-forge-500 dark:text-forge-400",
     bg: "bg-forge-500/10",
   },
   control: {
     label: "Control",
     description: "Pause, resume, abort execution",
-    color: "text-yellow-400",
+    color: "text-yellow-600 dark:text-yellow-400",
     bg: "bg-yellow-500/10",
   },
   checkpoint: {
     label: "Checkpoints",
     description: "Save and restore progress",
-    color: "text-blue-400",
+    color: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-500/10",
   },
   sync: {
     label: "Sync",
     description: "Control Center integration",
-    color: "text-green-400",
+    color: "text-green-600 dark:text-green-400",
     bg: "bg-green-500/10",
   },
   info: {
     label: "Info",
     description: "Status and history",
-    color: "text-purple-400",
+    color: "text-purple-600 dark:text-purple-400",
     bg: "bg-purple-500/10",
   },
 };

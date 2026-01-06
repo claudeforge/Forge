@@ -28,11 +28,11 @@ import { cn } from "../lib/utils";
 // Status badge for specs
 function SpecStatusBadge({ status }: { status: Spec["status"] }) {
   const styles = {
-    draft: "bg-gray-500/20 text-gray-400",
-    approved: "bg-blue-500/20 text-blue-400",
-    in_progress: "bg-yellow-500/20 text-yellow-400",
-    completed: "bg-green-500/20 text-green-400",
-    cancelled: "bg-red-500/20 text-red-400",
+    draft: "bg-gray-500/20 text-gray-600 dark:text-gray-400",
+    approved: "bg-blue-500/20 text-blue-600 dark:text-blue-400",
+    in_progress: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400",
+    completed: "bg-green-500/20 text-green-600 dark:text-green-400",
+    cancelled: "bg-red-500/20 text-red-600 dark:text-red-400",
   };
 
   return (
@@ -45,13 +45,13 @@ function SpecStatusBadge({ status }: { status: Spec["status"] }) {
 // Status badge for tasks
 function TaskStatusBadge({ status }: { status: TaskDef["status"] }) {
   const config = {
-    pending: { icon: Clock, color: "text-gray-400", bg: "bg-gray-500/20" },
-    queued: { icon: Clock, color: "text-blue-400", bg: "bg-blue-500/20" },
-    blocked: { icon: Pause, color: "text-orange-400", bg: "bg-orange-500/20" },
-    running: { icon: Loader2, color: "text-yellow-400", bg: "bg-yellow-500/20" },
-    completed: { icon: CheckCircle, color: "text-green-400", bg: "bg-green-500/20" },
-    failed: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/20" },
-    skipped: { icon: AlertCircle, color: "text-gray-400", bg: "bg-gray-500/20" },
+    pending: { icon: Clock, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-500/20" },
+    queued: { icon: Clock, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/20" },
+    blocked: { icon: Pause, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-500/20" },
+    running: { icon: Loader2, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-500/20" },
+    completed: { icon: CheckCircle, color: "text-green-600 dark:text-green-400", bg: "bg-green-500/20" },
+    failed: { icon: XCircle, color: "text-red-600 dark:text-red-400", bg: "bg-red-500/20" },
+    skipped: { icon: AlertCircle, color: "text-gray-600 dark:text-gray-400", bg: "bg-gray-500/20" },
   };
 
   const { icon: Icon, color, bg } = config[status];

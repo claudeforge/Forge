@@ -46,10 +46,10 @@ export function ExecutionMonitor() {
           <div className="flex items-center gap-2">
             <Activity className={cn(
               "h-5 w-5",
-              execution.status === "running" && "text-yellow-400 animate-pulse",
-              execution.status === "completed" && "text-green-400",
-              execution.status === "failed" && "text-red-400",
-              execution.status === "stuck" && "text-orange-400"
+              execution.status === "running" && "text-yellow-600 dark:text-yellow-400 animate-pulse",
+              execution.status === "completed" && "text-green-600 dark:text-green-400",
+              execution.status === "failed" && "text-red-600 dark:text-red-400",
+              execution.status === "stuck" && "text-orange-600 dark:text-orange-400"
             )} />
             <span className="font-medium text-gray-900 dark:text-white">Execution Monitor</span>
           </div>
@@ -124,7 +124,7 @@ export function ExecutionMonitor() {
             <span className="text-sm text-gray-500 dark:text-gray-400">Completion Criteria</span>
             <span className={cn(
               "text-sm font-medium",
-              passedCount === totalCriteria ? "text-green-400" : "text-yellow-400"
+              passedCount === totalCriteria ? "text-green-600 dark:text-green-400" : "text-yellow-600 dark:text-yellow-400"
             )}>
               {passedCount}/{totalCriteria} passed
             </span>
@@ -230,12 +230,12 @@ export function ExecutionMonitor() {
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { label: string; className: string }> = {
-    idle: { label: "Idle", className: "bg-gray-500/20 text-gray-400" },
-    running: { label: "Running", className: "bg-yellow-500/20 text-yellow-400" },
-    paused: { label: "Paused", className: "bg-blue-500/20 text-blue-400" },
-    completed: { label: "Completed", className: "bg-green-500/20 text-green-400" },
-    failed: { label: "Failed", className: "bg-red-500/20 text-red-400" },
-    stuck: { label: "Stuck", className: "bg-orange-500/20 text-orange-400" },
+    idle: { label: "Idle", className: "bg-gray-500/20 text-gray-600 dark:text-gray-400" },
+    running: { label: "Running", className: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400" },
+    paused: { label: "Paused", className: "bg-blue-500/20 text-blue-600 dark:text-blue-400" },
+    completed: { label: "Completed", className: "bg-green-500/20 text-green-600 dark:text-green-400" },
+    failed: { label: "Failed", className: "bg-red-500/20 text-red-600 dark:text-red-400" },
+    stuck: { label: "Stuck", className: "bg-orange-500/20 text-orange-600 dark:text-orange-400" },
   };
 
   const statusConfig = config[status] ?? config.idle!;

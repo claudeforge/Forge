@@ -89,39 +89,39 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
     > = {
       completed: {
         icon: <CheckCircle className="h-4 w-4" />,
-        color: "text-green-400",
+        color: "text-green-600 dark:text-green-400",
         bg: "bg-green-500/10 border-green-500/30",
       },
       running: {
         icon: <Loader2 className="h-4 w-4 animate-spin" />,
-        color: "text-blue-400",
+        color: "text-blue-600 dark:text-blue-400",
         bg: "bg-blue-500/10 border-blue-500/30",
       },
       failed: {
         icon: <XCircle className="h-4 w-4" />,
-        color: "text-red-400",
+        color: "text-red-600 dark:text-red-400",
         bg: "bg-red-500/10 border-red-500/30",
       },
       queued: {
         icon: <Clock className="h-4 w-4" />,
-        color: "text-yellow-400",
+        color: "text-yellow-600 dark:text-yellow-400",
         bg: "bg-yellow-500/10 border-yellow-500/30",
       },
       blocked: {
         icon: <Lock className="h-4 w-4" />,
-        color: "text-orange-400",
+        color: "text-orange-600 dark:text-orange-400",
         bg: "bg-orange-500/10 border-orange-500/30",
       },
       pending: {
         icon: <Circle className="h-4 w-4" />,
-        color: "text-gray-400",
+        color: "text-gray-600 dark:text-gray-400",
         bg: "bg-gray-500/10 border-gray-500/30",
       },
     };
     return (
       config[status] || {
         icon: <Circle className="h-4 w-4" />,
-        color: "text-gray-400",
+        color: "text-gray-600 dark:text-gray-400",
         bg: "bg-gray-500/10 border-gray-500/30",
       }
     );
@@ -129,11 +129,11 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
 
   const getComplexityBadge = (complexity: string): { color: string; label: string } => {
     const config: Record<string, { color: string; label: string }> = {
-      low: { color: "bg-green-500/20 text-green-400", label: "Low" },
-      medium: { color: "bg-yellow-500/20 text-yellow-400", label: "Med" },
-      high: { color: "bg-red-500/20 text-red-400", label: "High" },
+      low: { color: "bg-green-500/20 text-green-600 dark:text-green-400", label: "Low" },
+      medium: { color: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400", label: "Med" },
+      high: { color: "bg-red-500/20 text-red-600 dark:text-red-400", label: "High" },
     };
-    return config[complexity] ?? { color: "bg-yellow-500/20 text-yellow-400", label: "Med" };
+    return config[complexity] ?? { color: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400", label: "Med" };
   };
 
   // Get max level for column layout

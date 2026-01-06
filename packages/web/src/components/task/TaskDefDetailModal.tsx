@@ -8,30 +8,30 @@ import { cn } from "../../lib/utils";
 
 // Type icons and colors
 const typeConfig: Record<TaskDef["type"], { icon: typeof Zap; color: string; label: string }> = {
-  feature: { icon: Zap, color: "text-blue-400 bg-blue-500/20 border-blue-500/30", label: "Feature" },
-  bugfix: { icon: Bug, color: "text-red-400 bg-red-500/20 border-red-500/30", label: "Bug Fix" },
-  refactor: { icon: RefreshCw, color: "text-purple-400 bg-purple-500/20 border-purple-500/30", label: "Refactor" },
-  test: { icon: TestTube, color: "text-green-400 bg-green-500/20 border-green-500/30", label: "Test" },
-  docs: { icon: FileText, color: "text-cyan-400 bg-cyan-500/20 border-cyan-500/30", label: "Documentation" },
-  chore: { icon: Settings, color: "text-gray-400 bg-gray-500/20 border-gray-500/30", label: "Chore" },
+  feature: { icon: Zap, color: "text-blue-600 dark:text-blue-400 bg-blue-500/20 border-blue-500/30", label: "Feature" },
+  bugfix: { icon: Bug, color: "text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/30", label: "Bug Fix" },
+  refactor: { icon: RefreshCw, color: "text-purple-600 dark:text-purple-400 bg-purple-500/20 border-purple-500/30", label: "Refactor" },
+  test: { icon: TestTube, color: "text-green-600 dark:text-green-400 bg-green-500/20 border-green-500/30", label: "Test" },
+  docs: { icon: FileText, color: "text-cyan-600 dark:text-cyan-400 bg-cyan-500/20 border-cyan-500/30", label: "Documentation" },
+  chore: { icon: Settings, color: "text-gray-600 dark:text-gray-400 bg-gray-500/20 border-gray-500/30", label: "Chore" },
 };
 
 // Complexity colors
 const complexityConfig: Record<TaskDef["complexity"], { color: string; bgColor: string; label: string }> = {
-  low: { color: "text-green-400", bgColor: "bg-green-500/20", label: "Low Complexity" },
-  medium: { color: "text-yellow-400", bgColor: "bg-yellow-500/20", label: "Medium Complexity" },
-  high: { color: "text-red-400", bgColor: "bg-red-500/20", label: "High Complexity" },
+  low: { color: "text-green-600 dark:text-green-400", bgColor: "bg-green-500/20", label: "Low Complexity" },
+  medium: { color: "text-yellow-600 dark:text-yellow-400", bgColor: "bg-yellow-500/20", label: "Medium Complexity" },
+  high: { color: "text-red-600 dark:text-red-400", bgColor: "bg-red-500/20", label: "High Complexity" },
 };
 
 // Status config
 const statusConfig: Record<TaskDef["status"], { color: string; bgColor: string; label: string }> = {
-  pending: { color: "text-gray-400", bgColor: "bg-gray-500/20", label: "Pending" },
-  queued: { color: "text-blue-400", bgColor: "bg-blue-500/20", label: "Queued" },
-  blocked: { color: "text-orange-400", bgColor: "bg-orange-500/20", label: "Blocked" },
-  running: { color: "text-yellow-400", bgColor: "bg-yellow-500/20", label: "Running" },
-  completed: { color: "text-green-400", bgColor: "bg-green-500/20", label: "Completed" },
-  failed: { color: "text-red-400", bgColor: "bg-red-500/20", label: "Failed" },
-  skipped: { color: "text-gray-400", bgColor: "bg-gray-500/20", label: "Skipped" },
+  pending: { color: "text-gray-600 dark:text-gray-400", bgColor: "bg-gray-500/20", label: "Pending" },
+  queued: { color: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-500/20", label: "Queued" },
+  blocked: { color: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-500/20", label: "Blocked" },
+  running: { color: "text-yellow-600 dark:text-yellow-400", bgColor: "bg-yellow-500/20", label: "Running" },
+  completed: { color: "text-green-600 dark:text-green-400", bgColor: "bg-green-500/20", label: "Completed" },
+  failed: { color: "text-red-600 dark:text-red-400", bgColor: "bg-red-500/20", label: "Failed" },
+  skipped: { color: "text-gray-600 dark:text-gray-400", bgColor: "bg-gray-500/20", label: "Skipped" },
 };
 
 interface TaskDefDetailModalProps {

@@ -63,18 +63,18 @@ const typeIcons: Record<TaskType, typeof Zap> = {
 };
 
 const typeColors: Record<TaskType, string> = {
-  feature: "text-blue-400 bg-blue-500/20 border-blue-500/30",
-  bugfix: "text-red-400 bg-red-500/20 border-red-500/30",
-  refactor: "text-purple-400 bg-purple-500/20 border-purple-500/30",
-  test: "text-green-400 bg-green-500/20 border-green-500/30",
-  docs: "text-cyan-400 bg-cyan-500/20 border-cyan-500/30",
-  chore: "text-gray-400 bg-gray-500/20 border-gray-500/30",
+  feature: "text-blue-600 dark:text-blue-400 bg-blue-500/20 border-blue-500/30",
+  bugfix: "text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/30",
+  refactor: "text-purple-600 dark:text-purple-400 bg-purple-500/20 border-purple-500/30",
+  test: "text-green-600 dark:text-green-400 bg-green-500/20 border-green-500/30",
+  docs: "text-cyan-600 dark:text-cyan-400 bg-cyan-500/20 border-cyan-500/30",
+  chore: "text-gray-600 dark:text-gray-400 bg-gray-500/20 border-gray-500/30",
 };
 
 const complexityColors: Record<TaskComplexity, string> = {
-  low: "text-green-400",
-  medium: "text-yellow-400",
-  high: "text-red-400",
+  low: "text-green-600 dark:text-green-400",
+  medium: "text-yellow-600 dark:text-yellow-400",
+  high: "text-red-600 dark:text-red-400",
 };
 
 // Helper component for type badge

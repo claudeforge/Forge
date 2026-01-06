@@ -96,9 +96,9 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
   }
 
   const healthColors = {
-    healthy: "text-green-400",
-    degraded: "text-yellow-400",
-    offline: "text-red-400",
+    healthy: "text-green-600 dark:text-green-400",
+    degraded: "text-yellow-600 dark:text-yellow-400",
+    offline: "text-red-600 dark:text-red-400",
   };
 
   const healthIcons = {

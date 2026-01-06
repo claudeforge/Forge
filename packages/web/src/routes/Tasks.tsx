@@ -38,18 +38,18 @@ const typeIcons: Record<TaskType, typeof Zap> = {
 };
 
 const typeColors: Record<TaskType, string> = {
-  feature: "text-blue-400",
-  bugfix: "text-red-400",
-  refactor: "text-purple-400",
-  test: "text-green-400",
-  docs: "text-cyan-400",
-  chore: "text-gray-400",
+  feature: "text-blue-600 dark:text-blue-400",
+  bugfix: "text-red-600 dark:text-red-400",
+  refactor: "text-purple-600 dark:text-purple-400",
+  test: "text-green-600 dark:text-green-400",
+  docs: "text-cyan-600 dark:text-cyan-400",
+  chore: "text-gray-600 dark:text-gray-400",
 };
 
 const complexityColors: Record<TaskComplexity, string> = {
-  low: "text-green-400",
-  medium: "text-yellow-400",
-  high: "text-red-400",
+  low: "text-green-600 dark:text-green-400",
+  medium: "text-yellow-600 dark:text-yellow-400",
+  high: "text-red-600 dark:text-red-400",
 };
 
 type ViewMode = "list" | "kanban" | "tree";
