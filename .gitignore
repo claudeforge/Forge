@@ -4,6 +4,8 @@ node_modules/
 
 # Build outputs
 dist/
+# Exception: plugin dist is needed for marketplace installation
+!packages/plugin/dist/
 *.tsbuildinfo
 
 # IDE

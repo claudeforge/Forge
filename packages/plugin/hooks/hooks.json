@@ -1,0 +1,16 @@
+{
+  "description": "FORGE stop hook for iterative development loops",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/dist/hooks/stop.js"
+          }
+        ]
+      }
+    ]
+  }
+}
