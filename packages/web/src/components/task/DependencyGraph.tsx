@@ -141,41 +141,41 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
 
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400">
+      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
         No tasks to display
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-white mb-6">Dependency Graph</h3>
+    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Dependency Graph</h3>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-4 mb-6 text-sm">
         <div className="flex items-center gap-2">
-          <CheckCircle className="h-4 w-4 text-green-400" />
-          <span className="text-gray-400">Completed</span>
+          <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+          <span className="text-gray-500 dark:text-gray-400">Completed</span>
         </div>
         <div className="flex items-center gap-2">
-          <Loader2 className="h-4 w-4 text-blue-400" />
-          <span className="text-gray-400">Running</span>
+          <Loader2 className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+          <span className="text-gray-500 dark:text-gray-400">Running</span>
         </div>
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-yellow-400" />
-          <span className="text-gray-400">Queued</span>
+          <Clock className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
+          <span className="text-gray-500 dark:text-gray-400">Queued</span>
         </div>
         <div className="flex items-center gap-2">
-          <Lock className="h-4 w-4 text-orange-400" />
-          <span className="text-gray-400">Blocked</span>
+          <Lock className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+          <span className="text-gray-500 dark:text-gray-400">Blocked</span>
         </div>
         <div className="flex items-center gap-2">
-          <Circle className="h-4 w-4 text-gray-400" />
-          <span className="text-gray-400">Pending</span>
+          <Circle className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <span className="text-gray-500 dark:text-gray-400">Pending</span>
         </div>
         <div className="flex items-center gap-2">
-          <XCircle className="h-4 w-4 text-red-400" />
-          <span className="text-gray-400">Failed</span>
+          <XCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
+          <span className="text-gray-500 dark:text-gray-400">Failed</span>
         </div>
       </div>
 
@@ -190,7 +190,7 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
             return (
               <div key={levelIndex} className="flex flex-col gap-4">
                 {/* Level Header */}
-                <div className="text-xs font-medium text-gray-500 text-center pb-2 border-b border-gray-700">
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-500 text-center pb-2 border-b border-gray-200 dark:border-gray-700">
                   {levelIndex === 0 ? "Start" : `Phase ${levelIndex}`}
                 </div>
 
@@ -214,7 +214,7 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
                           <span className={statusConfig.color}>
                             {statusConfig.icon}
                           </span>
-                          <span className="text-white font-medium text-sm truncate">
+                          <span className="text-gray-900 dark:text-white font-medium text-sm truncate">
                             {node.task.id}
                           </span>
                           <span
@@ -226,13 +226,13 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
                             {complexityBadge.label}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-300 line-clamp-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
                           {node.task.title}
                         </p>
 
                         {/* Dependencies indicator */}
                         {node.dependsOn.length > 0 && (
-                          <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
+                          <div className="mt-2 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-500">
                             <span>←</span>
                             <span>{node.dependsOn.join(", ")}</span>
                           </div>
@@ -241,7 +241,7 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
 
                       {/* Arrow to next level */}
                       {levelIndex < maxLevel && node.blocks.length > 0 && (
-                        <div className="absolute right-0 top-1/2 transform translate-x-4 -translate-y-1/2 text-gray-600">
+                        <div className="absolute right-0 top-1/2 transform translate-x-4 -translate-y-1/2 text-gray-400 dark:text-gray-600">
                           <ArrowRight className="h-4 w-4" />
                         </div>
                       )}
@@ -255,22 +255,22 @@ export function DependencyGraph({ tasks, onTaskClick }: DependencyGraphProps) {
       </div>
 
       {/* Summary */}
-      <div className="mt-6 pt-4 border-t border-gray-700 flex gap-6 text-sm">
-        <span className="text-gray-400">
+      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-6 text-sm">
+        <span className="text-gray-500 dark:text-gray-400">
           Total:{" "}
-          <span className="text-white font-medium">{tasks.length} tasks</span>
+          <span className="text-gray-900 dark:text-white font-medium">{tasks.length} tasks</span>
         </span>
-        <span className="text-gray-400">
+        <span className="text-gray-500 dark:text-gray-400">
           Phases:{" "}
-          <span className="text-white font-medium">{maxLevel + 1}</span>
+          <span className="text-gray-900 dark:text-white font-medium">{maxLevel + 1}</span>
         </span>
-        <span className="text-green-400">
+        <span className="text-green-600 dark:text-green-400">
           Completed:{" "}
           <span className="font-medium">
             {tasks.filter((t) => t.status === "completed").length}
           </span>
         </span>
-        <span className="text-yellow-400">
+        <span className="text-yellow-600 dark:text-yellow-400">
           Remaining:{" "}
           <span className="font-medium">
             {tasks.filter((t) => t.status !== "completed" && t.status !== "failed").length}

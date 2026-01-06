@@ -305,18 +305,18 @@ export function Rules() {
             <CollapsibleSection title="Custom Rules" icon={<Layers className="h-5 w-5" />}
               expanded={expandedSections.custom ?? false} onToggle={() => toggleSection("custom")} badge={customRules.length > 0 ? customRules.length : undefined}>
               <div className="space-y-3">
-                <p className="text-sm text-gray-400">Add custom rules for Claude Code to follow.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Add custom rules for Claude Code to follow.</p>
                 <div className="flex gap-2">
                   <input type="text" value={newCustomRule} onChange={(e) => setNewCustomRule(e.target.value)} placeholder="e.g., Always use async/await"
-                    className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-forge-500 focus:outline-none"
+                    className="flex-1 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white focus:border-forge-500 focus:outline-none"
                     onKeyDown={(e) => e.key === "Enter" && addCustomRule()} />
-                  <button onClick={addCustomRule} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"><Plus className="h-5 w-5" /></button>
+                  <button onClick={addCustomRule} className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"><Plus className="h-5 w-5" /></button>
                 </div>
                 {customRules.length > 0 && (
                   <div className="space-y-2">
                     {customRules.map((rule, i) => (
-                      <div key={i} className="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-lg px-4 py-2">
-                        <span className="text-gray-300">{rule}</span>
+                      <div key={i} className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2">
+                        <span className="text-gray-600 dark:text-gray-300">{rule}</span>
                         <button onClick={() => { setCustomRules(customRules.filter((_, idx) => idx !== i)); markChanged(); }} className="text-gray-500 hover:text-red-400">
                           <Trash2 className="h-4 w-4" />
                         </button>
