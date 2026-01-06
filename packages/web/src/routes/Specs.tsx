@@ -17,9 +17,11 @@ import {
   List,
   GitBranch,
   Play,
+  Eye,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
 import { DependencyGraph } from "../components/task/DependencyGraph";
+import { TaskDefDetailModal } from "../components/task/TaskDefDetailModal";
 import { api, Spec, TaskDef } from "../lib/api";
 import { cn } from "../lib/utils";
 
@@ -96,7 +98,7 @@ function TaskProgress({ counts }: { counts: Spec["tasks"] }) {
 }
 
 // Task card
-function TaskDefCard({ task, projectId }: { task: TaskDef; projectId: string }) {
+function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; projectId: string; onViewDetail?: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
 
@@ -149,6 +151,19 @@ function TaskDefCard({ task, projectId }: { task: TaskDef; projectId: string }) 
             </span>
           )}
         </button>
+        {/* View Button */}
+        {onViewDetail && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetail();
+            }}
+            className="mt-4 mr-2 p-2 text-gray-400 hover:text-forge-400 hover:bg-forge-500/10 rounded-lg transition-colors"
+            title="View details"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+        )}
         {canQueue && (
           <button
             onClick={() => queueMutation.mutate()}
@@ -247,6 +262,7 @@ function TaskDefCard({ task, projectId }: { task: TaskDef; projectId: string }) 
 function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
   const [expanded, setExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "graph">("list");
+  const [selectedTaskDef, setSelectedTaskDef] = useState<TaskDef | null>(null);
 
   const { data: specDetail, isLoading } = useQuery({
     queryKey: ["spec", projectId, spec.id],
@@ -338,7 +354,12 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
                 viewMode === "list" ? (
                   <div className="space-y-2">
                     {specDetail.taskDefs.map((task) => (
-                      <TaskDefCard key={task.id} task={task} projectId={projectId} />
+                      <TaskDefCard
+                        key={task.id}
+                        task={task}
+                        projectId={projectId}
+                        onViewDetail={() => setSelectedTaskDef(task)}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -354,6 +375,14 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
             <p className="text-sm text-gray-500">Failed to load tasks</p>
           )}
         </div>
+      )}
+
+      {/* Task Definition Detail Modal */}
+      {selectedTaskDef && (
+        <TaskDefDetailModal
+          taskDef={selectedTaskDef}
+          onClose={() => setSelectedTaskDef(null)}
+        />
       )}
     </div>
   );

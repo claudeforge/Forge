@@ -28,9 +28,11 @@ import {
   TestTube,
   FileText,
   Settings,
+  Eye,
 } from "lucide-react";
 import { CreateTaskModal } from "../components/task/CreateTaskModal";
 import { EditTaskModal } from "../components/task/EditTaskModal";
+import { TaskDetailModal } from "../components/task/TaskDetailModal";
 import { IterationLogViewer } from "../components/iteration/IterationLogViewer";
 import { useNotifications } from "../components/notification/NotificationProvider";
 import type { Task, TaskType, TaskComplexity } from "../lib/api";
@@ -148,6 +150,7 @@ export function Queue() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [projectFilter, setProjectFilter] = useState<string>("");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -441,6 +444,14 @@ export function Queue() {
                   <Clock className="h-4 w-4" />
                   <span>{formatDuration(queue.running.startedAt)}</span>
                 </div>
+                <button
+                  onClick={() => setSelectedTask(queue.running)}
+                  className="flex items-center gap-1 px-2 py-1 text-forge-400 hover:text-forge-300 hover:bg-forge-500/10 rounded transition-colors"
+                  title="View task details"
+                >
+                  <Eye className="h-4 w-4" />
+                  <span className="text-xs">View</span>
+                </button>
               </div>
             </div>
             <p className="text-gray-300 text-sm line-clamp-2">
@@ -523,6 +534,7 @@ export function Queue() {
                 <div className="flex-1">
                   <TaskCard
                     task={task}
+                    onViewDetail={() => setSelectedTask(task)}
                     onViewIterations={() => setViewingTaskId(task.id)}
                   />
                 </div>
@@ -626,6 +638,14 @@ export function Queue() {
                     )}
                   </div>
                 </div>
+                <button
+                  onClick={() => setSelectedTask(task)}
+                  className="flex items-center gap-1 px-2 py-1 text-sm text-forge-400 hover:text-forge-300 hover:bg-forge-500/10 rounded transition-colors"
+                  title="View task details"
+                >
+                  <Eye className="h-4 w-4" />
+                  View
+                </button>
                 {task.iteration > 0 && (
                   <button
                     onClick={() => setViewingTaskId(task.id)}
@@ -647,6 +667,15 @@ export function Queue() {
         <IterationLogViewer
           taskId={viewingTaskId}
           onClose={() => setViewingTaskId(null)}
+        />
+      )}
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          projectName={getProjectName(selectedTask.projectId)}
         />
       )}
     </Layout>

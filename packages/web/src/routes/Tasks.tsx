@@ -17,9 +17,11 @@ import {
   RefreshCw,
   TestTube,
   Settings,
+  Eye,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
 import { TaskCard } from "../components/task/TaskCard";
+import { TaskDetailModal } from "../components/task/TaskDetailModal";
 import { EmptyState } from "../components/common/EmptyState";
 import { useTasks, useProjects } from "../hooks/useTasks";
 import { cn } from "../lib/utils";
@@ -117,6 +119,13 @@ export function Tasks() {
   const [specFilter, setSpecFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [groupByProj, setGroupByProj] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  // Get project name for selected task
+  const selectedTaskProjectName = useMemo(() => {
+    if (!selectedTask || !projects) return undefined;
+    return projects.find((p) => p.id === selectedTask.projectId)?.name;
+  }, [selectedTask, projects]);
 
   const isLoading = tasksLoading || projectsLoading;
 
@@ -304,24 +313,33 @@ export function Tasks() {
           }
         />
       ) : viewMode === "kanban" ? (
-        <KanbanView tasks={filteredTasks} />
+        <KanbanView tasks={filteredTasks} onViewDetail={setSelectedTask} />
       ) : viewMode === "tree" ? (
-        <TreeView tasks={filteredTasks} projects={projects || []} />
+        <TreeView tasks={filteredTasks} projects={projects || []} onViewDetail={setSelectedTask} />
       ) : groupByProj && groupedTasks ? (
-        <GroupedListView groups={groupedTasks} />
+        <GroupedListView groups={groupedTasks} onViewDetail={setSelectedTask} />
       ) : (
-        <ListView tasks={filteredTasks} />
+        <ListView tasks={filteredTasks} onViewDetail={setSelectedTask} />
+      )}
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          projectName={selectedTaskProjectName}
+        />
       )}
     </Layout>
   );
 }
 
 // List View Component
-function ListView({ tasks }: { tasks: Task[] }) {
+function ListView({ tasks, onViewDetail }: { tasks: Task[]; onViewDetail: (task: Task) => void }) {
   return (
     <div className="space-y-3">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
+        <TaskCard key={task.id} task={task} onViewDetail={() => onViewDetail(task)} />
       ))}
     </div>
   );
@@ -330,8 +348,10 @@ function ListView({ tasks }: { tasks: Task[] }) {
 // Grouped List View Component
 function GroupedListView({
   groups,
+  onViewDetail,
 }: {
   groups: Map<string, { project: Project | null; tasks: Task[] }>;
+  onViewDetail: (task: Task) => void;
 }) {
   const entries = Array.from(groups.entries());
 
@@ -348,7 +368,7 @@ function GroupedListView({
           </div>
           <div className="space-y-3 pl-2">
             {tasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onViewDetail={() => onViewDetail(task)} />
             ))}
           </div>
         </div>
@@ -358,7 +378,7 @@ function GroupedListView({
 }
 
 // Kanban View Component
-function KanbanView({ tasks }: { tasks: Task[] }) {
+function KanbanView({ tasks, onViewDetail }: { tasks: Task[]; onViewDetail: (task: Task) => void }) {
   const columnTasks = useMemo(() => {
     const result: Record<string, Task[]> = {};
     kanbanColumns.forEach((col) => {
@@ -386,7 +406,7 @@ function KanbanView({ tasks }: { tasks: Task[] }) {
           {/* Column Content */}
           <div className="flex-1 space-y-2 overflow-y-auto">
             {columnTasks[column.status]?.map((task) => (
-              <KanbanCard key={task.id} task={task} />
+              <KanbanCard key={task.id} task={task} onViewDetail={() => onViewDetail(task)} />
             ))}
           </div>
         </div>
@@ -396,19 +416,31 @@ function KanbanView({ tasks }: { tasks: Task[] }) {
 }
 
 // Kanban Card (compact version)
-function KanbanCard({ task }: { task: Task }) {
+function KanbanCard({ task, onViewDetail }: { task: Task; onViewDetail?: () => void }) {
   const config = parseConfig(task);
   const TypeIcon = task.taskType ? typeIcons[task.taskType] : null;
   const typeColor = task.taskType ? typeColors[task.taskType] : "";
   const complexityColor = task.complexity ? complexityColors[task.complexity] : "";
 
   return (
-    <div className="bg-gray-800 rounded-lg p-3 hover:bg-gray-750 transition-colors cursor-pointer">
+    <div className="bg-gray-800 rounded-lg p-3 hover:bg-gray-750 transition-colors cursor-pointer group">
       <div className="flex items-start gap-2 mb-1">
         {TypeIcon && <TypeIcon className={cn("h-4 w-4 mt-0.5 flex-shrink-0", typeColor)} />}
-        <div className="text-sm font-medium text-white line-clamp-2">
+        <div className="text-sm font-medium text-white line-clamp-2 flex-1">
           {task.name}
         </div>
+        {onViewDetail && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetail();
+            }}
+            className="p-1 text-gray-500 hover:text-forge-400 opacity-0 group-hover:opacity-100 transition-all"
+            title="View details"
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
       <div className="flex items-center gap-2 text-xs text-gray-500">
         {task.complexity && (
@@ -431,9 +463,11 @@ function KanbanCard({ task }: { task: Task }) {
 function TreeView({
   tasks,
   projects,
+  onViewDetail,
 }: {
   tasks: Task[];
   projects: Project[];
+  onViewDetail: (task: Task) => void;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["all"]));
 
@@ -544,7 +578,7 @@ function TreeView({
                         {isSpecExpanded && (
                           <div className="pl-6 space-y-2 mt-1">
                             {specTasks.map((task) => (
-                              <TaskCard key={task.id} task={task} compact />
+                              <TaskCard key={task.id} task={task} compact onViewDetail={() => onViewDetail(task)} />
                             ))}
                           </div>
                         )}
@@ -562,7 +596,7 @@ function TreeView({
                       </div>
                       <div className="pl-6 space-y-2">
                         {noSpec.map((task) => (
-                          <TaskCard key={task.id} task={task} compact />
+                          <TaskCard key={task.id} task={task} compact onViewDetail={() => onViewDetail(task)} />
                         ))}
                       </div>
                     </div>

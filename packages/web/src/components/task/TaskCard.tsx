@@ -2,7 +2,7 @@
  * Task card component with task type indicators
  */
 
-import { Clock, Hash, FileCode, AlertTriangle, List, Zap, Bug, RefreshCw, TestTube, FileText, Settings } from "lucide-react";
+import { Clock, Hash, FileCode, AlertTriangle, List, Zap, Bug, RefreshCw, TestTube, FileText, Settings, Eye } from "lucide-react";
 import { StatusBadge } from "../common/StatusBadge";
 import { formatRelativeTime, formatDuration } from "../../lib/utils";
 import type { Task, TaskType, TaskComplexity } from "../../lib/api";
@@ -27,12 +27,13 @@ const complexityConfig: Record<TaskComplexity, { color: string; label: string }>
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
+  onViewDetail?: () => void;
   onViewIterations?: () => void;
   showTypeIndicator?: boolean;
   compact?: boolean;
 }
 
-export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = true, compact = false }: TaskCardProps) {
+export function TaskCard({ task, onClick, onViewDetail, onViewIterations, showTypeIndicator = true, compact = false }: TaskCardProps) {
   const result = task.result ? JSON.parse(task.result) : null;
 
   // Parse config to check if YAML-linked
@@ -69,6 +70,18 @@ export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = 
           )}
           {task.iteration > 0 && (
             <span className="text-xs text-gray-500">#{task.iteration}</span>
+          )}
+          {onViewDetail && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetail();
+              }}
+              className="p-1 text-gray-400 hover:text-forge-400 transition-colors"
+              title="View details"
+            >
+              <Eye className="h-3.5 w-3.5" />
+            </button>
           )}
         </div>
       </div>
@@ -124,6 +137,19 @@ export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = 
           <Hash className="h-4 w-4" />
           <span>{task.iteration}</span>
         </div>
+        {onViewDetail && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewDetail();
+            }}
+            className="flex items-center gap-1 text-forge-400 hover:text-forge-300 transition-colors"
+            title="View task details"
+          >
+            <Eye className="h-4 w-4" />
+            <span className="text-xs">View</span>
+          </button>
+        )}
         {task.iteration > 0 && onViewIterations && (
           <button
             onClick={(e) => {
