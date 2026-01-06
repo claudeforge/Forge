@@ -5,6 +5,38 @@ All notable changes to FORGE will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2026-01-06
+
+### Added
+
+#### Dark/Light Theme Support
+- **ThemeProvider** - React context for theme state management
+- **ThemeToggle** - Sun/Moon toggle in header with system/light/dark options
+- **System preference detection** - Auto-detects OS theme via `prefers-color-scheme`
+- **localStorage persistence** - Theme preference saved as `forge-theme`
+- **Real-time OS sync** - Listens for OS theme changes when set to "system"
+
+### Changed
+
+#### Theme Color Updates
+- All components updated with `dark:` prefix pattern for proper light/dark support
+- Status colors now use `-600` in light mode, `-400` in dark mode for better contrast
+- Updated files: TaskCard, StatusBadge, DependencyGraph, ExecutionMonitor, IterationLogViewer, SyncMonitor, and all route pages
+
+#### Sync Error Handling
+- YAML parse errors now grouped into single notification instead of individual toasts
+- Detailed errors logged to browser console for debugging
+- Sync continues gracefully when individual task files have parse errors
+
+### Fixed
+
+- Light theme text contrast issues on colored backgrounds
+- EmptyState icon color (was backwards - light in light mode)
+- Type/complexity badge colors in TaskCard, Queue, Tasks pages
+- Status colors in getStatusColor utility function
+
+---
+
 ## [0.2.2] - 2026-01-06
 
 ### Added

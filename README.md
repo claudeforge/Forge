@@ -12,6 +12,7 @@ FORGE transforms Claude Code into a powerful iterative development system that a
 - **Intelligent Stuck Detection** - Automatic recovery with multiple strategies
 - **Checkpoints & Rollback** - Git-based snapshots, never lose progress
 - **Control Center** - Web dashboard for real-time monitoring
+- **Dark/Light Theme** - System preference detection with manual toggle
 - **Task Queue** - Schedule, prioritize, and auto-advance through tasks
 - **Sync v2 Protocol** - Conflict-free sync with optimistic locking
 - **Task Locking** - Exclusive execution with heartbeat renewal
@@ -178,8 +179,17 @@ Access the web dashboard at http://127.0.0.1:3344
 - **Tasks** - Browse all tasks with filtering
 - **Queue** - Manage task queue, reorder priorities
 - **Projects** - Manage registered projects
+- **Rules** - Configure project rules and constraints
 - **Analytics** - Token usage and success rates
 - **Commands** - Full command reference
+
+### Theme Support
+
+- **System** (default) - Follows OS dark/light preference
+- **Light** - Always light theme
+- **Dark** - Always dark theme
+
+Toggle via sun/moon icon in the header. Preference saved to localStorage.
 
 ### Sync Monitor Features
 

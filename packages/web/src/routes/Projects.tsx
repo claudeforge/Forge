@@ -62,14 +62,14 @@ export function Projects() {
           duration: 0,
         });
       }
-      if (result.errors.length > 0) {
-        result.errors.forEach((error) => {
-          addNotification({
-            type: "warning",
-            title: "Sync Warning",
-            message: error,
-            duration: 8000,
-          });
+      // Group errors into single notification if any
+      if (result.errors && result.errors.length > 0) {
+        console.warn("[Sync] Parse errors:", result.errors);
+        addNotification({
+          type: "warning",
+          title: "Sync Warnings",
+          message: `${result.errors.length} file(s) skipped due to parse errors`,
+          duration: 5000,
         });
       }
     } catch (error) {
