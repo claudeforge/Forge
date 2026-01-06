@@ -65,7 +65,7 @@ export function Dashboard() {
             className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
               showSyncMonitor
                 ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
             }`}
           >
             {showSyncMonitor ? "Hide Sync Monitor" : "Show Sync Monitor"}
@@ -88,33 +88,33 @@ export function Dashboard() {
 
         {/* Quick Stats */}
         <div className="space-y-4">
-          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-            <h3 className="text-sm font-medium text-gray-400 mb-3">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
               Today's Stats
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Tasks</span>
-                <span className="text-white font-medium">
+                <span className="text-gray-500 dark:text-gray-400">Tasks</span>
+                <span className="text-gray-900 dark:text-white font-medium">
                   {stats?.tasksToday ?? 0}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-            <h3 className="text-sm font-medium text-gray-400 mb-3">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
               Queue Status
             </h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Queued</span>
-                <span className="text-white font-medium">
+                <span className="text-gray-500 dark:text-gray-400">Queued</span>
+                <span className="text-gray-900 dark:text-white font-medium">
                   {queue?.queued.length ?? 0}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Status</span>
+                <span className="text-gray-500 dark:text-gray-400">Status</span>
                 <StatusBadge
                   status={queue?.isPaused ? "paused" : "running"}
                 />
@@ -126,7 +126,7 @@ export function Dashboard() {
 
       {/* Recent Tasks */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-white mb-4">Recent Tasks</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Tasks</h2>
         <div className="space-y-3">
           {recentTasks.map((task) => (
             <TaskCard
@@ -136,7 +136,7 @@ export function Dashboard() {
             />
           ))}
           {recentTasks.length === 0 && (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               No tasks yet
             </div>
           )}

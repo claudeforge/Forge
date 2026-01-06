@@ -60,19 +60,20 @@ function Toast({ notification, onClose }: { notification: Notification; onClose:
       className={cn(
         "flex items-start gap-3 p-4 rounded-lg border shadow-lg backdrop-blur-sm",
         "animate-in slide-in-from-right-5 fade-in duration-200",
+        "bg-white/90 dark:bg-gray-800/90",
         bgColors[notification.type]
       )}
     >
       {icons[notification.type]}
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium text-white">{notification.title}</h4>
+        <h4 className="text-sm font-medium text-gray-900 dark:text-white">{notification.title}</h4>
         {notification.message && (
-          <p className="text-sm text-gray-400 mt-1">{notification.message}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{notification.message}</p>
         )}
         {notification.action && (
           <button
             onClick={notification.action.onClick}
-            className="mt-2 text-sm text-forge-400 hover:text-forge-300"
+            className="mt-2 text-sm text-forge-500 hover:text-forge-400"
           >
             {notification.action.label}
           </button>
@@ -80,7 +81,7 @@ function Toast({ notification, onClose }: { notification: Notification; onClose:
       </div>
       <button
         onClick={onClose}
-        className="text-gray-500 hover:text-white transition-colors"
+        className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
       >
         <X className="h-4 w-4" />
       </button>

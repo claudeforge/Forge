@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { NotificationProvider } from "./components/notification/NotificationProvider";
 import { TaskNotificationListener } from "./components/notification/TaskNotificationListener";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
 import { useRealtimeUpdates } from "./hooks/useRealtimeUpdates";
 import { Dashboard } from "./routes/Dashboard";
 import { Specs } from "./routes/Specs";
@@ -117,13 +118,15 @@ function RealtimeUpdatesProvider({ children }: { children: React.ReactNode }) {
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <RealtimeUpdatesProvider>
-        <NotificationProvider>
-          <TaskNotificationListener />
-          <RouterProvider router={router} />
-        </NotificationProvider>
-      </RealtimeUpdatesProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <RealtimeUpdatesProvider>
+          <NotificationProvider>
+            <TaskNotificationListener />
+            <RouterProvider router={router} />
+          </NotificationProvider>
+        </RealtimeUpdatesProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

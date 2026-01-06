@@ -22,8 +22,8 @@ export function ExecutionMonitor() {
 
   if (!execution || execution.status === "idle") {
     return (
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-        <div className="flex items-center gap-2 text-gray-400">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
           <Activity className="h-5 w-5" />
           <span className="font-medium">Execution Monitor</span>
         </div>
@@ -39,9 +39,9 @@ export function ExecutionMonitor() {
   const requiredFailed = execution.criteria?.filter((c) => c.required && !c.passed) ?? [];
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className={cn(
@@ -51,25 +51,25 @@ export function ExecutionMonitor() {
               execution.status === "failed" && "text-red-400",
               execution.status === "stuck" && "text-orange-400"
             )} />
-            <span className="font-medium text-white">Execution Monitor</span>
+            <span className="font-medium text-gray-900 dark:text-white">Execution Monitor</span>
           </div>
           <StatusBadge status={execution.status} />
         </div>
         {execution.taskName && (
-          <p className="text-sm text-gray-400 mt-1">{execution.taskName}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{execution.taskName}</p>
         )}
       </div>
 
       {/* Iteration Progress */}
       {execution.iteration !== undefined && (
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-gray-400">Iteration Progress</span>
-            <span className="text-white">
+            <span className="text-gray-500 dark:text-gray-400">Iteration Progress</span>
+            <span className="text-gray-900 dark:text-white">
               {execution.iteration} / {execution.maxIterations ?? "?"}
             </span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
               className={cn(
                 "h-2 rounded-full transition-all",
@@ -85,7 +85,7 @@ export function ExecutionMonitor() {
 
       {/* Stuck Detection Alert */}
       {execution.stuckDetection?.isStuck && (
-        <div className="p-4 border-b border-gray-700 bg-orange-500/10">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-orange-500/10">
           <div className="flex items-start gap-3">
             <AlertOctagon className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
             <div>
@@ -104,7 +104,7 @@ export function ExecutionMonitor() {
 
       {/* Error Display */}
       {execution.error && (
-        <div className="p-4 border-b border-gray-700 bg-red-500/10">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-red-500/10">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div>
@@ -119,9 +119,9 @@ export function ExecutionMonitor() {
 
       {/* Criteria Status */}
       {execution.criteria && execution.criteria.length > 0 && (
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-gray-400">Completion Criteria</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Completion Criteria</span>
             <span className={cn(
               "text-sm font-medium",
               passedCount === totalCriteria ? "text-green-400" : "text-yellow-400"
@@ -139,7 +139,7 @@ export function ExecutionMonitor() {
                     ? "bg-green-500/10 text-green-400"
                     : criterion.required
                     ? "bg-red-500/10 text-red-400"
-                    : "bg-gray-700/50 text-gray-400"
+                    : "bg-gray-200/50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
                 )}
               >
                 {criterion.passed ? (
@@ -171,16 +171,16 @@ export function ExecutionMonitor() {
       {/* File Changes */}
       {execution.metrics && (
         <div className="p-4">
-          <span className="text-sm text-gray-400 block mb-3">File Changes</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 block mb-3">File Changes</span>
           <div className="space-y-2">
             {execution.metrics.filesCreated.length > 0 && (
               <div className="flex items-start gap-2">
-                <FilePlus className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <FilePlus className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5" />
                 <div className="flex flex-wrap gap-1">
                   {execution.metrics.filesCreated.map((file, idx) => (
                     <span
                       key={idx}
-                      className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-mono"
+                      className="text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded font-mono"
                     >
                       {file}
                     </span>
@@ -190,12 +190,12 @@ export function ExecutionMonitor() {
             )}
             {execution.metrics.filesModified.length > 0 && (
               <div className="flex items-start gap-2">
-                <Edit3 className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <Edit3 className="h-4 w-4 text-yellow-500 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                 <div className="flex flex-wrap gap-1">
                   {execution.metrics.filesModified.map((file, idx) => (
                     <span
                       key={idx}
-                      className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-mono"
+                      className="text-xs bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 px-2 py-0.5 rounded font-mono"
                     >
                       {file}
                     </span>
@@ -211,7 +211,7 @@ export function ExecutionMonitor() {
 
           {/* Token usage */}
           {execution.metrics.totalTokens > 0 && (
-            <div className="mt-3 pt-3 border-t border-gray-700 flex items-center gap-4 text-xs text-gray-500">
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center gap-4 text-xs text-gray-500">
               <div className="flex items-center gap-1">
                 <Zap className="h-3 w-3" />
                 <span>{execution.metrics.totalTokens.toLocaleString()} tokens</span>

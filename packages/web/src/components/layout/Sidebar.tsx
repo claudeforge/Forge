@@ -31,11 +31,11 @@ export function Sidebar() {
   const location = useLocation();
 
   return (
-    <aside className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+    <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
       {/* Logo */}
-      <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-700">
+      <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200 dark:border-gray-700">
         <Flame className="h-8 w-8 text-forge-500" />
-        <span className="text-xl font-bold text-white">FORGE</span>
+        <span className="text-xl font-bold text-gray-900 dark:text-white">FORGE</span>
       </div>
 
       {/* Navigation */}
@@ -50,8 +50,8 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-forge-500/20 text-forge-400"
-                      : "text-gray-400 hover:text-white hover:bg-gray-700"
+                      ? "bg-forge-500/20 text-forge-500"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                   )}
                 >
                   <item.icon className="h-5 w-5" />
@@ -64,7 +64,7 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <p className="text-xs text-gray-500">FORGE Control Center v0.2.1</p>
       </div>
     </aside>

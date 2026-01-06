@@ -26,17 +26,17 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "bg-gray-800 rounded-lg p-4 border border-gray-700",
+        "bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700",
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <div className="text-gray-400">{icon}</div>
+        <div className="text-gray-500 dark:text-gray-400">{icon}</div>
         {trend && (
           <span
             className={cn(
               "text-xs font-medium",
-              trend.isPositive ? "text-green-400" : "text-red-400"
+              trend.isPositive ? "text-green-500 dark:text-green-400" : "text-red-500 dark:text-red-400"
             )}
           >
             {trend.isPositive ? "+" : "-"}
@@ -45,8 +45,8 @@ export function MetricCard({
         )}
       </div>
       <div className="mt-3">
-        <p className="text-2xl font-semibold text-white">{value}</p>
-        <p className="text-sm text-gray-400 mt-1">{title}</p>
+        <p className="text-2xl font-semibold text-gray-900 dark:text-white">{value}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{title}</p>
       </div>
     </div>
   );

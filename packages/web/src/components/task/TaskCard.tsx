@@ -57,14 +57,14 @@ export function TaskCard({ task, onClick, onViewDetail, onViewIterations, showTy
     return (
       <div
         onClick={onClick}
-        className="bg-gray-800 border border-gray-700 rounded-lg p-2 hover:border-forge-500/50 transition-colors cursor-pointer"
+        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 hover:border-forge-500/50 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2">
           <StatusBadge status={task.status} size="sm" />
           {TypeIcon && (
             <TypeIcon className={`h-3 w-3 ${typeInfo.color.split(" ")[0]}`} />
           )}
-          <span className="text-sm text-white truncate flex-1">{task.name}</span>
+          <span className="text-sm text-gray-900 dark:text-white truncate flex-1">{task.name}</span>
           {complexityInfo && (
             <span className={`text-[10px] ${complexityInfo.color}`}>{complexityInfo.label}</span>
           )}
@@ -91,12 +91,12 @@ export function TaskCard({ task, onClick, onViewDetail, onViewIterations, showTy
   return (
     <div
       onClick={onClick}
-      className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors cursor-pointer"
+      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors cursor-pointer"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-medium text-white truncate">{task.name}</h3>
+            <h3 className="font-medium text-gray-900 dark:text-white truncate">{task.name}</h3>
             {/* Task Type Badge */}
             {typeInfo && TypeIcon && (
               <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border flex-shrink-0 ${typeInfo.color}`}>
@@ -106,7 +106,7 @@ export function TaskCard({ task, onClick, onViewDetail, onViewIterations, showTy
             )}
             {/* Complexity Badge */}
             {complexityInfo && (
-              <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-700 flex-shrink-0 ${complexityInfo.color}`}>
+              <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-200 dark:bg-gray-700 flex-shrink-0 ${complexityInfo.color}`}>
                 {complexityInfo.label}
               </span>
             )}
@@ -125,14 +125,14 @@ export function TaskCard({ task, onClick, onViewDetail, onViewIterations, showTy
               )
             )}
           </div>
-          <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
             {task.prompt}
           </p>
         </div>
         <StatusBadge status={task.status} />
       </div>
 
-      <div className="flex items-center gap-4 text-sm text-gray-400">
+      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
         <div className="flex items-center gap-1">
           <Hash className="h-4 w-4" />
           <span>{task.iteration}</span>

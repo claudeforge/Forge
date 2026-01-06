@@ -2,8 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme CSS Variables */
+:root {
+  --bg-primary: theme('colors.white');
+  --bg-secondary: theme('colors.gray.100');
+  --bg-tertiary: theme('colors.gray.200');
+  --text-primary: theme('colors.gray.900');
+  --text-secondary: theme('colors.gray.600');
+  --text-muted: theme('colors.gray.500');
+  --border-color: theme('colors.gray.200');
+}
+
+.dark {
+  --bg-primary: theme('colors.gray.900');
+  --bg-secondary: theme('colors.gray.800');
+  --bg-tertiary: theme('colors.gray.700');
+  --text-primary: theme('colors.gray.100');
+  --text-secondary: theme('colors.gray.300');
+  --text-muted: theme('colors.gray.400');
+  --border-color: theme('colors.gray.700');
+}
+
 body {
-  @apply bg-gray-900 text-gray-100;
+  @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200;
 }
 
 /* Custom scrollbar */
@@ -13,15 +34,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-800;
+  @apply bg-gray-200 dark:bg-gray-800;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded;
+  @apply bg-gray-400 dark:bg-gray-600 rounded;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  @apply bg-gray-500 dark:bg-gray-500;
 }
 
 /* Pulse animation for running tasks */
