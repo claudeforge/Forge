@@ -178,11 +178,11 @@ export function Tasks() {
       <div className="flex flex-wrap items-center gap-4 mb-6">
         {/* Project Filter */}
         <div className="flex items-center gap-2">
-          <FolderOpen className="h-4 w-4 text-gray-400" />
+          <FolderOpen className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           <select
             value={projectFilter}
             onChange={(e) => handleProjectChange(e.target.value)}
-            className="bg-gray-800 text-gray-200 text-sm rounded-lg px-3 py-1.5 border border-gray-700 focus:border-forge-500 focus:outline-none"
+            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 text-sm rounded-lg px-3 py-1.5 border border-gray-300 dark:border-gray-700 focus:border-forge-500 focus:outline-none"
           >
             <option value="all">All Projects</option>
             {projects?.map((p) => (
@@ -196,11 +196,11 @@ export function Tasks() {
         {/* Spec Filter */}
         {availableSpecs.length > 0 && (
           <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-gray-400" />
+            <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             <select
               value={specFilter}
               onChange={(e) => setSpecFilter(e.target.value)}
-              className="bg-gray-800 text-gray-200 text-sm rounded-lg px-3 py-1.5 border border-gray-700 focus:border-forge-500 focus:outline-none"
+              className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 text-sm rounded-lg px-3 py-1.5 border border-gray-300 dark:border-gray-700 focus:border-forge-500 focus:outline-none"
             >
               <option value="all">All Specs</option>
               {availableSpecs.map((s) => (
@@ -214,7 +214,7 @@ export function Tasks() {
 
         {/* Status Filters */}
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400" />
+          <Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           <div className="flex gap-1">
             {statusFilters.map((filter) => (
               <button
@@ -224,7 +224,7 @@ export function Tasks() {
                   "px-3 py-1.5 text-sm rounded-lg transition-colors",
                   statusFilter === filter.value
                     ? "bg-forge-500 text-white"
-                    : "bg-gray-800 text-gray-400 hover:text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 )}
               >
                 {filter.label}
@@ -237,14 +237,14 @@ export function Tasks() {
         <div className="flex-1" />
 
         {/* View Mode Toggle */}
-        <div className="flex items-center gap-1 bg-gray-800 rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           <button
             onClick={() => setViewMode("list")}
             className={cn(
               "p-2 rounded transition-colors",
               viewMode === "list"
                 ? "bg-forge-500 text-white"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             )}
             title="List view"
           >
@@ -256,7 +256,7 @@ export function Tasks() {
               "p-2 rounded transition-colors",
               viewMode === "kanban"
                 ? "bg-forge-500 text-white"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             )}
             title="Kanban view"
           >
@@ -268,7 +268,7 @@ export function Tasks() {
               "p-2 rounded transition-colors",
               viewMode === "tree"
                 ? "bg-forge-500 text-white"
-                : "text-gray-400 hover:text-white"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             )}
             title="Tree view (by project)"
           >
@@ -284,7 +284,7 @@ export function Tasks() {
               "flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors",
               groupByProj
                 ? "bg-forge-500 text-white"
-                : "bg-gray-800 text-gray-400 hover:text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             )}
           >
             <FolderOpen className="h-4 w-4" />
@@ -294,14 +294,14 @@ export function Tasks() {
       </div>
 
       {/* Task Count */}
-      <div className="text-sm text-gray-400 mb-4">
+      <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
         {statusFilter !== "all" && ` (${statusFilter})`}
       </div>
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-center py-12 text-gray-400">Loading...</div>
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading...</div>
       ) : filteredTasks.length === 0 ? (
         <EmptyState
           icon={<ListTodo className="h-12 w-12" />}
@@ -359,9 +359,9 @@ function GroupedListView({
     <div className="space-y-6">
       {entries.map(([projectId, { project, tasks }]) => (
         <div key={projectId}>
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-800">
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200 dark:border-gray-800">
             <FolderOpen className="h-5 w-5 text-forge-400" />
-            <h3 className="text-lg font-medium text-white">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               {project?.name || "Unassigned"}
             </h3>
             <span className="text-sm text-gray-500">({tasks.length})</span>
@@ -392,12 +392,12 @@ function KanbanView({ tasks, onViewDetail }: { tasks: Task[]; onViewDetail: (tas
       {kanbanColumns.map((column) => (
         <div
           key={column.status}
-          className="bg-gray-900 rounded-lg p-3 flex flex-col"
+          className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3 flex flex-col"
         >
           {/* Column Header */}
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-800">
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200 dark:border-gray-800">
             <div className={cn("w-3 h-3 rounded-full", column.color)} />
-            <span className="font-medium text-white">{column.label}</span>
+            <span className="font-medium text-gray-900 dark:text-white">{column.label}</span>
             <span className="text-sm text-gray-500">
               ({columnTasks[column.status]?.length || 0})
             </span>
@@ -423,10 +423,10 @@ function KanbanCard({ task, onViewDetail }: { task: Task; onViewDetail?: () => v
   const complexityColor = task.complexity ? complexityColors[task.complexity] : "";
 
   return (
-    <div className="bg-gray-800 rounded-lg p-3 hover:bg-gray-750 transition-colors cursor-pointer group">
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer group border border-gray-200 dark:border-transparent">
       <div className="flex items-start gap-2 mb-1">
         {TypeIcon && <TypeIcon className={cn("h-4 w-4 mt-0.5 flex-shrink-0", typeColor)} />}
-        <div className="text-sm font-medium text-white line-clamp-2 flex-1">
+        <div className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 flex-1">
           {task.name}
         </div>
         {onViewDetail && (
@@ -435,7 +435,7 @@ function KanbanCard({ task, onViewDetail }: { task: Task; onViewDetail?: () => v
               e.stopPropagation();
               onViewDetail();
             }}
-            className="p-1 text-gray-500 hover:text-forge-400 opacity-0 group-hover:opacity-100 transition-all"
+            className="p-1 text-gray-400 dark:text-gray-500 hover:text-forge-400 opacity-0 group-hover:opacity-100 transition-all"
             title="View details"
           >
             <Eye className="h-3.5 w-3.5" />
@@ -449,7 +449,7 @@ function KanbanCard({ task, onViewDetail }: { task: Task; onViewDetail?: () => v
           </span>
         )}
         {config.specId && (
-          <span className="bg-gray-700 px-1.5 py-0.5 rounded">
+          <span className="bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded">
             {config.specId}
           </span>
         )}
@@ -529,20 +529,20 @@ function TreeView({
             Array.from(specs.values()).reduce((sum, t) => sum + t.length, 0);
 
           return (
-            <div key={projectId} className="bg-gray-900 rounded-lg">
+            <div key={projectId} className="bg-gray-100 dark:bg-gray-900 rounded-lg">
               {/* Project Header */}
               <button
                 onClick={() => toggleExpand(projectKey)}
-                className="w-full flex items-center gap-2 p-3 hover:bg-gray-800 rounded-lg transition-colors"
+                className="w-full flex items-center gap-2 p-3 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <ChevronDown
                   className={cn(
-                    "h-4 w-4 text-gray-400 transition-transform",
+                    "h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform",
                     !isProjectExpanded && "-rotate-90"
                   )}
                 />
                 <FolderOpen className="h-5 w-5 text-forge-400" />
-                <span className="font-medium text-white">
+                <span className="font-medium text-gray-900 dark:text-white">
                   {project?.name || "Unassigned"}
                 </span>
                 <span className="text-sm text-gray-500">({totalTasks})</span>
@@ -560,16 +560,16 @@ function TreeView({
                       <div key={specId}>
                         <button
                           onClick={() => toggleExpand(specKey)}
-                          className="w-full flex items-center gap-2 p-2 hover:bg-gray-800 rounded transition-colors"
+                          className="w-full flex items-center gap-2 p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
                         >
                           <ChevronDown
                             className={cn(
-                              "h-4 w-4 text-gray-400 transition-transform",
+                              "h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform",
                               !isSpecExpanded && "-rotate-90"
                             )}
                           />
                           <FileText className="h-4 w-4 text-blue-400" />
-                          <span className="text-sm text-gray-300">{specId}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{specId}</span>
                           <span className="text-xs text-gray-500">
                             ({specTasks.length})
                           </span>

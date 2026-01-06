@@ -98,7 +98,7 @@ export function Projects() {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <p className="text-gray-400">
+        <p className="text-gray-500 dark:text-gray-400">
           {projects?.length ?? 0} project(s) registered
         </p>
         <button
@@ -116,13 +116,13 @@ export function Projects() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <FolderOpen className="h-5 w-5 text-forge-500" />
                   <div>
-                    <h3 className="font-medium text-white">{project.name}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-white">{project.name}</h3>
                     <p className="text-sm text-gray-500 mt-1 truncate max-w-[200px]">
                       {project.path}
                     </p>
@@ -132,7 +132,7 @@ export function Projects() {
                   <button
                     onClick={() => syncFromCodebase(project.id)}
                     disabled={syncingId === project.id}
-                    className="text-gray-500 hover:text-forge-400 transition-colors disabled:opacity-50"
+                    className="text-gray-500 hover:text-forge-500 dark:hover:text-forge-400 transition-colors disabled:opacity-50"
                     title="Sync from codebase (.forge directory)"
                   >
                     {syncingId === project.id ? (
@@ -143,7 +143,7 @@ export function Projects() {
                   </button>
                   <button
                     onClick={() => deleteProject.mutate(project.id)}
-                    className="text-gray-500 hover:text-red-400 transition-colors"
+                    className="text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                     title="Delete project"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -155,21 +155,21 @@ export function Projects() {
               <div className="mt-3">
                 <button
                   onClick={() => copyCommand(project.id)}
-                  className="w-full flex items-center gap-2 bg-gray-900 hover:bg-gray-900/80 border border-gray-700 hover:border-forge-500/50 rounded px-3 py-2 transition-colors group"
+                  className="w-full flex items-center gap-2 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-900/80 border border-gray-200 dark:border-gray-700 hover:border-forge-500/50 rounded px-3 py-2 transition-colors group"
                   title="Click to copy command"
                 >
-                  <code className="text-xs text-gray-400 group-hover:text-forge-400 font-mono flex-1 text-left truncate">
+                  <code className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-forge-500 dark:group-hover:text-forge-400 font-mono flex-1 text-left truncate">
                     /forge:forge --project {project.id} ...
                   </code>
                   {copiedId === project.id ? (
-                    <Check className="h-4 w-4 text-green-400 flex-shrink-0" />
+                    <Check className="h-4 w-4 text-green-500 dark:text-green-400 flex-shrink-0" />
                   ) : (
-                    <Copy className="h-4 w-4 text-gray-500 group-hover:text-forge-400 flex-shrink-0" />
+                    <Copy className="h-4 w-4 text-gray-500 group-hover:text-forge-500 dark:group-hover:text-forge-400 flex-shrink-0" />
                   )}
                 </button>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-gray-700 text-sm text-gray-400">
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
                 {project.lastActivityAt
                   ? `Last activity ${formatRelativeTime(project.lastActivityAt)}`
                   : `Created ${formatRelativeTime(project.createdAt)}`}

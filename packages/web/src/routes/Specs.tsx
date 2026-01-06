@@ -74,7 +74,7 @@ function TaskProgress({ counts }: { counts: Spec["tasks"] }) {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div className="h-full flex">
           <div
             className="bg-green-500 transition-all"
@@ -90,7 +90,7 @@ function TaskProgress({ counts }: { counts: Spec["tasks"] }) {
           />
         </div>
       </div>
-      <span className="text-xs text-gray-400 whitespace-nowrap">
+      <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
         {counts.completed}/{counts.total}
       </span>
     </div>
@@ -114,31 +114,31 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
   const canQueue = task.status === "pending" || task.status === "blocked";
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="flex items-start">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 p-4 flex items-start gap-3 text-left hover:bg-gray-750 transition-colors"
+          className="flex-1 p-4 flex items-start gap-3 text-left hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
         >
           {expanded ? (
-            <ChevronDown className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
+            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
+            <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-1 flex-shrink-0" />
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-xs text-forge-400">{task.id}</span>
+              <span className="font-mono text-xs text-forge-500 dark:text-forge-400">{task.id}</span>
               <TaskStatusBadge status={task.status} />
               <span className={cn(
                 "px-1.5 py-0.5 rounded text-xs",
-                task.complexity === "low" && "bg-green-500/20 text-green-400",
-                task.complexity === "medium" && "bg-yellow-500/20 text-yellow-400",
-                task.complexity === "high" && "bg-red-500/20 text-red-400"
+                task.complexity === "low" && "bg-green-500/20 text-green-600 dark:text-green-400",
+                task.complexity === "medium" && "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400",
+                task.complexity === "high" && "bg-red-500/20 text-red-600 dark:text-red-400"
               )}>
                 {task.complexity}
               </span>
             </div>
-            <h4 className="text-white font-medium truncate">{task.title}</h4>
+            <h4 className="text-gray-900 dark:text-white font-medium truncate">{task.title}</h4>
             {task.depends_on.length > 0 && (
               <p className="text-xs text-gray-500 mt-1">
                 Depends on: {task.depends_on.join(", ")}
@@ -146,7 +146,7 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
             )}
           </div>
           {task.iterations > 0 && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
               {task.iterations} iter
             </span>
           )}
@@ -158,7 +158,7 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
               e.stopPropagation();
               onViewDetail();
             }}
-            className="mt-4 mr-2 p-2 text-gray-400 hover:text-forge-400 hover:bg-forge-500/10 rounded-lg transition-colors"
+            className="mt-4 mr-2 p-2 text-gray-500 dark:text-gray-400 hover:text-forge-500 dark:hover:text-forge-400 hover:bg-forge-500/10 rounded-lg transition-colors"
             title="View details"
           >
             <Eye className="h-4 w-4" />
@@ -181,8 +181,8 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
       </div>
 
       {expanded && (
-        <div className="px-4 pb-4 pt-0 border-t border-gray-700">
-          <p className="text-sm text-gray-300 mt-3 whitespace-pre-wrap">
+        <div className="px-4 pb-4 pt-0 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 whitespace-pre-wrap">
             {task.description}
           </p>
 
@@ -190,14 +190,14 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
             <div className="mt-3 space-y-2">
               {task.technical.approach && (
                 <div>
-                  <h5 className="text-xs font-medium text-gray-400 mb-1">Approach</h5>
-                  <p className="text-xs text-gray-300">{task.technical.approach}</p>
+                  <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Approach</h5>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">{task.technical.approach}</p>
                 </div>
               )}
               {task.technical.files_to_create.length > 0 && (
                 <div>
-                  <h5 className="text-xs font-medium text-gray-400 mb-1">Files to create</h5>
-                  <ul className="text-xs text-gray-300 font-mono">
+                  <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Files to create</h5>
+                  <ul className="text-xs text-gray-600 dark:text-gray-300 font-mono">
                     {task.technical.files_to_create.map((f) => (
                       <li key={f}>{f}</li>
                     ))}
@@ -206,8 +206,8 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
               )}
               {task.technical.files_to_modify.length > 0 && (
                 <div>
-                  <h5 className="text-xs font-medium text-gray-400 mb-1">Files to modify</h5>
-                  <ul className="text-xs text-gray-300 font-mono">
+                  <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Files to modify</h5>
+                  <ul className="text-xs text-gray-600 dark:text-gray-300 font-mono">
                     {task.technical.files_to_modify.map((f) => (
                       <li key={f}>{f}</li>
                     ))}
@@ -219,8 +219,8 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
 
           {task.goals.length > 0 && (
             <div className="mt-3">
-              <h5 className="text-xs font-medium text-gray-400 mb-1">Goals</h5>
-              <ul className="text-xs text-gray-300 list-disc list-inside">
+              <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Goals</h5>
+              <ul className="text-xs text-gray-600 dark:text-gray-300 list-disc list-inside">
                 {task.goals.map((g, i) => (
                   <li key={i}>{g}</li>
                 ))}
@@ -230,8 +230,8 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
 
           {task.criteria.length > 0 && (
             <div className="mt-3">
-              <h5 className="text-xs font-medium text-gray-400 mb-1">Success Criteria</h5>
-              <ul className="text-xs text-gray-300">
+              <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Success Criteria</h5>
+              <ul className="text-xs text-gray-600 dark:text-gray-300">
                 {task.criteria.map((c, i) => (
                   <li key={i} className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3 text-gray-500" />
@@ -243,9 +243,9 @@ function TaskDefCard({ task, projectId, onViewDetail }: { task: TaskDef; project
           )}
 
           {task.result && (
-            <div className="mt-3 p-2 bg-gray-900 rounded">
-              <h5 className="text-xs font-medium text-gray-400 mb-1">Result</h5>
-              <p className="text-xs text-gray-300">{task.result.summary}</p>
+            <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-900 rounded">
+              <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Result</h5>
+              <p className="text-xs text-gray-600 dark:text-gray-300">{task.result.summary}</p>
               <div className="flex gap-4 mt-1 text-xs text-gray-500">
                 <span>{task.result.iterations} iterations</span>
                 <span>{Math.round(task.result.duration / 1000)}s</span>
@@ -271,25 +271,25 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
   });
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-4 flex items-start gap-3 text-left hover:bg-gray-750 transition-colors"
+        className="w-full p-4 flex items-start gap-3 text-left hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
       >
         {expanded ? (
-          <ChevronDown className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
         ) : (
-          <ChevronRight className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
         )}
-        <FileText className="h-5 w-5 text-forge-400 mt-0.5 flex-shrink-0" />
+        <FileText className="h-5 w-5 text-forge-500 dark:text-forge-400 mt-0.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-mono text-xs text-gray-500">{spec.id}</span>
             <SpecStatusBadge status={spec.status} />
           </div>
-          <h3 className="text-white font-medium">{spec.title}</h3>
+          <h3 className="text-gray-900 dark:text-white font-medium">{spec.title}</h3>
           {spec.description && (
-            <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
               {spec.description}
             </p>
           )}
@@ -298,7 +298,7 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
       </button>
 
       {expanded && (
-        <div className="border-t border-gray-700 p-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 p-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
@@ -306,19 +306,19 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
           ) : specDetail?.taskDefs ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium text-gray-300">
+                <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300">
                   Tasks ({specDetail.taskDefs.length})
                 </h4>
                 <div className="flex items-center gap-4">
                   {/* View Mode Toggle */}
-                  <div className="flex rounded-lg bg-gray-700 p-0.5">
+                  <div className="flex rounded-lg bg-gray-200 dark:bg-gray-700 p-0.5">
                     <button
                       onClick={() => setViewMode("list")}
                       className={cn(
                         "flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors",
                         viewMode === "list"
-                          ? "bg-gray-600 text-white"
-                          : "text-gray-400 hover:text-white"
+                          ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                          : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       )}
                     >
                       <List className="h-3 w-3" />
@@ -329,8 +329,8 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
                       className={cn(
                         "flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors",
                         viewMode === "graph"
-                          ? "bg-gray-600 text-white"
-                          : "text-gray-400 hover:text-white"
+                          ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                          : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       )}
                     >
                       <GitBranch className="h-3 w-3" />
@@ -338,13 +338,13 @@ function SpecCard({ spec, projectId }: { spec: Spec; projectId: string }) {
                     </button>
                   </div>
                   <div className="flex gap-2 text-xs text-gray-500">
-                    <span className="text-green-400">
+                    <span className="text-green-600 dark:text-green-400">
                       {specDetail.taskCounts.completed} done
                     </span>
-                    <span className="text-yellow-400">
+                    <span className="text-yellow-600 dark:text-yellow-400">
                       {specDetail.taskCounts.running} running
                     </span>
-                    <span className="text-gray-400">
+                    <span className="text-gray-500 dark:text-gray-400">
                       {specDetail.taskCounts.pending} pending
                     </span>
                   </div>
@@ -415,8 +415,8 @@ export function Specs() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white">Specifications</h1>
-            <p className="text-gray-400 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Specifications</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
               View and manage specification-driven development
             </p>
           </div>
@@ -426,7 +426,7 @@ export function Specs() {
             <select
               value={selectedProject || ""}
               onChange={(e) => setSelectedProject(e.target.value)}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white"
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -440,8 +440,8 @@ export function Specs() {
         {/* Content */}
         {!selectedProject ? (
           <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-400">No project selected</h3>
+            <FileText className="h-12 w-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">No project selected</h3>
             <p className="text-gray-500 mt-1">
               Create a project first, then link it with /forge:forge-link
             </p>
@@ -452,8 +452,8 @@ export function Specs() {
           </div>
         ) : specsData?.specs.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-400">No specifications yet</h3>
+            <FileText className="h-12 w-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">No specifications yet</h3>
             <p className="text-gray-500 mt-1">
               Create one with /forge:forge-spec "feature description"
             </p>
@@ -467,13 +467,13 @@ export function Specs() {
         )}
 
         {/* Help */}
-        <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-          <h3 className="text-sm font-medium text-gray-300 mb-2">Quick Start</h3>
-          <ol className="text-sm text-gray-400 space-y-1">
-            <li>1. Create specification: <code className="text-forge-400">/forge:forge-spec "Add user auth"</code></li>
-            <li>2. Create plan: <code className="text-forge-400">/forge:forge-plan spec-001</code></li>
-            <li>3. Queue tasks: <code className="text-forge-400">/forge:forge-queue --plan plan-001</code></li>
-            <li>4. Execute: <code className="text-forge-400">/forge:forge</code></li>
+        <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Quick Start</h3>
+          <ol className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+            <li>1. Create specification: <code className="text-forge-500 dark:text-forge-400">/forge:forge-spec "Add user auth"</code></li>
+            <li>2. Create plan: <code className="text-forge-500 dark:text-forge-400">/forge:forge-plan spec-001</code></li>
+            <li>3. Queue tasks: <code className="text-forge-500 dark:text-forge-400">/forge:forge-queue --plan plan-001</code></li>
+            <li>4. Execute: <code className="text-forge-500 dark:text-forge-400">/forge:forge</code></li>
           </ol>
         </div>
       </div>

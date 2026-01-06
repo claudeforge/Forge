@@ -450,15 +450,15 @@ function CommandCard({ command }: { command: CommandDef }) {
   const category = categories[command.category];
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-4 flex items-start gap-4 text-left hover:bg-gray-750 transition-colors"
+        className="w-full p-4 flex items-start gap-4 text-left hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
       >
         {expanded ? (
-          <ChevronDown className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
         ) : (
-          <ChevronRight className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
         )}
         <div
           className={cn(
@@ -470,7 +470,7 @@ function CommandCard({ command }: { command: CommandDef }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <code className="text-forge-400 font-mono text-sm font-medium">
+            <code className="text-forge-500 dark:text-forge-400 font-mono text-sm font-medium">
               {command.name}
             </code>
             {command.args && (
@@ -479,7 +479,7 @@ function CommandCard({ command }: { command: CommandDef }) {
               </code>
             )}
           </div>
-          <p className="text-gray-400 text-sm">{command.description}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">{command.description}</p>
         </div>
         <span
           className={cn(
@@ -493,18 +493,18 @@ function CommandCard({ command }: { command: CommandDef }) {
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-gray-700">
+        <div className="px-4 pb-4 border-t border-gray-200 dark:border-gray-700">
           <div className="pt-4 pl-9">
             {/* Examples */}
             <div className="mb-4">
-              <h4 className="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+              <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
                 Examples
               </h4>
               <div className="space-y-2">
                 {command.examples.map((example, i) => (
                   <div
                     key={i}
-                    className="bg-gray-900 rounded px-3 py-2 font-mono text-sm text-gray-300"
+                    className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 font-mono text-sm text-gray-600 dark:text-gray-300"
                   >
                     {example}
                   </div>
@@ -514,10 +514,10 @@ function CommandCard({ command }: { command: CommandDef }) {
 
             {/* Details */}
             <div>
-              <h4 className="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+              <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
                 Details
               </h4>
-              <p className="text-sm text-gray-300 whitespace-pre-line">
+              <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">
                 {command.details}
               </p>
             </div>
@@ -542,39 +542,39 @@ export function Commands() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Terminal className="h-8 w-8 text-forge-500" />
-            <h1 className="text-2xl font-bold text-white">FORGE Commands</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">FORGE Commands</h1>
           </div>
-          <p className="text-gray-400">
+          <p className="text-gray-500 dark:text-gray-400">
             Complete reference for Claude Code plugin commands. Use these in Claude Code
             to manage specification-driven development.
           </p>
         </div>
 
         {/* Quick Start */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4">Quick Start</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Start</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-sm text-gray-400">1. Create a specification:</p>
-              <code className="block bg-gray-900 rounded px-3 py-2 text-forge-400 font-mono text-sm">
+              <p className="text-sm text-gray-500 dark:text-gray-400">1. Create a specification:</p>
+              <code className="block bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-forge-500 dark:text-forge-400 font-mono text-sm">
                 /forge:forge-spec "Add user auth"
               </code>
             </div>
             <div className="space-y-2">
-              <p className="text-sm text-gray-400">2. Create implementation plan:</p>
-              <code className="block bg-gray-900 rounded px-3 py-2 text-forge-400 font-mono text-sm">
+              <p className="text-sm text-gray-500 dark:text-gray-400">2. Create implementation plan:</p>
+              <code className="block bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-forge-500 dark:text-forge-400 font-mono text-sm">
                 /forge:forge-plan spec-001
               </code>
             </div>
             <div className="space-y-2">
-              <p className="text-sm text-gray-400">3. Queue tasks:</p>
-              <code className="block bg-gray-900 rounded px-3 py-2 text-forge-400 font-mono text-sm">
+              <p className="text-sm text-gray-500 dark:text-gray-400">3. Queue tasks:</p>
+              <code className="block bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-forge-500 dark:text-forge-400 font-mono text-sm">
                 /forge:forge-queue --plan plan-001
               </code>
             </div>
             <div className="space-y-2">
-              <p className="text-sm text-gray-400">4. Start execution:</p>
-              <code className="block bg-gray-900 rounded px-3 py-2 text-forge-400 font-mono text-sm">
+              <p className="text-sm text-gray-500 dark:text-gray-400">4. Start execution:</p>
+              <code className="block bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-forge-500 dark:text-forge-400 font-mono text-sm">
                 /forge:forge
               </code>
             </div>
@@ -588,8 +588,8 @@ export function Commands() {
             className={cn(
               "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
               filter === null
-                ? "bg-forge-500/20 text-forge-400"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                ? "bg-forge-500/20 text-forge-500 dark:text-forge-400"
+                : "bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700"
             )}
           >
             All Commands
@@ -602,7 +602,7 @@ export function Commands() {
                 "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
                 filter === key
                   ? cn(cat.bg, cat.color)
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  : "bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700"
               )}
             >
               {cat.label}
@@ -618,17 +618,17 @@ export function Commands() {
         </div>
 
         {/* Footer info */}
-        <div className="mt-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+        <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-start gap-3">
-            <HelpCircle className="h-5 w-5 text-gray-400 mt-0.5" />
+            <HelpCircle className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
             <div>
-              <h3 className="text-sm font-medium text-gray-300 mb-1">
+              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
                 Need more help?
               </h3>
-              <p className="text-sm text-gray-400">
-                Run <code className="text-forge-400">/forge:forge-help</code> in Claude
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Run <code className="text-forge-500 dark:text-forge-400">/forge:forge-help</code> in Claude
                 Code for interactive help, or check the{" "}
-                <code className="text-gray-300">.forge/</code> directory for specs,
+                <code className="text-gray-600 dark:text-gray-300">.forge/</code> directory for specs,
                 plans, and task definitions.
               </p>
             </div>

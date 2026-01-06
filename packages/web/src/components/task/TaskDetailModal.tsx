@@ -58,11 +58,11 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div
-        className="bg-gray-800 border border-gray-700 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-4 border-b border-gray-700">
+        <div className="flex items-start justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex-1 min-w-0 pr-4">
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <StatusBadge status={task.status} />
@@ -78,25 +78,25 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
                 </span>
               )}
               {isYamlLinked ? (
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-forge-500/20 text-forge-400 border border-forge-500/30">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-forge-500/20 text-forge-500 dark:text-forge-400 border border-forge-500/30">
                   <FileCode className="h-3 w-3" />
                   YAML Linked
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                   <AlertTriangle className="h-3 w-3" />
                   Raw Task
                 </span>
               )}
             </div>
-            <h2 className="text-xl font-semibold text-white">{task.name}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{task.name}</h2>
             {projectName && (
-              <p className="text-sm text-gray-400 mt-1">Project: {projectName}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Project: {projectName}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -106,42 +106,42 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {/* Task Prompt */}
           <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Task Prompt</h3>
-            <div className="bg-gray-900 rounded-lg p-4 text-sm text-gray-300 whitespace-pre-wrap">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Task Prompt</h3>
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
               {task.prompt}
             </div>
           </div>
 
           {/* Metadata */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-gray-900 rounded-lg p-3">
-              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                 <Hash className="h-3.5 w-3.5" />
                 Iterations
               </div>
-              <p className="text-lg font-medium text-white">{task.iteration}</p>
+              <p className="text-lg font-medium text-gray-900 dark:text-white">{task.iteration}</p>
             </div>
-            <div className="bg-gray-900 rounded-lg p-3">
-              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                 <Play className="h-3.5 w-3.5" />
                 Priority
               </div>
-              <p className="text-lg font-medium text-white">{task.priority}</p>
+              <p className="text-lg font-medium text-gray-900 dark:text-white">{task.priority}</p>
             </div>
-            <div className="bg-gray-900 rounded-lg p-3">
-              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                 <Calendar className="h-3.5 w-3.5" />
                 Created
               </div>
-              <p className="text-sm font-medium text-white">{formatRelativeTime(task.createdAt)}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{formatRelativeTime(task.createdAt)}</p>
             </div>
             {result?.metrics?.totalDuration && (
-              <div className="bg-gray-900 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs mb-1">
                   <Clock className="h-3.5 w-3.5" />
                   Duration
                 </div>
-                <p className="text-lg font-medium text-white">
+                <p className="text-lg font-medium text-gray-900 dark:text-white">
                   {formatDuration(result.metrics.totalDuration / 1000)}
                 </p>
               </div>
@@ -150,28 +150,28 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
 
           {/* Timestamps */}
           <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Timeline</h3>
-            <div className="bg-gray-900 rounded-lg p-4 space-y-2 text-sm">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Timeline</h3>
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400">Created</span>
-                <span className="text-gray-300">{new Date(task.createdAt).toLocaleString()}</span>
+                <span className="text-gray-500 dark:text-gray-400">Created</span>
+                <span className="text-gray-600 dark:text-gray-300">{new Date(task.createdAt).toLocaleString()}</span>
               </div>
               {task.startedAt && (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Started</span>
-                  <span className="text-gray-300">{new Date(task.startedAt).toLocaleString()}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Started</span>
+                  <span className="text-gray-600 dark:text-gray-300">{new Date(task.startedAt).toLocaleString()}</span>
                 </div>
               )}
               {task.completedAt && (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Completed</span>
-                  <span className="text-gray-300">{new Date(task.completedAt).toLocaleString()}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Completed</span>
+                  <span className="text-gray-600 dark:text-gray-300">{new Date(task.completedAt).toLocaleString()}</span>
                 </div>
               )}
               {task.scheduledAt && (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Scheduled</span>
-                  <span className="text-gray-300">{new Date(task.scheduledAt).toLocaleString()}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Scheduled</span>
+                  <span className="text-gray-600 dark:text-gray-300">{new Date(task.scheduledAt).toLocaleString()}</span>
                 </div>
               )}
             </div>
@@ -180,28 +180,28 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
           {/* Config Details */}
           {Object.keys(config).length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Configuration</h3>
-              <div className="bg-gray-900 rounded-lg p-4 text-sm">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Configuration</h3>
+              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 text-sm">
                 {typeof config.taskDefId === "string" && (
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-400">Task Definition ID</span>
-                    <span className="text-forge-400 font-mono">{config.taskDefId}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Task Definition ID</span>
+                    <span className="text-forge-500 dark:text-forge-400 font-mono">{config.taskDefId}</span>
                   </div>
                 )}
                 {typeof config.maxIterations === "number" && (
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-400">Max Iterations</span>
-                    <span className="text-gray-300">{config.maxIterations}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Max Iterations</span>
+                    <span className="text-gray-600 dark:text-gray-300">{config.maxIterations}</span>
                   </div>
                 )}
                 {Array.isArray(config.criteria) && config.criteria.length > 0 && (
                   <div className="mt-3">
-                    <span className="text-gray-400 block mb-2">Success Criteria</span>
+                    <span className="text-gray-500 dark:text-gray-400 block mb-2">Success Criteria</span>
                     <ul className="space-y-1">
                       {(config.criteria as Array<{ type: string; name: string }>).map((criterion, i) => (
-                        <li key={i} className="text-gray-300 flex items-center gap-2">
+                        <li key={i} className="text-gray-600 dark:text-gray-300 flex items-center gap-2">
                           <CheckCircle className="h-3.5 w-3.5 text-green-500" />
-                          <span className="text-xs bg-gray-800 px-1.5 py-0.5 rounded">{criterion.type}</span>
+                          <span className="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">{criterion.type}</span>
                           {criterion.name}
                         </li>
                       ))}
@@ -215,13 +215,13 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
           {/* Result (for completed/failed tasks) */}
           {result && (
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Result</h3>
-              <div className="bg-gray-900 rounded-lg p-4 space-y-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Result</h3>
+              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 space-y-4">
                 {/* Summary */}
                 {result.summary && (
                   <div>
-                    <span className="text-gray-400 text-xs block mb-1">Summary</span>
-                    <p className="text-gray-300 text-sm whitespace-pre-wrap">{result.summary}</p>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs block mb-1">Summary</span>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">{result.summary}</p>
                   </div>
                 )}
 
@@ -230,26 +230,26 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {result.metrics.totalIterations !== undefined && (
                       <div className="text-center">
-                        <span className="text-gray-400 text-xs block">Iterations</span>
-                        <span className="text-lg font-medium text-white">{result.metrics.totalIterations}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs block">Iterations</span>
+                        <span className="text-lg font-medium text-gray-900 dark:text-white">{result.metrics.totalIterations}</span>
                       </div>
                     )}
                     {result.metrics.totalDuration !== undefined && (
                       <div className="text-center">
-                        <span className="text-gray-400 text-xs block">Duration</span>
-                        <span className="text-lg font-medium text-white">{formatDuration(result.metrics.totalDuration / 1000)}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs block">Duration</span>
+                        <span className="text-lg font-medium text-gray-900 dark:text-white">{formatDuration(result.metrics.totalDuration / 1000)}</span>
                       </div>
                     )}
                     {result.metrics.inputTokens !== undefined && (
                       <div className="text-center">
-                        <span className="text-gray-400 text-xs block">Input Tokens</span>
-                        <span className="text-lg font-medium text-white">{result.metrics.inputTokens.toLocaleString()}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs block">Input Tokens</span>
+                        <span className="text-lg font-medium text-gray-900 dark:text-white">{result.metrics.inputTokens.toLocaleString()}</span>
                       </div>
                     )}
                     {result.metrics.outputTokens !== undefined && (
                       <div className="text-center">
-                        <span className="text-gray-400 text-xs block">Output Tokens</span>
-                        <span className="text-lg font-medium text-white">{result.metrics.outputTokens.toLocaleString()}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs block">Output Tokens</span>
+                        <span className="text-lg font-medium text-gray-900 dark:text-white">{result.metrics.outputTokens.toLocaleString()}</span>
                       </div>
                     )}
                   </div>
@@ -258,13 +258,13 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
                 {/* Files Created */}
                 {result.filesCreated && result.filesCreated.length > 0 && (
                   <div>
-                    <span className="text-gray-400 text-xs flex items-center gap-1 mb-2">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1 mb-2">
                       <FilePlus className="h-3.5 w-3.5" />
                       Files Created ({result.filesCreated.length})
                     </span>
                     <ul className="space-y-1 text-sm">
                       {result.filesCreated.map((file: string, i: number) => (
-                        <li key={i} className="text-green-400 font-mono text-xs bg-gray-800 px-2 py-1 rounded">
+                        <li key={i} className="text-green-600 dark:text-green-400 font-mono text-xs bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
                           + {file}
                         </li>
                       ))}
@@ -275,13 +275,13 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
                 {/* Files Modified */}
                 {result.filesModified && result.filesModified.length > 0 && (
                   <div>
-                    <span className="text-gray-400 text-xs flex items-center gap-1 mb-2">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1 mb-2">
                       <FileEdit className="h-3.5 w-3.5" />
                       Files Modified ({result.filesModified.length})
                     </span>
                     <ul className="space-y-1 text-sm">
                       {result.filesModified.map((file: string, i: number) => (
-                        <li key={i} className="text-yellow-400 font-mono text-xs bg-gray-800 px-2 py-1 rounded">
+                        <li key={i} className="text-yellow-600 dark:text-yellow-400 font-mono text-xs bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
                           ~ {file}
                         </li>
                       ))}
@@ -292,11 +292,11 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
                 {/* Failure Reason */}
                 {result.failureReason && (
                   <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                    <span className="text-red-400 text-xs flex items-center gap-1 mb-1">
+                    <span className="text-red-500 dark:text-red-400 text-xs flex items-center gap-1 mb-1">
                       <XCircle className="h-3.5 w-3.5" />
                       Failure Reason
                     </span>
-                    <p className="text-red-300 text-sm">{result.failureReason}</p>
+                    <p className="text-red-600 dark:text-red-300 text-sm">{result.failureReason}</p>
                   </div>
                 )}
               </div>
@@ -306,7 +306,7 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
           {/* Iteration History */}
           {iterations && iterations.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">Iteration History</h3>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Iteration History</h3>
               <div className="space-y-2">
                 {iterations.map((iteration) => (
                   <IterationCard key={iteration.id} iteration={iteration} />
@@ -317,10 +317,10 @@ export function TaskDetailModal({ task, onClose, projectName }: TaskDetailModalP
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-700">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors"
           >
             Close
           </button>
@@ -341,23 +341,23 @@ function IterationCard({ iteration }: { iteration: Iteration }) {
   }
 
   return (
-    <div className="bg-gray-900 rounded-lg p-3">
+    <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-white">#{iteration.iterationNum}</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">#{iteration.iterationNum}</span>
           {isSuccess ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-600 dark:text-green-400">
               <CheckCircle className="h-3 w-3" />
               Success
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-600 dark:text-red-400">
               <XCircle className="h-3 w-3" />
               Failed
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3 text-xs text-gray-400">
+        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
             {formatDuration(iteration.duration / 1000)}
@@ -367,7 +367,7 @@ function IterationCard({ iteration }: { iteration: Iteration }) {
       </div>
 
       {iteration.summary && (
-        <p className="text-sm text-gray-300 mb-2">{iteration.summary}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{iteration.summary}</p>
       )}
 
       {criteriaResults.length > 0 && (
@@ -379,7 +379,7 @@ function IterationCard({ iteration }: { iteration: Iteration }) {
               ) : (
                 <XCircle className="h-3 w-3 text-red-500" />
               )}
-              <span className={cr.passed ? "text-gray-300" : "text-red-300"}>
+              <span className={cr.passed ? "text-gray-600 dark:text-gray-300" : "text-red-600 dark:text-red-300"}>
                 {cr.name}
               </span>
               {cr.message && (

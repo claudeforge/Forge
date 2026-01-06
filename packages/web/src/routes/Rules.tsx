@@ -238,42 +238,42 @@ export function Rules() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
               <Shield className="h-7 w-7 text-forge-500" />
               Project Rules
             </h1>
-            <p className="text-gray-400 mt-1">Configure tech stack and coding conventions for Claude Code</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Configure tech stack and coding conventions for Claude Code</p>
           </div>
           <div className="flex items-center gap-3">
             {hasChanges && (
-              <span className="text-sm text-amber-400 flex items-center gap-1">
+              <span className="text-sm text-amber-500 dark:text-amber-400 flex items-center gap-1">
                 <AlertTriangle className="h-4 w-4" />Unsaved
               </span>
             )}
-            <button onClick={() => setShowTemplates(true)} className="px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 flex items-center gap-2">
+            <button onClick={() => setShowTemplates(true)} className="px-4 py-2 bg-purple-500/20 text-purple-500 dark:text-purple-400 rounded-lg hover:bg-purple-500/30 flex items-center gap-2">
               <Sparkles className="h-4 w-4" />Templates
             </button>
-            <button onClick={handleReset} disabled={!rules || deleteMutation.isPending} className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 disabled:opacity-50 flex items-center gap-2">
+            <button onClick={handleReset} disabled={!rules || deleteMutation.isPending} className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 flex items-center gap-2">
               <RotateCcw className="h-4 w-4" />Reset
             </button>
             <button onClick={handleSave} disabled={!hasChanges || !selectedProjectId || saveMutation.isPending}
               className={cn("px-4 py-2 rounded-lg font-medium flex items-center gap-2",
-                hasChanges && selectedProjectId ? "bg-forge-500 text-white hover:bg-forge-600" : "bg-gray-700 text-gray-500 cursor-not-allowed")}>
+                hasChanges && selectedProjectId ? "bg-forge-500 text-white hover:bg-forge-600" : "bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed")}>
               <Save className="h-4 w-4" />{saveMutation.isPending ? "Saving..." : "Save Rules"}
             </button>
           </div>
         </div>
 
         {/* Project Selector */}
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-          <label className="block text-sm font-medium text-gray-300 mb-2">Select Project</label>
+        <div className="bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Select Project</label>
           <select value={selectedProjectId || ""} onChange={(e) => setSelectedProjectId(e.target.value || null)}
-            className="w-full max-w-md bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white focus:border-forge-500 focus:outline-none">
+            className="w-full max-w-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-forge-500 focus:outline-none">
             <option value="">Choose a project...</option>
             {projects?.map((p: Project) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           {selectedProjectId && rules && (
-            <p className="text-sm text-green-400 mt-2 flex items-center gap-1"><Check className="h-4 w-4" />Rules configured</p>
+            <p className="text-sm text-green-600 dark:text-green-400 mt-2 flex items-center gap-1"><Check className="h-4 w-4" />Rules configured</p>
           )}
           {selectedProjectId && !rules && !isLoadingRules && (
             <p className="text-sm text-gray-500 mt-2">No rules yet. Select a template or configure manually.</p>
@@ -342,16 +342,16 @@ function CollapsibleSection({ title, icon, expanded, onToggle, children, badge }
   title: string; icon: React.ReactNode; expanded: boolean; onToggle: () => void; children: React.ReactNode; badge?: number;
 }) {
   return (
-    <div className="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden">
-      <button onClick={onToggle} className="w-full flex items-center justify-between p-4 hover:bg-gray-800/50 transition-colors">
+    <div className="bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <button onClick={onToggle} className="w-full flex items-center justify-between p-4 hover:bg-gray-200 dark:hover:bg-gray-800/50 transition-colors">
         <div className="flex items-center gap-3">
-          <span className="text-forge-400">{icon}</span>
-          <span className="font-medium text-white">{title}</span>
-          {badge !== undefined && <span className="px-2 py-0.5 bg-forge-500/20 text-forge-400 text-xs rounded-full">{badge}</span>}
+          <span className="text-forge-500 dark:text-forge-400">{icon}</span>
+          <span className="font-medium text-gray-900 dark:text-white">{title}</span>
+          {badge !== undefined && <span className="px-2 py-0.5 bg-forge-500/20 text-forge-500 dark:text-forge-400 text-xs rounded-full">{badge}</span>}
         </div>
-        {expanded ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+        {expanded ? <ChevronUp className="h-5 w-5 text-gray-500 dark:text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />}
       </button>
-      {expanded && <div className="p-4 pt-0 border-t border-gray-700">{children}</div>}
+      {expanded && <div className="p-4 pt-0 border-t border-gray-200 dark:border-gray-700">{children}</div>}
     </div>
   );
 }
@@ -362,9 +362,9 @@ function SelectField({ label, value, onChange, options, className }: {
 }) {
   return (
     <div className={className}>
-      {label && <label className="block text-sm font-medium text-gray-400 mb-1.5">{label}</label>}
+      {label && <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">{label}</label>}
       <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-500 focus:outline-none">
+        className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:border-forge-500 focus:outline-none">
         <option value="">None</option>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -430,15 +430,15 @@ function ConventionsEditor({ conventions, onChange }: { conventions: CodeConvent
         <SelectField label="Documentation" value={documentation.style || "tsdoc"} onChange={(v) => update("documentation", { ...documentation, style: v as CodeConventions["documentation"]["style"] })}
           options={[{ value: "tsdoc", label: "TSDoc" }, { value: "jsdoc", label: "JSDoc" }, { value: "docstring", label: "Docstring" }, { value: "none", label: "None" }]} />
       </div>
-      <div className="border-t border-gray-700 pt-4">
-        <h4 className="text-sm font-medium text-gray-300 mb-3">Formatting</h4>
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Formatting</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <SelectField label="Indent Style" value={formatting.indentStyle || "spaces"} onChange={(v) => updateFormatting("indentStyle", v as "tabs" | "spaces")}
             options={[{ value: "spaces", label: "Spaces" }, { value: "tabs", label: "Tabs" }]} />
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1.5">Indent Size</label>
+            <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">Indent Size</label>
             <input type="number" value={formatting.indentSize ?? 2} onChange={(e) => updateFormatting("indentSize", Number(e.target.value))} min={1} max={8}
-              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-500 focus:outline-none" />
+              className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:border-forge-500 focus:outline-none" />
           </div>
           <SelectField label="Quotes" value={formatting.quotes || "double"} onChange={(v) => updateFormatting("quotes", v as "single" | "double")}
             options={[{ value: "double", label: "Double" }, { value: "single", label: "Single" }]} />
@@ -446,9 +446,9 @@ function ConventionsEditor({ conventions, onChange }: { conventions: CodeConvent
             options={[{ value: "none", label: "None" }, { value: "es5", label: "ES5" }, { value: "all", label: "All" }]} />
         </div>
         <div className="flex items-center gap-6 mt-4">
-          <label className="flex items-center gap-2 text-sm text-gray-300">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
             <input type="checkbox" checked={formatting.semicolons ?? true} onChange={(e) => updateFormatting("semicolons", e.target.checked)}
-              className="rounded bg-gray-800 border-gray-600 text-forge-500 focus:ring-forge-500" />
+              className="rounded bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-forge-500 focus:ring-forge-500" />
             Semicolons
           </label>
         </div>
@@ -469,26 +469,26 @@ function StructureEditor({ structure, onChange }: { structure: ProjectStructure;
   return (
     <div className="space-y-4 pt-4">
       <div>
-        <label className="block text-sm font-medium text-gray-400 mb-1.5">Source Directory</label>
+        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5">Source Directory</label>
         <input type="text" value={struct.srcDir || "src"} onChange={(e) => onChange({ ...struct, srcDir: e.target.value })} placeholder="src"
-          className="w-full max-w-xs bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-500 focus:outline-none font-mono" />
+          className="w-full max-w-xs bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:border-forge-500 focus:outline-none font-mono" />
       </div>
-      <div className="border-t border-gray-700 pt-4">
-        <h4 className="text-sm font-medium text-gray-300 mb-3">Directory Paths</h4>
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Directory Paths</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {(["components", "pages", "api", "utils", "types", "hooks", "stores", "tests"] as const).map((dir) => (
             <div key={dir}>
-              <label className="block text-sm font-medium text-gray-400 mb-1.5 capitalize">{dir}</label>
+              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1.5 capitalize">{dir}</label>
               <input type="text" value={directories[dir] || ""} onChange={(e) => updateDir(dir, e.target.value)} placeholder={dir}
-                className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-500 focus:outline-none font-mono" />
+                className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:border-forge-500 focus:outline-none font-mono" />
             </div>
           ))}
         </div>
       </div>
       <div className="flex items-center gap-2 pt-2">
         <input type="checkbox" checked={struct.featureBased || false} onChange={(e) => onChange({ ...struct, featureBased: e.target.checked })}
-          className="rounded bg-gray-800 border-gray-600 text-forge-500 focus:ring-forge-500" />
-        <label className="text-sm text-gray-300">Feature-based structure</label>
+          className="rounded bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-forge-500 focus:ring-forge-500" />
+        <label className="text-sm text-gray-600 dark:text-gray-300">Feature-based structure</label>
       </div>
     </div>
   );
@@ -503,37 +503,37 @@ function ConstraintsEditor({ constraints, onChange }: { constraints?: ProjectCon
     <div className="space-y-4 pt-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-red-400" />Forbidden
+          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-500 dark:text-red-400" />Forbidden
           </h4>
           <div className="space-y-2">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Libraries (comma-separated)</label>
-              <input type="text" value={c.forbidden?.libraries?.join(", ") || ""} 
+              <input type="text" value={c.forbidden?.libraries?.join(", ") || ""}
                 onChange={(e) => update("forbidden", { ...c.forbidden, libraries: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
-                placeholder="moment, lodash" className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-500 focus:outline-none" />
+                placeholder="moment, lodash" className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:border-forge-500 focus:outline-none" />
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Patterns (comma-separated)</label>
               <input type="text" value={c.forbidden?.patterns?.join(", ") || ""}
                 onChange={(e) => update("forbidden", { ...c.forbidden, patterns: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
-                placeholder="any, eval" className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-forge-500 focus:outline-none" />
+                placeholder="any, eval" className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-sm focus:border-forge-500 focus:outline-none" />
             </div>
           </div>
         </div>
         <div>
-          <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-            <Shield className="h-4 w-4 text-green-400" />Security
+          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 flex items-center gap-2">
+            <Shield className="h-4 w-4 text-green-500 dark:text-green-400" />Security
           </h4>
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm text-gray-300">
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <input type="checkbox" checked={c.security?.noSecrets || false} onChange={(e) => update("security", { ...c.security, noSecrets: e.target.checked })}
-                className="rounded bg-gray-800 border-gray-600 text-forge-500 focus:ring-forge-500" />
+                className="rounded bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-forge-500 focus:ring-forge-500" />
               No hardcoded secrets
             </label>
-            <label className="flex items-center gap-2 text-sm text-gray-300">
+            <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <input type="checkbox" checked={c.security?.sanitization || false} onChange={(e) => update("security", { ...c.security, sanitization: e.target.checked })}
-                className="rounded bg-gray-800 border-gray-600 text-forge-500 focus:ring-forge-500" />
+                className="rounded bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-forge-500 focus:ring-forge-500" />
               Input sanitization required
             </label>
           </div>
@@ -562,19 +562,19 @@ function TemplatesModal({ templates, onSelect, onClose, isApplying }: {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2"><Sparkles className="h-5 w-5 text-purple-400" />Rule Templates</h2>
-            <p className="text-sm text-gray-400 mt-1">Choose a preset configuration</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2"><Sparkles className="h-5 w-5 text-purple-500 dark:text-purple-400" />Rule Templates</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Choose a preset configuration</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><X className="h-5 w-5" /></button>
         </div>
 
         <div className="flex gap-2 px-6 pt-4">
-          <button onClick={() => setSelectedCategory(null)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium", selectedCategory === null ? "bg-forge-500/20 text-forge-400" : "bg-gray-800 text-gray-400 hover:text-white")}>All</button>
+          <button onClick={() => setSelectedCategory(null)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium", selectedCategory === null ? "bg-forge-500/20 text-forge-500 dark:text-forge-400" : "bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white")}>All</button>
           {categories.map(cat => (
-            <button key={cat} onClick={() => setSelectedCategory(cat)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5", selectedCategory === cat ? "bg-forge-500/20 text-forge-400" : "bg-gray-800 text-gray-400 hover:text-white")}>
+            <button key={cat} onClick={() => setSelectedCategory(cat)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5", selectedCategory === cat ? "bg-forge-500/20 text-forge-500 dark:text-forge-400" : "bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white")}>
               {categoryIcons[cat]}{cat}
             </button>
           ))}
@@ -583,16 +583,16 @@ function TemplatesModal({ templates, onSelect, onClose, isApplying }: {
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filtered.map((template) => (
-              <div key={template.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors">
-                <h3 className="font-medium text-white flex items-center gap-2">
+              <div key={template.id} className="bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-forge-500/50 transition-colors">
+                <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
                   {template.name}
-                  {template.official && <span className="px-1.5 py-0.5 bg-forge-500/20 text-forge-400 text-xs rounded">Official</span>}
+                  {template.official && <span className="px-1.5 py-0.5 bg-forge-500/20 text-forge-500 dark:text-forge-400 text-xs rounded">Official</span>}
                 </h3>
-                <p className="text-sm text-gray-400 mt-1">{template.description}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{template.description}</p>
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  {template.tags.slice(0, 5).map(tag => <span key={tag} className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded">{tag}</span>)}
+                  {template.tags.slice(0, 5).map(tag => <span key={tag} className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded">{tag}</span>)}
                 </div>
-                <div className="mt-4 pt-3 border-t border-gray-700 flex items-center justify-between">
+                <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
                   <span className="text-xs text-gray-500 capitalize">{template.category}</span>
                   <button onClick={() => onSelect(template.id)} disabled={isApplying} className="px-4 py-1.5 bg-forge-500 text-white text-sm rounded-lg hover:bg-forge-600 disabled:opacity-50">
                     {isApplying ? "Applying..." : "Apply"}

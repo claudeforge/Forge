@@ -86,10 +86,10 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
 
   if (statusLoading) {
     return (
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-700 rounded w-1/4 mb-4"></div>
-          <div className="h-20 bg-gray-700 rounded"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+          <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
       </div>
     );
@@ -110,11 +110,11 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
   return (
     <div className="space-y-6">
       {/* Header with Health Status */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Activity className="h-5 w-5 text-blue-400" />
-            <h2 className="text-lg font-semibold text-white">Sync Monitor</h2>
+            <Activity className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sync Monitor</h2>
           </div>
           <div className={`flex items-center gap-2 ${healthColors[syncStatus?.health ?? "offline"]}`}>
             {healthIcons[syncStatus?.health ?? "offline"]}
@@ -124,34 +124,34 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-gray-900 rounded p-3">
-            <div className="text-gray-400 text-xs mb-1">Total Tasks</div>
-            <div className="text-white text-xl font-bold">{syncStatus?.stats.totalTasks ?? 0}</div>
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3">
+            <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Total Tasks</div>
+            <div className="text-gray-900 dark:text-white text-xl font-bold">{syncStatus?.stats.totalTasks ?? 0}</div>
           </div>
-          <div className="bg-gray-900 rounded p-3">
-            <div className="text-gray-400 text-xs mb-1">Queued</div>
-            <div className="text-blue-400 text-xl font-bold">{syncStatus?.stats.queued ?? 0}</div>
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3">
+            <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Queued</div>
+            <div className="text-blue-600 dark:text-blue-400 text-xl font-bold">{syncStatus?.stats.queued ?? 0}</div>
           </div>
-          <div className="bg-gray-900 rounded p-3">
-            <div className="text-gray-400 text-xs mb-1">Running</div>
-            <div className="text-yellow-400 text-xl font-bold">{syncStatus?.stats.running ?? 0}</div>
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3">
+            <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Running</div>
+            <div className="text-yellow-600 dark:text-yellow-400 text-xl font-bold">{syncStatus?.stats.running ?? 0}</div>
           </div>
-          <div className="bg-gray-900 rounded p-3">
-            <div className="text-gray-400 text-xs mb-1">Completed</div>
-            <div className="text-green-400 text-xl font-bold">{syncStatus?.stats.completed ?? 0}</div>
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3">
+            <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Completed</div>
+            <div className="text-green-600 dark:text-green-400 text-xl font-bold">{syncStatus?.stats.completed ?? 0}</div>
           </div>
-          <div className="bg-gray-900 rounded p-3">
-            <div className="text-gray-400 text-xs mb-1">Failed</div>
-            <div className="text-red-400 text-xl font-bold">{syncStatus?.stats.failed ?? 0}</div>
+          <div className="bg-gray-100 dark:bg-gray-900 rounded p-3">
+            <div className="text-gray-500 dark:text-gray-400 text-xs mb-1">Failed</div>
+            <div className="text-red-600 dark:text-red-400 text-xl font-bold">{syncStatus?.stats.failed ?? 0}</div>
           </div>
         </div>
       </div>
 
       {/* Connected Nodes */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center gap-2 mb-4">
-          <Server className="h-4 w-4 text-gray-400" />
-          <h3 className="text-sm font-medium text-white">Connected Nodes</h3>
+          <Server className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Connected Nodes</h3>
           <span className="text-xs text-gray-500">
             ({syncStatus?.nodes.filter((n) => n.isOnline).length ?? 0} online)
           </span>
@@ -162,22 +162,22 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
             {syncStatus.nodes.map((node) => (
               <div
                 key={node.nodeId}
-                className="flex items-center justify-between bg-gray-900 rounded p-3"
+                className="flex items-center justify-between bg-gray-100 dark:bg-gray-900 rounded p-3"
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      node.isOnline ? "bg-green-400" : "bg-gray-500"
+                      node.isOnline ? "bg-green-500 dark:bg-green-400" : "bg-gray-400 dark:bg-gray-500"
                     }`}
                   />
                   <div>
-                    <div className="text-white text-sm">
+                    <div className="text-gray-900 dark:text-white text-sm">
                       {node.displayName || node.nodeId.slice(0, 12)}
                     </div>
                     <div className="text-gray-500 text-xs">{node.nodeType}</div>
                   </div>
                 </div>
-                <div className="text-gray-400 text-xs">
+                <div className="text-gray-500 dark:text-gray-400 text-xs">
                   {node.isOnline
                     ? "Online"
                     : `Last seen: ${new Date(node.lastSeen).toLocaleTimeString()}`}
@@ -191,11 +191,11 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
       </div>
 
       {/* Active Locks */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-gray-400" />
-            <h3 className="text-sm font-medium text-white">Active Locks</h3>
+            <Lock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">Active Locks</h3>
             <span className="text-xs text-gray-500">
               ({syncStatus?.activeLocks.length ?? 0})
             </span>
@@ -203,7 +203,7 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
           <button
             onClick={() => fixLocksMutation.mutate()}
             disabled={fixLocksMutation.isPending}
-            className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-gray-300"
+            className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-gray-600 dark:text-gray-300"
           >
             <RefreshCw className={`h-3 w-3 ${fixLocksMutation.isPending ? "animate-spin" : ""}`} />
             Fix Expired
@@ -222,28 +222,28 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
               return (
                 <div
                   key={lock.taskId}
-                  className="flex items-center justify-between bg-gray-900 rounded p-3"
+                  className="flex items-center justify-between bg-gray-100 dark:bg-gray-900 rounded p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <Lock className={`h-4 w-4 ${isExpiringSoon ? "text-yellow-400" : "text-blue-400"}`} />
+                    <Lock className={`h-4 w-4 ${isExpiringSoon ? "text-yellow-500 dark:text-yellow-400" : "text-blue-500 dark:text-blue-400"}`} />
                     <div>
-                      <div className="text-white text-sm">{lock.taskId.slice(0, 8)}...</div>
+                      <div className="text-gray-900 dark:text-white text-sm">{lock.taskId.slice(0, 8)}...</div>
                       <div className="text-gray-500 text-xs">
                         Locked by: {lock.lockedBy.slice(0, 12)}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className={`text-xs ${isExpiringSoon ? "text-yellow-400" : "text-gray-400"}`}>
+                    <div className={`text-xs ${isExpiringSoon ? "text-yellow-500 dark:text-yellow-400" : "text-gray-500 dark:text-gray-400"}`}>
                       <Clock className="h-3 w-3 inline mr-1" />
                       {expiresIn}s
                     </div>
                     <button
                       onClick={() => setSelectedTaskId(lock.taskId)}
-                      className="p-1 hover:bg-gray-700 rounded"
+                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                       title="Manage"
                     >
-                      <Unlock className="h-4 w-4 text-gray-400 hover:text-white" />
+                      <Unlock className="h-4 w-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
                     </button>
                   </div>
                 </div>
@@ -257,20 +257,20 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
 
       {/* Stuck Tasks */}
       {syncStatus?.stuckTasks && syncStatus.stuckTasks.length > 0 && (
-        <div className="bg-gray-800 rounded-lg border border-yellow-600 p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-yellow-500 dark:border-yellow-600 p-4">
           <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="h-4 w-4 text-yellow-400" />
-            <h3 className="text-sm font-medium text-yellow-400">Stuck Tasks</h3>
+            <AlertTriangle className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
+            <h3 className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Stuck Tasks</h3>
           </div>
 
           <div className="space-y-2">
             {syncStatus.stuckTasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center justify-between bg-gray-900 rounded p-3"
+                className="flex items-center justify-between bg-gray-100 dark:bg-gray-900 rounded p-3"
               >
                 <div>
-                  <div className="text-white text-sm">{task.name}</div>
+                  <div className="text-gray-900 dark:text-white text-sm">{task.name}</div>
                   <div className="text-gray-500 text-xs">
                     Started: {new Date(task.startedAt).toLocaleString()}
                   </div>
@@ -288,10 +288,10 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
       )}
 
       {/* Sync Log */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center gap-2 mb-4">
-          <Activity className="h-4 w-4 text-gray-400" />
-          <h3 className="text-sm font-medium text-white">Recent Sync Activity</h3>
+          <Activity className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white">Recent Sync Activity</h3>
         </div>
 
         {syncLog?.logs && syncLog.logs.length > 0 ? (
@@ -299,13 +299,13 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
             {syncLog.logs.map((log) => (
               <div
                 key={log.id}
-                className="flex items-center gap-3 text-xs py-1 border-b border-gray-700 last:border-0"
+                className="flex items-center gap-3 text-xs py-1 border-b border-gray-200 dark:border-gray-700 last:border-0"
               >
                 <span className="text-gray-500 w-20">
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </span>
-                <span className="text-blue-400 w-24 truncate">{log.nodeId.slice(0, 10)}</span>
-                <span className="text-gray-300">{log.operation}</span>
+                <span className="text-blue-600 dark:text-blue-400 w-24 truncate">{log.nodeId.slice(0, 10)}</span>
+                <span className="text-gray-600 dark:text-gray-300">{log.operation}</span>
                 {log.taskId && (
                   <span className="text-gray-500">Task: {log.taskId.slice(0, 8)}</span>
                 )}
@@ -320,22 +320,22 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
       {/* Intervention Modal */}
       {selectedTaskId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-white mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Task Intervention
             </h3>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               Task ID: {selectedTaskId.slice(0, 12)}...
             </p>
 
             <div className="mb-4">
-              <label className="block text-sm text-gray-400 mb-2">Reason</label>
+              <label className="block text-sm text-gray-500 dark:text-gray-400 mb-2">Reason</label>
               <input
                 type="text"
                 value={interventionReason}
                 onChange={(e) => setInterventionReason(e.target.value)}
                 placeholder="Why are you intervening?"
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm"
+                className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 text-gray-900 dark:text-white text-sm"
               />
             </div>
 
@@ -380,7 +380,7 @@ export function SyncMonitor({ projectId }: SyncMonitorProps) {
                   setSelectedTaskId(null);
                   setInterventionReason("");
                 }}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-sm text-gray-300"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-sm text-gray-600 dark:text-gray-300"
               >
                 Cancel
               </button>

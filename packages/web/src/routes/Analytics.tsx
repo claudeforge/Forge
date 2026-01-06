@@ -49,34 +49,34 @@ export function Analytics() {
 
       {/* Summary Stats */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Task Breakdown
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-400">Completed</span>
-              <span className="text-green-400">
+              <span className="text-gray-500 dark:text-gray-400">Completed</span>
+              <span className="text-green-600 dark:text-green-400">
                 {stats?.completedTasks ?? 0}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Failed</span>
-              <span className="text-red-400">{stats?.failedTasks ?? 0}</span>
+              <span className="text-gray-500 dark:text-gray-400">Failed</span>
+              <span className="text-red-600 dark:text-red-400">{stats?.failedTasks ?? 0}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Total</span>
-              <span className="text-white">{stats?.totalTasks ?? 0}</span>
+              <span className="text-gray-500 dark:text-gray-400">Total</span>
+              <span className="text-gray-900 dark:text-white">{stats?.totalTasks ?? 0}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Today</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Today</h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-400">Tasks</span>
-              <span className="text-white">{stats?.tasksToday ?? 0}</span>
+              <span className="text-gray-500 dark:text-gray-400">Tasks</span>
+              <span className="text-gray-900 dark:text-white">{stats?.tasksToday ?? 0}</span>
             </div>
           </div>
         </div>

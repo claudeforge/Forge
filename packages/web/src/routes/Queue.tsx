@@ -92,7 +92,7 @@ function TypeBadge({ type }: { type: TaskType }) {
 // Helper component for complexity badge
 function ComplexityBadge({ complexity }: { complexity: TaskComplexity }) {
   return (
-    <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-700", complexityColors[complexity])}>
+    <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-200 dark:bg-gray-700", complexityColors[complexity])}>
       {complexity === "low" ? "Low" : complexity === "medium" ? "Med" : "High"}
     </span>
   );
@@ -322,7 +322,7 @@ export function Queue() {
   if (isLoading) {
     return (
       <Layout title="Queue">
-        <div className="text-center py-12 text-gray-400">Loading...</div>
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">Loading...</div>
       </Layout>
     );
   }
@@ -347,7 +347,7 @@ export function Queue() {
             status={queue?.isPaused ? "paused" : "running"}
             className="text-sm"
           />
-          <span className="text-gray-400">
+          <span className="text-gray-500 dark:text-gray-400">
             {queue?.queued.length ?? 0} tasks in queue
           </span>
 
@@ -357,7 +357,7 @@ export function Queue() {
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-white focus:border-forge-500 focus:outline-none"
+              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-900 dark:text-white focus:border-forge-500 focus:outline-none"
             >
               <option value="">All Projects</option>
               {projects?.map((p) => (
@@ -383,7 +383,7 @@ export function Queue() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
               queue?.running || queue?.queued.length === 0
-                ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                ? "bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
                 : "bg-green-500 text-white hover:bg-green-600"
             )}
           >
@@ -414,7 +414,7 @@ export function Queue() {
       {/* Running Task */}
       {queue?.running && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
@@ -425,22 +425,22 @@ export function Queue() {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-semibold text-white">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {queue.running.name}
                   </h3>
                   {queue.running.taskType && <TypeBadge type={queue.running.taskType} />}
                   {queue.running.complexity && <ComplexityBadge complexity={queue.running.complexity} />}
                 </div>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {getProjectName(queue.running.projectId)}
                 </p>
               </div>
               <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 text-green-400">
+                <div className="flex items-center gap-2 text-green-500 dark:text-green-400">
                   <Zap className="h-4 w-4" />
                   <span>Iteration {queue.running.iteration}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-400">
+                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                   <Clock className="h-4 w-4" />
                   <span>{formatDuration(queue.running.startedAt)}</span>
                 </div>
@@ -454,7 +454,7 @@ export function Queue() {
                 </button>
               </div>
             </div>
-            <p className="text-gray-300 text-sm line-clamp-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
               {queue.running.prompt}
             </p>
           </div>
@@ -464,7 +464,7 @@ export function Queue() {
       {/* Queued Tasks */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Queued Tasks</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Queued Tasks</h2>
 
           {/* Queue Summary Stats */}
           {queueStats && queueStats.total > 0 && (
@@ -491,7 +491,7 @@ export function Queue() {
                 onDrop={(e) => handleDrop(e, index)}
               >
                 {/* Drag Handle */}
-                <div className="cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-300 p-1">
+                <div className="cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1">
                   <GripVertical className="h-5 w-5" />
                 </div>
 
@@ -508,8 +508,8 @@ export function Queue() {
                     className={cn(
                       "p-1 rounded transition-colors",
                       index === 0
-                        ? "text-gray-600 cursor-not-allowed"
-                        : "text-gray-400 hover:text-white hover:bg-gray-700"
+                        ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                     )}
                     title="Move up"
                   >
@@ -521,8 +521,8 @@ export function Queue() {
                     className={cn(
                       "p-1 rounded transition-colors",
                       index === queue.queued.length - 1
-                        ? "text-gray-600 cursor-not-allowed"
-                        : "text-gray-400 hover:text-white hover:bg-gray-700"
+                        ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                        : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                     )}
                     title="Move down"
                   >
@@ -600,8 +600,8 @@ export function Queue() {
       {/* Recently Completed Tasks */}
       {queue?.completed && queue.completed.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-gray-400" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Clock className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             Recent History
           </h2>
           <div className="space-y-2">
@@ -622,7 +622,7 @@ export function Queue() {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-white truncate">
+                    <span className="font-medium text-gray-900 dark:text-white truncate">
                       {task.name}
                     </span>
                     {task.taskType && <TypeBadge type={task.taskType} />}

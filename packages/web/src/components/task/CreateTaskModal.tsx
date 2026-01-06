@@ -88,37 +88,37 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <h2 className="text-xl font-semibold text-white">Create New Task</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="h-5 w-5" /></button>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create New Task</h2>
+          <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><X className="h-5 w-5" /></button>
         </div>
 
         <form onSubmit={submit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Project</label>
-            <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white focus:border-forge-500 focus:outline-none" required>
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Project</label>
+            <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white focus:border-forge-500 focus:outline-none" required>
               <option value="">Select...</option>
               {projects?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
-            {projects?.length === 0 && <p className="text-yellow-400 text-sm mt-2"><AlertCircle className="h-4 w-4 inline" /> No projects yet</p>}
+            {projects?.length === 0 && <p className="text-yellow-500 dark:text-yellow-400 text-sm mt-2"><AlertCircle className="h-4 w-4 inline" /> No projects yet</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Task Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Add auth" className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:border-forge-500 focus:outline-none" required />
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Task Name</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Add auth" className="w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-500 focus:border-forge-500 focus:outline-none" required />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Prompt</label>
-            <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the task..." rows={4} className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 resize-none focus:border-forge-500 focus:outline-none" required />
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Prompt</label>
+            <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the task..." rows={4} className="w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-gray-900 dark:text-white placeholder-gray-500 resize-none focus:border-forge-500 focus:outline-none" required />
           </div>
 
           {/* Max Iterations - Prominent */}
           <div className="bg-forge-500/10 border border-forge-500/30 rounded-lg p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Zap className="h-5 w-5 text-forge-400" />
-              <label className="text-sm font-medium text-forge-300">Max Iterations</label>
+              <Zap className="h-5 w-5 text-forge-500 dark:text-forge-400" />
+              <label className="text-sm font-medium text-forge-600 dark:text-forge-300">Max Iterations</label>
             </div>
             <div className="flex items-center gap-4">
               <input
@@ -135,14 +135,14 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
                 onChange={(e) => setMaxIterations(Number(e.target.value) || 30)}
                 min={1}
                 max={100}
-                className="w-20 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-center focus:border-forge-500 focus:outline-none"
+                className="w-20 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-white text-center focus:border-forge-500 focus:outline-none"
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">Number of times Claude will iterate until success criteria are met</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Success Criteria</label>
+            <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Success Criteria</label>
 
             {/* Templates */}
             <div className="mb-3">
@@ -153,7 +153,7 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
                     key={t.label}
                     type="button"
                     onClick={() => applyTemplate(t)}
-                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 border border-purple-500/30"
+                    className="px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-500/20 text-purple-500 dark:text-purple-400 hover:bg-purple-500/30 border border-purple-500/30"
                   >
                     {t.label}
                   </button>
@@ -164,19 +164,19 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
             {/* Individual Criteria */}
             <div className="flex flex-wrap gap-2 mb-3">
               {CRITERION_PRESETS.map((p) => (
-                <button key={p.label} type="button" onClick={() => addCriterion(p)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium", criteria.some(c => c.name === p.name) ? "bg-forge-500/20 text-forge-400 border border-forge-500/50" : "bg-gray-700 text-gray-300 hover:bg-gray-600")}>{p.label}</button>
+                <button key={p.label} type="button" onClick={() => addCriterion(p)} className={cn("px-3 py-1.5 rounded-lg text-sm font-medium", criteria.some(c => c.name === p.name) ? "bg-forge-500/20 text-forge-500 dark:text-forge-400 border border-forge-500/50" : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600")}>{p.label}</button>
               ))}
             </div>
             <div className="flex gap-2 mb-3">
-              <input type="text" value={customCmd} onChange={(e) => setCustomCmd(e.target.value)} placeholder="Custom command" className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-forge-500 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustom())} />
-              <button type="button" onClick={addCustom} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"><Plus className="h-5 w-5" /></button>
+              <input type="text" value={customCmd} onChange={(e) => setCustomCmd(e.target.value)} placeholder="Custom command" className="flex-1 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 focus:border-forge-500 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustom())} />
+              <button type="button" onClick={addCustom} className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"><Plus className="h-5 w-5" /></button>
             </div>
             {criteria.length > 0 ? (
               <div className="space-y-2">
                 {criteria.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-lg px-4 py-2">
-                    <span className="text-white">{c.name}</span>
-                    <button type="button" onClick={() => setCriteria(criteria.filter(x => x.id !== c.id))} className="text-gray-400 hover:text-red-400"><Trash2 className="h-4 w-4" /></button>
+                  <div key={c.id} className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2">
+                    <span className="text-gray-900 dark:text-white">{c.name}</span>
+                    <button type="button" onClick={() => setCriteria(criteria.filter(x => x.id !== c.id))} className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 ))}
               </div>
@@ -184,9 +184,9 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId }: CreateTas
           </div>
         </form>
 
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-700">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-gray-300 hover:text-white">Cancel</button>
-          <button onClick={submit} disabled={!projectId || !name || !prompt || createTask.isPending} className={cn("px-6 py-2 rounded-lg font-medium", !projectId || !name || !prompt || createTask.isPending ? "bg-gray-700 text-gray-500 cursor-not-allowed" : "bg-forge-500 text-white hover:bg-forge-600")}>
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Cancel</button>
+          <button onClick={submit} disabled={!projectId || !name || !prompt || createTask.isPending} className={cn("px-6 py-2 rounded-lg font-medium", !projectId || !name || !prompt || createTask.isPending ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed" : "bg-forge-500 text-white hover:bg-forge-600")}>
             {createTask.isPending ? "Creating..." : "Create Task"}
           </button>
         </div>
