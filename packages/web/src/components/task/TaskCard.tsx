@@ -12,11 +12,12 @@ interface TaskCardProps {
   onClick?: () => void;
   onViewIterations?: () => void;
   showTypeIndicator?: boolean;
+  compact?: boolean;
 }
 
-export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = true }: TaskCardProps) {
+export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = true, compact = false }: TaskCardProps) {
   const result = task.result ? JSON.parse(task.result) : null;
-  
+
   // Parse config to check if YAML-linked
   let isYamlLinked = false;
   let taskDefId: string | null = null;
@@ -26,6 +27,24 @@ export function TaskCard({ task, onClick, onViewIterations, showTypeIndicator = 
     isYamlLinked = !!taskDefId;
   } catch {
     // ignore
+  }
+
+  // Compact view for tree/nested displays
+  if (compact) {
+    return (
+      <div
+        onClick={onClick}
+        className="bg-gray-800 border border-gray-700 rounded-lg p-2 hover:border-forge-500/50 transition-colors cursor-pointer"
+      >
+        <div className="flex items-center gap-2">
+          <StatusBadge status={task.status} size="sm" />
+          <span className="text-sm text-white truncate flex-1">{task.name}</span>
+          {task.iteration > 0 && (
+            <span className="text-xs text-gray-500">#{task.iteration}</span>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
