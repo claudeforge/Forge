@@ -2,7 +2,7 @@
  * Queue management page
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Layers,
@@ -23,12 +23,17 @@ import {
   List,
   CheckCheck,
   Loader2,
+  Bug,
+  RefreshCw,
+  TestTube,
+  FileText,
+  Settings,
 } from "lucide-react";
 import { CreateTaskModal } from "../components/task/CreateTaskModal";
 import { EditTaskModal } from "../components/task/EditTaskModal";
 import { IterationLogViewer } from "../components/iteration/IterationLogViewer";
 import { useNotifications } from "../components/notification/NotificationProvider";
-import type { Task } from "../lib/api";
+import type { Task, TaskType, TaskComplexity } from "../lib/api";
 import { api } from "../lib/api";
 import { Layout } from "../components/layout/Layout";
 import { TaskCard } from "../components/task/TaskCard";
@@ -44,6 +49,98 @@ import {
   useReorderQueue,
 } from "../hooks/useStats";
 import { cn } from "../lib/utils";
+
+// Type icons for display
+const typeIcons: Record<TaskType, typeof Zap> = {
+  feature: Zap,
+  bugfix: Bug,
+  refactor: RefreshCw,
+  test: TestTube,
+  docs: FileText,
+  chore: Settings,
+};
+
+const typeColors: Record<TaskType, string> = {
+  feature: "text-blue-400 bg-blue-500/20 border-blue-500/30",
+  bugfix: "text-red-400 bg-red-500/20 border-red-500/30",
+  refactor: "text-purple-400 bg-purple-500/20 border-purple-500/30",
+  test: "text-green-400 bg-green-500/20 border-green-500/30",
+  docs: "text-cyan-400 bg-cyan-500/20 border-cyan-500/30",
+  chore: "text-gray-400 bg-gray-500/20 border-gray-500/30",
+};
+
+const complexityColors: Record<TaskComplexity, string> = {
+  low: "text-green-400",
+  medium: "text-yellow-400",
+  high: "text-red-400",
+};
+
+// Helper component for type badge
+function TypeBadge({ type }: { type: TaskType }) {
+  const Icon = typeIcons[type];
+  const colors = typeColors[type];
+  return (
+    <span className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border", colors)}>
+      <Icon className="h-3 w-3" />
+      <span className="capitalize">{type}</span>
+    </span>
+  );
+}
+
+// Helper component for complexity badge
+function ComplexityBadge({ complexity }: { complexity: TaskComplexity }) {
+  return (
+    <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-700", complexityColors[complexity])}>
+      {complexity === "low" ? "Low" : complexity === "medium" ? "Med" : "High"}
+    </span>
+  );
+}
+
+// Queue summary stats component
+function QueueSummary({ stats }: { stats: { byType: Record<string, number>; byComplexity: Record<string, number>; total: number } }) {
+  const typeEntries = Object.entries(stats.byType);
+  const hasTypes = typeEntries.length > 0;
+  const hasComplexity = Object.keys(stats.byComplexity).length > 0;
+
+  return (
+    <div className="flex items-center gap-4 text-xs">
+      {/* By Type */}
+      {hasTypes && (
+        <div className="flex items-center gap-2">
+          {typeEntries.map(([type, count]) => {
+            const Icon = typeIcons[type as TaskType];
+            const color = typeColors[type as TaskType]?.split(" ")[0] || "text-gray-400";
+            return (
+              <span key={type} className={cn("flex items-center gap-1", color)}>
+                <Icon className="h-3 w-3" />
+                <span>{count}</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
+      {/* Divider */}
+      {hasTypes && hasComplexity && (
+        <span className="text-gray-600">|</span>
+      )}
+      {/* By Complexity */}
+      {hasComplexity && (
+        <div className="flex items-center gap-2">
+          {(["low", "medium", "high"] as const).map((level) => {
+            const count = stats.byComplexity[level];
+            if (!count) return null;
+            return (
+              <span key={level} className={cn("flex items-center gap-1", complexityColors[level])}>
+                <span>{level.charAt(0).toUpperCase()}</span>
+                <span>{count}</span>
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Queue() {
   const queryClient = useQueryClient();
@@ -188,6 +285,25 @@ export function Queue() {
     return projects?.find((p) => p.id === projectId)?.name ?? projectId;
   };
 
+  // Queue summary stats
+  const queueStats = useMemo(() => {
+    if (!queue?.queued) return null;
+
+    const byType: Record<string, number> = {};
+    const byComplexity: Record<string, number> = {};
+
+    for (const task of queue.queued) {
+      if (task.taskType) {
+        byType[task.taskType] = (byType[task.taskType] || 0) + 1;
+      }
+      if (task.complexity) {
+        byComplexity[task.complexity] = (byComplexity[task.complexity] || 0) + 1;
+      }
+    }
+
+    return { byType, byComplexity, total: queue.queued.length };
+  }, [queue?.queued]);
+
   const formatDuration = (startedAt: string | null) => {
     if (!startedAt) return "";
     const start = new Date(startedAt).getTime();
@@ -305,9 +421,13 @@ export function Queue() {
           <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h3 className="text-lg font-semibold text-white">
-                  {queue.running.name}
-                </h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-semibold text-white">
+                    {queue.running.name}
+                  </h3>
+                  {queue.running.taskType && <TypeBadge type={queue.running.taskType} />}
+                  {queue.running.complexity && <ComplexityBadge complexity={queue.running.complexity} />}
+                </div>
                 <p className="text-sm text-gray-400">
                   {getProjectName(queue.running.projectId)}
                 </p>
@@ -332,7 +452,14 @@ export function Queue() {
 
       {/* Queued Tasks */}
       <div className="mb-8">
-        <h2 className="text-lg font-semibold text-white mb-4">Queued Tasks</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-white">Queued Tasks</h2>
+
+          {/* Queue Summary Stats */}
+          {queueStats && queueStats.total > 0 && (
+            <QueueSummary stats={queueStats} />
+          )}
+        </div>
         {queue?.queued && queue.queued.length > 0 ? (
           <div className="space-y-3">
             {queue.queued.map((task, index) => (
@@ -482,10 +609,12 @@ export function Queue() {
                   <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium text-white truncate">
                       {task.name}
                     </span>
+                    {task.taskType && <TypeBadge type={task.taskType} />}
+                    {task.complexity && <ComplexityBadge complexity={task.complexity} />}
                     <span className="text-xs text-gray-500">
                       {getProjectName(task.projectId)}
                     </span>
