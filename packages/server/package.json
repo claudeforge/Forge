@@ -1,6 +1,6 @@
 {
   "name": "@claudeforge/forge-server",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "FORGE Control Center API Server",
   "type": "module",
   "main": "./dist/index.js",

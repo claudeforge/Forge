@@ -5,6 +5,23 @@ All notable changes to FORGE will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2026-01-06
+
+### Fixed
+
+#### Plugin Marketplace Installation
+- **Pre-built dist files** - Plugin `dist/` folder now included in git repository
+- **Hook script availability** - `dist/hooks/stop.js` available immediately after marketplace installation
+- **No build step required** - Plugin works out-of-the-box when installed from git source
+
+### Changed
+
+- Updated `.gitignore` to allow `packages/plugin/dist/` exception
+- Added `hooks/hooks.json` at plugin root level for better compatibility
+- Updated `setup.ts` to copy hooks from correct locations
+
+---
+
 ## [0.2.3] - 2026-01-06
 
 ### Added
