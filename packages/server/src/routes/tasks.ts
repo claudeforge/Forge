@@ -139,6 +139,8 @@ app.post("/", async (c) => {
     dependsOn = [],
     scheduledAt = null,
     config = {},
+    taskType = null,
+    complexity = null,
   } = body;
 
   if (!projectId || !name || !prompt) {
@@ -189,6 +191,8 @@ app.post("/", async (c) => {
     config: JSON.stringify(config),
     result: null,
     createdAt: new Date().toISOString(),
+    taskType,
+    complexity,
   };
 
   await db.insert(schema.tasks).values(task);
@@ -236,6 +240,8 @@ app.patch("/:id", async (c) => {
   if (body.startedAt !== undefined) updates.startedAt = body.startedAt;
   if (body.completedAt !== undefined) updates.completedAt = body.completedAt;
   if (body.result !== undefined) updates.result = JSON.stringify(body.result);
+  if (body.taskType !== undefined) updates.taskType = body.taskType;
+  if (body.complexity !== undefined) updates.complexity = body.complexity;
 
   await db
     .update(schema.tasks)

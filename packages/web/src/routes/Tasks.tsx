@@ -12,13 +12,43 @@ import {
   ChevronDown,
   FolderOpen,
   FileText,
+  Zap,
+  Bug,
+  RefreshCw,
+  TestTube,
+  Settings,
 } from "lucide-react";
 import { Layout } from "../components/layout/Layout";
 import { TaskCard } from "../components/task/TaskCard";
 import { EmptyState } from "../components/common/EmptyState";
 import { useTasks, useProjects } from "../hooks/useTasks";
 import { cn } from "../lib/utils";
-import type { Task, Project } from "../lib/api";
+import type { Task, Project, TaskType, TaskComplexity } from "../lib/api";
+
+// Type icons for Kanban cards
+const typeIcons: Record<TaskType, typeof Zap> = {
+  feature: Zap,
+  bugfix: Bug,
+  refactor: RefreshCw,
+  test: TestTube,
+  docs: FileText,
+  chore: Settings,
+};
+
+const typeColors: Record<TaskType, string> = {
+  feature: "text-blue-400",
+  bugfix: "text-red-400",
+  refactor: "text-purple-400",
+  test: "text-green-400",
+  docs: "text-cyan-400",
+  chore: "text-gray-400",
+};
+
+const complexityColors: Record<TaskComplexity, string> = {
+  low: "text-green-400",
+  medium: "text-yellow-400",
+  high: "text-red-400",
+};
 
 type ViewMode = "list" | "kanban" | "tree";
 
@@ -368,13 +398,24 @@ function KanbanView({ tasks }: { tasks: Task[] }) {
 // Kanban Card (compact version)
 function KanbanCard({ task }: { task: Task }) {
   const config = parseConfig(task);
+  const TypeIcon = task.taskType ? typeIcons[task.taskType] : null;
+  const typeColor = task.taskType ? typeColors[task.taskType] : "";
+  const complexityColor = task.complexity ? complexityColors[task.complexity] : "";
 
   return (
     <div className="bg-gray-800 rounded-lg p-3 hover:bg-gray-750 transition-colors cursor-pointer">
-      <div className="text-sm font-medium text-white mb-1 line-clamp-2">
-        {task.name}
+      <div className="flex items-start gap-2 mb-1">
+        {TypeIcon && <TypeIcon className={cn("h-4 w-4 mt-0.5 flex-shrink-0", typeColor)} />}
+        <div className="text-sm font-medium text-white line-clamp-2">
+          {task.name}
+        </div>
       </div>
       <div className="flex items-center gap-2 text-xs text-gray-500">
+        {task.complexity && (
+          <span className={cn("font-medium", complexityColor)}>
+            {task.complexity === "low" ? "L" : task.complexity === "medium" ? "M" : "H"}
+          </span>
+        )}
         {config.specId && (
           <span className="bg-gray-700 px-1.5 py-0.5 rounded">
             {config.specId}

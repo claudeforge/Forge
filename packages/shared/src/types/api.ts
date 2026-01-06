@@ -5,6 +5,7 @@
 import type { ForgeMetrics, QualityGate } from "./state.js";
 import type { TaskStatus } from "./sync.js";
 import type { CompletionCriterion, CriterionResult } from "./criteria.js";
+import type { TaskType, TaskComplexity } from "./spec.js";
 
 // ============================================
 // PROJECT
@@ -42,6 +43,8 @@ export interface Task {
   config: TaskConfig;
   result: TaskResult | null;
   createdAt: string;
+  taskType: TaskType | null;
+  complexity: TaskComplexity | null;
 }
 
 export interface TaskConfig {
@@ -69,6 +72,8 @@ export interface CreateTaskRequest {
   dependsOn?: string[];
   scheduledAt?: string;
   config?: Partial<TaskConfig>;
+  taskType?: TaskType;
+  complexity?: TaskComplexity;
 }
 
 export interface UpdateTaskRequest {

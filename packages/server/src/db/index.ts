@@ -50,7 +50,9 @@ const createTableStatements = `
     sync_version INTEGER NOT NULL DEFAULT 1,
     locked_by TEXT,
     locked_at TEXT,
-    lock_expires_at TEXT
+    lock_expires_at TEXT,
+    task_type TEXT,
+    complexity TEXT
   );
 
   CREATE TABLE IF NOT EXISTS iterations (
@@ -132,6 +134,9 @@ const migrationStatements = [
   "ALTER TABLE tasks ADD COLUMN locked_by TEXT",
   "ALTER TABLE tasks ADD COLUMN locked_at TEXT",
   "ALTER TABLE tasks ADD COLUMN lock_expires_at TEXT",
+  // Add type and complexity columns
+  "ALTER TABLE tasks ADD COLUMN task_type TEXT",
+  "ALTER TABLE tasks ADD COLUMN complexity TEXT",
 ];
 
 // Initialize tables (create if not exist)

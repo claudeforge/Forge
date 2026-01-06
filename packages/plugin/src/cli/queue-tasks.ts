@@ -221,6 +221,8 @@ async function queueTask(
         name: `${task.id}: ${task.title}`,
         prompt,
         priority,
+        taskType: task.type ?? null,
+        complexity: task.complexity ?? null,
         config: {
           criteria,
           maxIterations: execution.max_iterations ?? 10,

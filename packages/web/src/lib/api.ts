@@ -199,6 +199,9 @@ interface CreateProjectRequest {
   path: string;
 }
 
+type TaskType = "feature" | "bugfix" | "refactor" | "test" | "docs" | "chore";
+type TaskComplexity = "low" | "medium" | "high";
+
 interface Task {
   id: string;
   projectId: string;
@@ -214,6 +217,8 @@ interface Task {
   config: string;
   result: string | null;
   createdAt: string;
+  taskType: TaskType | null;
+  complexity: TaskComplexity | null;
 }
 
 interface CreateTaskRequest {
@@ -222,6 +227,8 @@ interface CreateTaskRequest {
   prompt: string;
   priority?: number;
   config?: object;
+  taskType?: TaskType;
+  complexity?: TaskComplexity;
 }
 
 interface UpdateTaskRequest {
@@ -576,6 +583,8 @@ interface FixLocksResponse {
 export type {
   Project,
   Task,
+  TaskType,
+  TaskComplexity,
   Iteration,
   QueueStatus,
   Stats,

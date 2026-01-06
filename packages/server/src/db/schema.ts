@@ -48,6 +48,10 @@ export const tasks = sqliteTable("tasks", {
   lockedBy: text("locked_by"), // Node ID holding lock
   lockedAt: text("locked_at"),
   lockExpiresAt: text("lock_expires_at"),
+
+  // Task classification
+  taskType: text("task_type"), // feature | bugfix | refactor | test | docs | chore
+  complexity: text("complexity"), // low | medium | high
 });
 
 // ============================================
