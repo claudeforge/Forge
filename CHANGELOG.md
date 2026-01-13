@@ -5,6 +5,16 @@ All notable changes to FORGE will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2026-01-13
+
+### Fixed
+
+#### Plugin Hooks Path
+- **Hooks path resolution** - Fixed `hooks.json` path in `plugin.json` to use correct relative path (`./.claude-plugin/hooks.json`)
+- **Marketplace installation** - Hooks now correctly found after marketplace plugin installation
+
+---
+
 ## [0.2.4] - 2026-01-06
 
 ### Fixed
