@@ -24,7 +24,7 @@ FORGE transforms Claude Code into a powerful iterative development system that a
 ### 1. Clone and Build
 
 ```bash
-git clone https://github.com/anthropics/Forge.git
+git clone https://github.com/claudeforge/Forge.git
 cd Forge
 pnpm install
 pnpm build
